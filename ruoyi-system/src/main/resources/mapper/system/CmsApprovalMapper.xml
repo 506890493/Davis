@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CmsApprovalMapper">
+    
+    <resultMap type="CmsApproval" id="CmsApprovalResult">
+        <result property="approvalId"    column="approval_id"    />
+        <result property="applyNo"    column="apply_no"    />
+        <result property="applicantId"    column="applicant_id"    />
+        <result property="contractId"    column="contract_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="approvalType"    column="approval_type"    />
+        <result property="contentSnapshot"    column="content_snapshot"    />
+        <result property="status"    column="status"    />
+        <result property="approverId"    column="approver_id"    />
+        <result property="approvalTime"    column="approval_time"    />
+        <result property="approvalMsg"    column="approval_msg"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCmsApprovalVo">
+        select approval_id, apply_no, applicant_id, contract_id, task_id, approval_type, content_snapshot, status, approver_id, approval_time, approval_msg, create_by, create_time, update_by, update_time from cms_approval
+    </sql>
+
+    <select id="selectCmsApprovalList" parameterType="CmsApproval" resultMap="CmsApprovalResult">
+        <include refid="selectCmsApprovalVo"/>
+        <where>  
+            <if test="applyNo != null  and applyNo != ''"> and apply_no = #{applyNo}</if>
+            <if test="applicantId != null "> and applicant_id = #{applicantId}</if>
+            <if test="contractId != null "> and contract_id = #{contractId}</if>
+            <if test="taskId != null "> and task_id = #{taskId}</if>
+            <if test="approvalType != null  and approvalType != ''"> and approval_type = #{approvalType}</if>
+            <if test="contentSnapshot != null  and contentSnapshot != ''"> and content_snapshot = #{contentSnapshot}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="approverId != null "> and approver_id = #{approverId}</if>
+            <if test="approvalTime != null "> and approval_time = #{approvalTime}</if>
+            <if test="approvalMsg != null  and approvalMsg != ''"> and approval_msg = #{approvalMsg}</if>
+        </where>
+    </select>
+    
+    <select id="selectCmsApprovalByApprovalId" parameterType="Long" resultMap="CmsApprovalResult">
+        <include refid="selectCmsApprovalVo"/>
+        where approval_id = #{approvalId}
+    </select>
+
+    <insert id="insertCmsApproval" parameterType="CmsApproval" useGeneratedKeys="true" keyProperty="approvalId">
+        insert into cms_approval
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyNo != null">apply_no,</if>
+            <if test="applicantId != null">applicant_id,</if>
+            <if test="contractId != null">contract_id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="approvalType != null and approvalType != ''">approval_type,</if>
+            <if test="contentSnapshot != null">content_snapshot,</if>
+            <if test="status != null">status,</if>
+            <if test="approverId != null">approver_id,</if>
+            <if test="approvalTime != null">approval_time,</if>
+            <if test="approvalMsg != null">approval_msg,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyNo != null">#{applyNo},</if>
+            <if test="applicantId != null">#{applicantId},</if>
+            <if test="contractId != null">#{contractId},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="approvalType != null and approvalType != ''">#{approvalType},</if>
+            <if test="contentSnapshot != null">#{contentSnapshot},</if>
+            <if test="status != null">#{status},</if>
+            <if test="approverId != null">#{approverId},</if>
+            <if test="approvalTime != null">#{approvalTime},</if>
+            <if test="approvalMsg != null">#{approvalMsg},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCmsApproval" parameterType="CmsApproval">
+        update cms_approval
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="applyNo != null">apply_no = #{applyNo},</if>
+            <if test="applicantId != null">applicant_id = #{applicantId},</if>
+            <if test="contractId != null">contract_id = #{contractId},</if>
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="approvalType != null and approvalType != ''">approval_type = #{approvalType},</if>
+            <if test="contentSnapshot != null">content_snapshot = #{contentSnapshot},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="approverId != null">approver_id = #{approverId},</if>
+            <if test="approvalTime != null">approval_time = #{approvalTime},</if>
+            <if test="approvalMsg != null">approval_msg = #{approvalMsg},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where approval_id = #{approvalId}
+    </update>
+
+    <delete id="deleteCmsApprovalByApprovalId" parameterType="Long">
+        delete from cms_approval where approval_id = #{approvalId}
+    </delete>
+
+    <delete id="deleteCmsApprovalByApprovalIds" parameterType="String">
+        delete from cms_approval where approval_id in 
+        <foreach item="approvalId" collection="array" open="(" separator="," close=")">
+            #{approvalId}
+        </foreach>
+    </delete>
+</mapper>

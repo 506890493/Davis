@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CmsContractMapper">
+    
+    <resultMap type="CmsContract" id="CmsContractResult">
+        <result property="contractId"    column="contract_id"    />
+        <result property="contractCode"    column="contract_code"    />
+        <result property="contractName"    column="contract_name"    />
+        <result property="contractType"    column="contract_type"    />
+        <result property="legalPerson"    column="legal_person"    />
+        <result property="contactPerson"    column="contact_person"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="contactEmail"    column="contact_email"    />
+        <result property="amount"    column="amount"    />
+        <result property="paymentCycle"    column="payment_cycle"    />
+        <result property="paymentDate"    column="payment_date"    />
+        <result property="paymentMethod"    column="payment_method"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="taxType"    column="tax_type"    />
+        <result property="establishmentDate"    column="establishment_date"    />
+        <result property="rentalAddress"    column="rental_address"    />
+        <result property="isRented"    column="is_rented"    />
+        <result property="profit"    column="profit"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="reminderStatus"    column="reminder_status"    />
+        <result property="annex"    column="annex"    />
+    </resultMap>
+
+    <resultMap id="CmsContractCmsFileResult" type="CmsContract" extends="CmsContractResult">
+        <collection property="cmsFileList" ofType="CmsFile" column="contract_id" select="selectCmsFileList" />
+    </resultMap>
+
+    <resultMap type="CmsFile" id="CmsFileResult">
+        <result property="fileId"    column="file_id"    />
+        <result property="contractId"    column="contract_id"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="filePath"    column="file_path"    />
+        <result property="fileUrl"    column="file_url"    />
+        <result property="fileSuffix"    column="file_suffix"    />
+        <result property="fileSize"    column="file_size"    />
+        <result property="fileCategory"    column="file_category"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectCmsContractVo">
+        select contract_id, contract_code, contract_name, contract_type, legal_person, contact_person, contact_phone, contact_email, amount, payment_cycle, payment_date, payment_method, start_date, end_date, tax_type, establishment_date, rental_address, is_rented, profit, owner_id, dept_id, status, del_flag, create_by, create_time, update_by, update_time, remark, reminder_status, annex from cms_contract
+    </sql>
+
+    <select id="selectCmsContractList" parameterType="CmsContract" resultMap="CmsContractResult">
+        <include refid="selectCmsContractVo"/>
+        <where>  
+            <if test="contractCode != null  and contractCode != ''"> and contract_code = #{contractCode}</if>
+            <if test="contractName != null  and contractName != ''"> and contract_name like concat('%', #{contractName}, '%')</if>
+            <if test="contractType != null  and contractType != ''"> and contract_type = #{contractType}</if>
+            <if test="legalPerson != null  and legalPerson != ''"> and legal_person = #{legalPerson}</if>
+            <if test="contactPerson != null  and contactPerson != ''"> and contact_person like concat('%', #{contactPerson}, '%')</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+            <if test="contactEmail != null  and contactEmail != ''"> and contact_email = #{contactEmail}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="paymentCycle != null  and paymentCycle != ''"> and payment_cycle = #{paymentCycle}</if>
+            <if test="paymentDate != null "> and payment_date = #{paymentDate}</if>
+            <if test="paymentMethod != null  and paymentMethod != ''"> and payment_method = #{paymentMethod}</if>
+            <if test="startDate != null "> and start_date = #{startDate}</if>
+            <if test="endDate != null "> and end_date = #{endDate}</if>
+            <if test="taxType != null  and taxType != ''"> and tax_type = #{taxType}</if>
+            <if test="params.beginEstablishmentDate != null and params.beginEstablishmentDate != '' and params.endEstablishmentDate != null and params.endEstablishmentDate != ''"> and establishment_date between #{params.beginEstablishmentDate} and #{params.endEstablishmentDate}</if>
+            <if test="rentalAddress != null  and rentalAddress != ''"> and rental_address = #{rentalAddress}</if>
+            <if test="isRented != null  and isRented != ''"> and is_rented = #{isRented}</if>
+            <if test="profit != null "> and profit = #{profit}</if>
+            <if test="ownerId != null "> and owner_id = #{ownerId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="reminderStatus != null  and reminderStatus != ''"> and reminder_status = #{reminderStatus}</if>
+            <if test="annex != null  and annex != ''"> and annex = #{annex}</if>
+        </where>
+    </select>
+    
+    <select id="selectCmsContractByContractId" parameterType="Long" resultMap="CmsContractCmsFileResult">
+        select contract_id, contract_code, contract_name, contract_type, legal_person, contact_person, contact_phone, contact_email, amount, payment_cycle, payment_date, payment_method, start_date, end_date, tax_type, establishment_date, rental_address, is_rented, profit, owner_id, dept_id, status, del_flag, create_by, create_time, update_by, update_time, remark, reminder_status, annex
+        from cms_contract
+        where contract_id = #{contractId}
+    </select>
+
+    <select id="selectCmsContractByContractCode" parameterType="String" resultMap="CmsContractResult">
+        <include refid="selectCmsContractVo" />
+        where contract_code = #{contractCode}
+    </select>
+
+    <select id="selectCmsFileList" resultMap="CmsFileResult">
+        select file_id, contract_id, file_name, file_path, file_url, file_suffix, file_size, file_category, create_by, create_time
+        from cms_file
+        where contract_id = #{contract_id}
+    </select>
+
+    <insert id="insertCmsContract" parameterType="CmsContract" useGeneratedKeys="true" keyProperty="contractId">
+        insert into cms_contract
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contractCode != null">contract_code,</if>
+            <if test="contractName != null and contractName != ''">contract_name,</if>
+            <if test="contractType != null and contractType != ''">contract_type,</if>
+            <if test="legalPerson != null">legal_person,</if>
+            <if test="contactPerson != null and contactPerson != ''">contact_person,</if>
+            <if test="contactPhone != null and contactPhone != ''">contact_phone,</if>
+            <if test="contactEmail != null">contact_email,</if>
+            <if test="amount != null">amount,</if>
+            <if test="paymentCycle != null">payment_cycle,</if>
+            <if test="paymentDate != null">payment_date,</if>
+            <if test="paymentMethod != null">payment_method,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="taxType != null">tax_type,</if>
+            <if test="establishmentDate != null">establishment_date,</if>
+            <if test="rentalAddress != null">rental_address,</if>
+            <if test="isRented != null">is_rented,</if>
+            <if test="profit != null">profit,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="reminderStatus != null">reminder_status,</if>
+            <if test="annex != null">annex,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contractCode != null">#{contractCode},</if>
+            <if test="contractName != null and contractName != ''">#{contractName},</if>
+            <if test="contractType != null and contractType != ''">#{contractType},</if>
+            <if test="legalPerson != null">#{legalPerson},</if>
+            <if test="contactPerson != null and contactPerson != ''">#{contactPerson},</if>
+            <if test="contactPhone != null and contactPhone != ''">#{contactPhone},</if>
+            <if test="contactEmail != null">#{contactEmail},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="paymentCycle != null">#{paymentCycle},</if>
+            <if test="paymentDate != null">#{paymentDate},</if>
+            <if test="paymentMethod != null">#{paymentMethod},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="taxType != null">#{taxType},</if>
+            <if test="establishmentDate != null">#{establishmentDate},</if>
+            <if test="rentalAddress != null">#{rentalAddress},</if>
+            <if test="isRented != null">#{isRented},</if>
+            <if test="profit != null">#{profit},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="reminderStatus != null">#{reminderStatus},</if>
+            <if test="annex != null">#{annex},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCmsContract" parameterType="CmsContract">
+        update cms_contract
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="contractCode != null">contract_code = #{contractCode},</if>
+            <if test="contractName != null and contractName != ''">contract_name = #{contractName},</if>
+            <if test="contractType != null and contractType != ''">contract_type = #{contractType},</if>
+            <if test="legalPerson != null">legal_person = #{legalPerson},</if>
+            <if test="contactPerson != null and contactPerson != ''">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null and contactPhone != ''">contact_phone = #{contactPhone},</if>
+            <if test="contactEmail != null">contact_email = #{contactEmail},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="paymentCycle != null">payment_cycle = #{paymentCycle},</if>
+            <if test="paymentDate != null">payment_date = #{paymentDate},</if>
+            <if test="paymentMethod != null">payment_method = #{paymentMethod},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="taxType != null">tax_type = #{taxType},</if>
+            <if test="establishmentDate != null">establishment_date = #{establishmentDate},</if>
+            <if test="rentalAddress != null">rental_address = #{rentalAddress},</if>
+            <if test="isRented != null">is_rented = #{isRented},</if>
+            <if test="profit != null">profit = #{profit},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="reminderStatus != null">reminder_status = #{reminderStatus},</if>
+            <if test="annex != null">annex = #{annex},</if>
+        </trim>
+        where contract_id = #{contractId}
+    </update>
+
+    <delete id="deleteCmsContractByContractId" parameterType="Long">
+        delete from cms_contract where contract_id = #{contractId}
+    </delete>
+
+    <delete id="deleteCmsContractByContractIds" parameterType="String">
+        delete from cms_contract where contract_id in 
+        <foreach item="contractId" collection="array" open="(" separator="," close=")">
+            #{contractId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteCmsFileByContractIds" parameterType="String">
+        delete from cms_file where contract_id in 
+        <foreach item="contractId" collection="array" open="(" separator="," close=")">
+            #{contractId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCmsFileByContractId" parameterType="Long">
+        delete from cms_file where contract_id = #{contractId}
+    </delete>
+
+    <insert id="batchCmsFile">
+        insert into cms_file( file_id, contract_id, file_name, file_path, file_url, file_suffix, file_size, file_category, create_by, create_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.fileId}, #{item.contractId}, #{item.fileName}, #{item.filePath}, #{item.fileUrl}, #{item.fileSuffix}, #{item.fileSize}, #{item.fileCategory}, #{item.createBy}, #{item.createTime})
+        </foreach>
+    </insert>
+</mapper>

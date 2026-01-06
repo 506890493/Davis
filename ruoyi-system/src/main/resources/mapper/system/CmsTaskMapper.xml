@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CmsTaskMapper">
+    
+    <resultMap type="CmsTask" id="CmsTaskResult">
+        <result property="taskId"    column="task_id"    />
+        <result property="taskTitle"    column="task_title"    />
+        <result property="contractId"    column="contract_id"    />
+        <result property="taskType"    column="task_type"    />
+        <result property="priority"    column="priority"    />
+        <result property="originalAmount"    column="original_amount"    />
+        <result property="currentAmount"    column="current_amount"    />
+        <result property="assignedTo"    column="assigned_to"    />
+        <result property="deadline"    column="deadline"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectCmsTaskVo">
+        select task_id, task_title, contract_id, task_type, priority, original_amount, current_amount, assigned_to, deadline, status, del_flag, create_by, create_time, update_by, update_time, remark from cms_task
+    </sql>
+
+    <select id="selectCmsTaskList" parameterType="CmsTask" resultMap="CmsTaskResult">
+        <include refid="selectCmsTaskVo"/>
+        <where>  
+            <if test="taskTitle != null  and taskTitle != ''"> and task_title = #{taskTitle}</if>
+            <if test="contractId != null "> and contract_id = #{contractId}</if>
+            <if test="taskType != null  and taskType != ''"> and task_type = #{taskType}</if>
+            <if test="priority != null  and priority != ''"> and priority = #{priority}</if>
+            <if test="originalAmount != null "> and original_amount = #{originalAmount}</if>
+            <if test="currentAmount != null "> and current_amount = #{currentAmount}</if>
+            <if test="assignedTo != null "> and assigned_to = #{assignedTo}</if>
+            <if test="deadline != null "> and deadline = #{deadline}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectCmsTaskByTaskId" parameterType="Long" resultMap="CmsTaskResult">
+        <include refid="selectCmsTaskVo"/>
+        where task_id = #{taskId}
+    </select>
+
+    <insert id="insertCmsTask" parameterType="CmsTask" useGeneratedKeys="true" keyProperty="taskId">
+        insert into cms_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskTitle != null and taskTitle != ''">task_title,</if>
+            <if test="contractId != null">contract_id,</if>
+            <if test="taskType != null">task_type,</if>
+            <if test="priority != null">priority,</if>
+            <if test="originalAmount != null">original_amount,</if>
+            <if test="currentAmount != null">current_amount,</if>
+            <if test="assignedTo != null">assigned_to,</if>
+            <if test="deadline != null">deadline,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskTitle != null and taskTitle != ''">#{taskTitle},</if>
+            <if test="contractId != null">#{contractId},</if>
+            <if test="taskType != null">#{taskType},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="originalAmount != null">#{originalAmount},</if>
+            <if test="currentAmount != null">#{currentAmount},</if>
+            <if test="assignedTo != null">#{assignedTo},</if>
+            <if test="deadline != null">#{deadline},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCmsTask" parameterType="CmsTask">
+        update cms_task
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskTitle != null and taskTitle != ''">task_title = #{taskTitle},</if>
+            <if test="contractId != null">contract_id = #{contractId},</if>
+            <if test="taskType != null">task_type = #{taskType},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="originalAmount != null">original_amount = #{originalAmount},</if>
+            <if test="currentAmount != null">current_amount = #{currentAmount},</if>
+            <if test="assignedTo != null">assigned_to = #{assignedTo},</if>
+            <if test="deadline != null">deadline = #{deadline},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where task_id = #{taskId}
+    </update>
+
+    <delete id="deleteCmsTaskByTaskId" parameterType="Long">
+        delete from cms_task where task_id = #{taskId}
+    </delete>
+
+    <delete id="deleteCmsTaskByTaskIds" parameterType="String">
+        delete from cms_task where task_id in 
+        <foreach item="taskId" collection="array" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </delete>
+</mapper>
