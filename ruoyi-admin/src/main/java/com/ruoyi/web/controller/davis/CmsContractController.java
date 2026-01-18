@@ -2,6 +2,9 @@ package com.ruoyi.web.controller.davis;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.system.domain.CmsTask;
+import com.ruoyi.system.service.ICmsTaskService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +37,9 @@ public class CmsContractController extends BaseController
 {
     @Autowired
     private ICmsContractService cmsContractService;
+
+    @Autowired
+    private ICmsTaskService cmsTaskService;
 
     /**
      * 查询合同管理列表
@@ -69,6 +75,37 @@ public class CmsContractController extends BaseController
         List<CmsContract> contractList = util.importExcel(file.getInputStream());
         String message = cmsContractService.importCmsContract(contractList, updateSupport, getUsername());
         return AjaxResult.success(message);
+    }
+
+    @PreAuthorize("@ss.hasPermi('system:contract:import')")
+    @PostMapping("/importTemplate")
+    public void importTemplate(HttpServletResponse response)
+    {
+        ExcelUtil<CmsContract> util = new ExcelUtil<CmsContract>(CmsContract.class);
+        util.importTemplateExcel(response, "合同数据");
+    }
+
+    /**
+     * 创建催收任务
+     */
+    @PreAuthorize("@ss.hasPermi('system:contract:import')")
+    @Log(title = "创建催收任务", businessType = BusinessType.INSERT)
+    @PostMapping("/collection")
+    public AjaxResult createCollectionTask(@RequestBody CmsTask cmsTask)
+    {
+        cmsTask.setTaskType("1"); // 催收任务
+        
+        // Ensure contractId is set
+        if (cmsTask.getContractId() == null) {
+            cmsTask.setContractId(cmsTask.getSourceContractId());
+        }
+
+        // Generate task title
+        CmsContract contract = cmsContractService.selectCmsContractByContractId(cmsTask.getSourceContractId());
+        String contractName = (contract != null) ? contract.getContractName() : "未知合同";
+        cmsTask.setTaskTitle("催收任务: " + contractName);
+
+        return toAjax(cmsTaskService.insertCmsTask(cmsTask));
     }
 
     /**
@@ -112,5 +149,16 @@ public class CmsContractController extends BaseController
     public AjaxResult remove(@PathVariable Long[] contractIds)
     {
         return toAjax(cmsContractService.deleteCmsContractByContractIds(contractIds));
+    }
+
+    /**
+     * 审批合同
+     */
+    @PreAuthorize("@ss.hasPermi('cms:contract:audit')")
+    @Log(title = "合同审批", businessType = BusinessType.UPDATE)
+    @PostMapping("/audit")
+    public AjaxResult audit(@RequestBody CmsContract cmsContract)
+    {
+        return toAjax(cmsContractService.auditContract(cmsContract));
     }
 }

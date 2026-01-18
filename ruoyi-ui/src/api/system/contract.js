@@ -42,3 +42,12 @@ export function delContract(contractId) {
     method: 'delete'
   })
 }
+
+// 审批合同
+export function auditContract(data) {
+  return request({
+    url: '/system/contract/audit',
+    method: 'post',
+    data: data
+  })
+}

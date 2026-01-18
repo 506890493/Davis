@@ -99,6 +99,18 @@ export const constantRoutes = [
         name: "ContractDetail",
         meta: { title: "合同详情", activeMenu: "/system/contract" },
       },
+      {
+        path: "add",
+        component: () => import("@/views/system/contract/add"),
+        name: "ContractAdd",
+        meta: { title: "新增合同", activeMenu: "/system/contract" },
+      },
+      {
+        path: "edit/:contractId",
+        component: () => import("@/views/system/contract/edit"),
+        name: "ContractEdit",
+        meta: { title: "修改合同", activeMenu: "/system/contract" },
+      },
     ],
   },
   {
@@ -116,7 +128,7 @@ export const constantRoutes = [
         path: "rent",
         component: () => import("@/views/system/contract/index"),
         name: "Rent",
-        meta: { title: "地址出租合同", activeMenu: "/system/contract" },
+        meta: { title: "地址出售", activeMenu: "/system/contract" },
       },
     ],
   },

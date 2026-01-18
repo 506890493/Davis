@@ -3,17 +3,20 @@ package com.ruoyi.system.service.impl;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.exception.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import com.ruoyi.common.utils.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.system.domain.CmsFile;
-import com.ruoyi.system.mapper.CmsContractMapper;
 import com.ruoyi.system.domain.CmsContract;
+import com.ruoyi.system.domain.CmsApproval;
+import com.ruoyi.system.mapper.CmsContractMapper;
+import com.ruoyi.system.service.ICmsApprovalService;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.service.ICmsContractService;
-import com.ruoyi.common.exception.ServiceException;
 
 /**
  * 合同管理Service业务层处理
@@ -22,10 +25,13 @@ import com.ruoyi.common.exception.ServiceException;
  * @date 2025-12-14
  */
 @Service
-public class CmsContractServiceImpl implements ICmsContractService 
+public class CmsContractServiceImpl implements ICmsContractService
 {
     @Autowired
     private CmsContractMapper cmsContractMapper;
+
+    @Autowired
+    private ICmsApprovalService cmsApprovalService;
 
     /**
      * 查询合同管理
@@ -35,15 +41,10 @@ public class CmsContractServiceImpl implements ICmsContractService
      */
     @Override
     public CmsContract selectCmsContractByContractId(Long contractId)
-
     {
-
         CmsContract cmsContract = cmsContractMapper.selectCmsContractByContractId(contractId);
         cmsContract.setStatus(calculateStatus(cmsContract.getStatus(), cmsContract.getDelFlag(), cmsContract.getEndDate(), LocalDate.now()));
         return cmsContract;
-
-
-
     }
 
     /**
@@ -218,5 +219,39 @@ public class CmsContractServiceImpl implements ICmsContractService
         }
         successMsg.append("导入成功 " + successNum + " 条");
         return successMsg.toString();
+    }
+
+    /**
+     * 审批合同
+     *
+     * @param cmsContract 合同管理
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int auditContract(CmsContract cmsContract)
+    {
+        // 同步审核状态到主状态
+        if ("1".equals(cmsContract.getAuditStatus())) {
+            cmsContract.setStatus("0"); // 通过 -> 正常
+        } else if ("2".equals(cmsContract.getAuditStatus())) {
+            cmsContract.setStatus("1"); // 驳回 -> 停用
+        }
+
+        int rows = cmsContractMapper.updateCmsContract(cmsContract);
+        if (rows > 0)
+        {
+            CmsContract fullContract = cmsContractMapper.selectCmsContractByContractId(cmsContract.getContractId());
+            CmsApproval approval = new CmsApproval();
+            approval.setContractId(cmsContract.getContractId());
+            approval.setApplicantId(fullContract.getOwnerId());
+            approval.setApproverId(SecurityUtils.getUserId());
+            approval.setStatus(cmsContract.getAuditStatus());
+            approval.setApprovalMsg(cmsContract.getRemark());
+            approval.setApprovalTime(DateUtils.getNowDate());
+            approval.setApprovalType("3"); // 3=变更/审核
+            cmsApprovalService.insertCmsApproval(approval);
+        }
+        return rows;
     }
 }

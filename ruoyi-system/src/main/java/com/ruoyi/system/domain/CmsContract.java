@@ -31,7 +31,7 @@ public class CmsContract extends BaseEntity
     private String contractName;
 
     /** 合同类型（字典：cms_contract_type 1代账报税 2地址出售） */
-    @Excel(name = "合同类型", readConverterExp = "字=典：cms_contract_type,1=代账报税,2=地址出售")
+    @Excel(name = "合同类型", dictType = "cms_contract_type", comboReadDict = true)
     private String contractType;
 
     /** 法人 */
@@ -55,7 +55,7 @@ public class CmsContract extends BaseEntity
     private BigDecimal amount;
 
     /** 付款周期（字典：cms_pay_cycle） */
-    @Excel(name = "付款周期", readConverterExp = "字=典：cms_pay_cycle")
+    @Excel(name = "付款周期", dictType = "cms_pay_cycle", comboReadDict = true)
     private String paymentCycle;
 
     /** 收款日期 */
@@ -64,7 +64,7 @@ public class CmsContract extends BaseEntity
     private Date paymentDate;
 
     /** 收款方式（字典：cms_pay_method 1微信 2支付宝 3公户） */
-    @Excel(name = "收款方式", readConverterExp = "字=典：cms_pay_method,1=微信,2=支付宝,3=公户")
+    @Excel(name = "收款方式", dictType = "cms_pay_method", comboReadDict = true)
     private String paymentMethod;
 
     /** 合同开始日期 */
@@ -78,7 +78,7 @@ public class CmsContract extends BaseEntity
     private Date endDate;
 
     /** 税务类型（字典：cms_tax_type） */
-    @Excel(name = "税务类型", readConverterExp = "字=典：cms_tax_type")
+    @Excel(name = "税务类型", dictType = "cms_tax_type", comboReadDict = true)
     private String taxType;
 
     /** 成立日期 */
@@ -91,7 +91,7 @@ public class CmsContract extends BaseEntity
     private String rentalAddress;
 
     /** 是否已出租（0否 1是） */
-    @Excel(name = "是否已出租", readConverterExp = "0=否,1=是")
+    @Excel(name = "是否已出租", combo = {"是", "否"}, readConverterExp = "0=否,1=是")
     private String isRented;
 
     /** 利润 */
@@ -102,19 +102,30 @@ public class CmsContract extends BaseEntity
     @Excel(name = "归属人ID (关联sys_user)")
     private Long ownerId;
 
+    /** 会计名称 */
+    private String ownerName;
+
     /** 归属部门ID (用于数据权限) */
     @Excel(name = "归属部门ID (用于数据权限)")
     private Long deptId;
 
+    /** 用于记录该合同是续签自哪个旧合同 */
+    @Excel(name = "父合同ID")
+    private Long parentId;
+
     /** 状态（字典：cms_contract_status 0正常 1停用 2过期） */
-    @Excel(name = "状态", readConverterExp = "字=典：cms_contract_status,0=正常,1=停用,2=过期")
+    @Excel(name = "状态", dictType = "cms_contract_status", comboReadDict = true)
     private String status;
+
+    /** 审核状态（'0'=待审批, '1'=通过, '2'=驳回） */
+    @Excel(name = "审核状态", dictType = "cms_audit_status", comboReadDict = true)
+    private String auditStatus;
 
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
 
     /** 催交状态（字典：cms_reminder_status） */
-    @Excel(name = "催交状态", readConverterExp = "字=典：cms_reminder_status")
+    @Excel(name = "催交状态", dictType = "cms_reminder_status", comboReadDict = true)
     private String reminderStatus;
 
     /** 附件列表（JSON格式存储，包含文件ID和路径，用于列表快速展示） */
@@ -324,6 +335,16 @@ public class CmsContract extends BaseEntity
         return ownerId;
     }
 
+    public void setOwnerName(String ownerName) 
+    {
+        this.ownerName = ownerName;
+    }
+
+    public String getOwnerName() 
+    {
+        return ownerName;
+    }
+
     public void setDeptId(Long deptId) 
     {
         this.deptId = deptId;
@@ -332,6 +353,26 @@ public class CmsContract extends BaseEntity
     public Long getDeptId() 
     {
         return deptId;
+    }
+
+    public void setParentId(Long parentId)
+    {
+        this.parentId = parentId;
+    }
+
+    public Long getParentId()
+    {
+        return parentId;
+    }
+
+    public void setAuditStatus(String auditStatus)
+    {
+        this.auditStatus = auditStatus;
+    }
+
+    public String getAuditStatus()
+    {
+        return auditStatus;
     }
 
     public void setStatus(String status) 
@@ -407,8 +448,11 @@ public class CmsContract extends BaseEntity
             .append("isRented", getIsRented())
             .append("profit", getProfit())
             .append("ownerId", getOwnerId())
+            .append("ownerName", getOwnerName())
             .append("deptId", getDeptId())
+            .append("parentId", getParentId())
             .append("status", getStatus())
+            .append("auditStatus", getAuditStatus())
             .append("delFlag", getDelFlag())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())

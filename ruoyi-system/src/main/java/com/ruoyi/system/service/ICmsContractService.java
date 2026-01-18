@@ -61,4 +61,12 @@ public interface ICmsContractService
     public int deleteCmsContractByContractId(Long contractId);
 
     public String importCmsContract(List<CmsContract> contractList, boolean updateSupport, String operator);
+
+    /**
+     * 审批合同
+     *
+     * @param cmsContract 合同管理
+     * @return 结果
+     */
+    public int auditContract(CmsContract cmsContract);
 }

@@ -1,6 +1,10 @@
 <template>
   <div class="app-container">
-    <el-page-header @back="$router.back()" content="合同详情" />
+    <el-page-header @back="$router.back()" content="合同详情">
+      <template slot="extra">
+        <el-button type="primary" size="mini" @click="handleApprovalHistory">审批记录</el-button>
+      </template>
+    </el-page-header>
 
     <el-card class="mt20">
       <el-skeleton v-if="loading" :rows="6" animated />
@@ -29,6 +33,18 @@
           }}</el-descriptions-item>
           <el-descriptions-item label="结束日期">{{
             parseTime(detail.endDate, "{y}-{m}-{d}")
+          }}</el-descriptions-item>
+          <el-descriptions-item label="会计">{{
+            detail.ownerId
+          }}</el-descriptions-item>
+          <el-descriptions-item label="催交状态">
+            <dict-tag
+              :options="dict.type.cms_reminder_status"
+              :value="detail.reminderStatus"
+            />
+          </el-descriptions-item>
+          <el-descriptions-item label="备注" :span="2">{{
+            detail.remark
           }}</el-descriptions-item>
         </el-descriptions>
 
@@ -118,13 +134,50 @@
             </el-timeline-item>
           </el-timeline>
         </el-card>
+
+        <el-descriptions class="mt20" title="操作信息" :column="2" border>
+          <el-descriptions-item label="创建者">{{
+            detail.createBy
+          }}</el-descriptions-item>
+          <el-descriptions-item label="创建时间">{{
+            parseTime(detail.createTime, "{y}-{m}-{d} {h}:{i}:{s}")
+          }}</el-descriptions-item>
+          <el-descriptions-item label="更新者">{{
+            detail.updateBy
+          }}</el-descriptions-item>
+          <el-descriptions-item label="更新时间">{{
+            parseTime(detail.updateTime, "{y}-{m}-{d} {h}:{i}:{s}")
+          }}</el-descriptions-item>
+        </el-descriptions>
       </div>
     </el-card>
+
+    <!-- 审批记录对话框 -->
+    <el-dialog title="审批记录" :visible.sync="approvalOpen" width="700px" append-to-body>
+      <el-table v-loading="approvalLoading" :data="approvalList">
+        <el-table-column label="审批人" align="center" prop="approverId" />
+        <el-table-column label="审批状态" align="center" prop="status">
+          <template slot-scope="scope">
+            <dict-tag :options="dict.type.cms_contract_status" :value="scope.row.status" />
+          </template>
+        </el-table-column>
+        <el-table-column label="审批意见" align="center" prop="approvalMsg" />
+        <el-table-column label="审批时间" align="center" prop="approvalTime" width="180">
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.approvalTime) }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="approvalOpen = false">关 闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { getContract } from "@/api/system/contract";
+import { listApproval } from "@/api/system/approval";
 
 export default {
   name: "ContractDetail",
@@ -141,9 +194,12 @@ export default {
       loading: true,
       detail: {},
       // 与列表页保持一致
-      dictAccounting: "AGENCY",
-      dictRent: "RENT",
+      dictAccounting: "1",
+      dictRent: "2",
       annexList: [],
+      approvalOpen: false,
+      approvalList: [],
+      approvalLoading: false,
     };
   },
   computed: {
@@ -158,6 +214,15 @@ export default {
     this.fetch();
   },
   methods: {
+    /** 查看审批记录 */
+    handleApprovalHistory() {
+      this.approvalOpen = true;
+      this.approvalLoading = true;
+      listApproval({ contractId: this.detail.contractId }).then(response => {
+        this.approvalList = response.rows;
+        this.approvalLoading = false;
+      });
+    },
     fetch() {
       const id = this.$route.params.id;
       if (!id) {

@@ -42,3 +42,21 @@ export function delTask(taskId) {
     method: 'delete'
   })
 }
+
+// 创建催收任务
+export function createCollectionTask(data) {
+  return request({
+    url: '/system/contract/collection',
+    method: 'post',
+    data: data
+  })
+}
+
+// 完成催收任务
+export function completeCollectionTask(data) {
+  return request({
+    url: '/system/task/completeCollection',
+    method: 'post',
+    data: data
+  })
+}

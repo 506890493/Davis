@@ -25,8 +25,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="isRented"    column="is_rented"    />
         <result property="profit"    column="profit"    />
         <result property="ownerId"    column="owner_id"    />
+        <result property="ownerName"  column="owner_name"  />
         <result property="deptId"    column="dept_id"    />
+        <result property="parentId"    column="parent_id"    />
         <result property="status"    column="status"    />
+        <result property="auditStatus"    column="audit_status"    />
         <result property="delFlag"    column="del_flag"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
@@ -55,35 +58,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCmsContractVo">
-        select contract_id, contract_code, contract_name, contract_type, legal_person, contact_person, contact_phone, contact_email, amount, payment_cycle, payment_date, payment_method, start_date, end_date, tax_type, establishment_date, rental_address, is_rented, profit, owner_id, dept_id, status, del_flag, create_by, create_time, update_by, update_time, remark, reminder_status, annex from cms_contract
+        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.status, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
+        from cms_contract c
+        left join sys_user u on c.owner_id = u.user_id
     </sql>
 
     <select id="selectCmsContractList" parameterType="CmsContract" resultMap="CmsContractResult">
         <include refid="selectCmsContractVo"/>
         <where>  
-            <if test="contractCode != null  and contractCode != ''"> and contract_code = #{contractCode}</if>
-            <if test="contractName != null  and contractName != ''"> and contract_name like concat('%', #{contractName}, '%')</if>
-            <if test="contractType != null  and contractType != ''"> and contract_type = #{contractType}</if>
-            <if test="legalPerson != null  and legalPerson != ''"> and legal_person = #{legalPerson}</if>
-            <if test="contactPerson != null  and contactPerson != ''"> and contact_person like concat('%', #{contactPerson}, '%')</if>
-            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
-            <if test="contactEmail != null  and contactEmail != ''"> and contact_email = #{contactEmail}</if>
-            <if test="amount != null "> and amount = #{amount}</if>
-            <if test="paymentCycle != null  and paymentCycle != ''"> and payment_cycle = #{paymentCycle}</if>
-            <if test="paymentDate != null "> and payment_date = #{paymentDate}</if>
-            <if test="paymentMethod != null  and paymentMethod != ''"> and payment_method = #{paymentMethod}</if>
-            <if test="startDate != null "> and start_date = #{startDate}</if>
-            <if test="endDate != null "> and end_date = #{endDate}</if>
-            <if test="taxType != null  and taxType != ''"> and tax_type = #{taxType}</if>
-            <if test="params.beginEstablishmentDate != null and params.beginEstablishmentDate != '' and params.endEstablishmentDate != null and params.endEstablishmentDate != ''"> and establishment_date between #{params.beginEstablishmentDate} and #{params.endEstablishmentDate}</if>
-            <if test="rentalAddress != null  and rentalAddress != ''"> and rental_address = #{rentalAddress}</if>
-            <if test="isRented != null  and isRented != ''"> and is_rented = #{isRented}</if>
-            <if test="profit != null "> and profit = #{profit}</if>
-            <if test="ownerId != null "> and owner_id = #{ownerId}</if>
-            <if test="deptId != null "> and dept_id = #{deptId}</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
-            <if test="reminderStatus != null  and reminderStatus != ''"> and reminder_status = #{reminderStatus}</if>
-            <if test="annex != null  and annex != ''"> and annex = #{annex}</if>
+            <if test="contractCode != null  and contractCode != ''"> and c.contract_code = #{contractCode}</if>
+            <if test="contractName != null  and contractName != ''"> and c.contract_name like concat('%', #{contractName}, '%')</if>
+            <if test="contractType != null  and contractType != ''"> and c.contract_type = #{contractType}</if>
+            <if test="legalPerson != null  and legalPerson != ''"> and c.legal_person = #{legalPerson}</if>
+            <if test="contactPerson != null  and contactPerson != ''"> and c.contact_person like concat('%', #{contactPerson}, '%')</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and c.contact_phone = #{contactPhone}</if>
+            <if test="contactEmail != null  and contactEmail != ''"> and c.contact_email = #{contactEmail}</if>
+            <if test="amount != null "> and c.amount = #{amount}</if>
+            <if test="paymentCycle != null  and paymentCycle != ''"> and c.payment_cycle = #{paymentCycle}</if>
+            <if test="paymentDate != null "> and c.payment_date = #{paymentDate}</if>
+            <if test="paymentMethod != null  and paymentMethod != ''"> and c.payment_method = #{paymentMethod}</if>
+            <if test="startDate != null "> and c.start_date = #{startDate}</if>
+            <if test="endDate != null "> and c.end_date = #{endDate}</if>
+            <if test="taxType != null  and taxType != ''"> and c.tax_type = #{taxType}</if>
+            <if test="params.beginEstablishmentDate != null and params.beginEstablishmentDate != '' and params.endEstablishmentDate != null and params.endEstablishmentDate != ''"> and c.establishment_date between #{params.beginEstablishmentDate} and #{params.endEstablishmentDate}</if>
+            <if test="rentalAddress != null  and rentalAddress != ''"> and c.rental_address = #{rentalAddress}</if>
+            <if test="isRented != null  and isRented != ''"> and c.is_rented = #{isRented}</if>
+            <if test="profit != null "> and c.profit = #{profit}</if>
+            <if test="ownerId != null "> and c.owner_id = #{ownerId}</if>
+            <if test="deptId != null "> and c.dept_id = #{deptId}</if>
+            <if test="parentId != null "> and c.parent_id = #{parentId}</if>
+            <if test="status != null  and status != ''"> and c.status = #{status}</if>
+            <if test="auditStatus != null  and auditStatus != ''"> and c.audit_status = #{auditStatus}</if>
+            <if test="reminderStatus != null  and reminderStatus != ''"> and c.reminder_status = #{reminderStatus}</if>
+            <if test="annex != null  and annex != ''"> and c.annex = #{annex}</if>
         </where>
     </select>
     
@@ -127,7 +134,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="profit != null">profit,</if>
             <if test="ownerId != null">owner_id,</if>
             <if test="deptId != null">dept_id,</if>
+            <if test="parentId != null">parent_id,</if>
             <if test="status != null">status,</if>
+            <if test="auditStatus != null">audit_status,</if>
             <if test="delFlag != null">del_flag,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
@@ -158,7 +167,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="profit != null">#{profit},</if>
             <if test="ownerId != null">#{ownerId},</if>
             <if test="deptId != null">#{deptId},</if>
+            <if test="parentId != null">#{parentId},</if>
             <if test="status != null">#{status},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
             <if test="delFlag != null">#{delFlag},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
@@ -193,7 +204,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="profit != null">profit = #{profit},</if>
             <if test="ownerId != null">owner_id = #{ownerId},</if>
             <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>

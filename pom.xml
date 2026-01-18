@@ -228,7 +228,7 @@
         <module>ruoyi-quartz</module>
         <module>ruoyi-generator</module>
         <module>ruoyi-common</module>
-        <module>davis-cms</module>
+        <!-- <module>davis-cms</module> -->
     </modules>
     <packaging>pom</packaging>
 
