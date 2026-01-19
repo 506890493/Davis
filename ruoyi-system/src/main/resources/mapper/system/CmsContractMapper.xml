@@ -95,9 +95,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectCmsContractByContractId" parameterType="Long" resultMap="CmsContractCmsFileResult">
-        select contract_id, contract_code, contract_name, contract_type, legal_person, contact_person, contact_phone, contact_email, amount, payment_cycle, payment_date, payment_method, start_date, end_date, tax_type, establishment_date, rental_address, is_rented, profit, owner_id, dept_id, status, del_flag, create_by, create_time, update_by, update_time, remark, reminder_status, annex
-        from cms_contract
-        where contract_id = #{contractId}
+        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.status, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
+        from cms_contract c
+        left join sys_user u on c.owner_id = u.user_id
+        where c.contract_id = #{contractId}
     </select>
 
     <select id="selectCmsContractByContractCode" parameterType="String" resultMap="CmsContractResult">

@@ -2,7 +2,9 @@
   <div class="app-container">
     <el-page-header @back="$router.back()" content="合同详情">
       <template slot="extra">
-        <el-button type="primary" size="mini" @click="handleApprovalHistory">审批记录</el-button>
+        <el-button type="primary" size="mini" @click="handleApprovalHistory"
+          >审批记录</el-button
+        >
       </template>
     </el-page-header>
 
@@ -23,7 +25,9 @@
             />
           </el-descriptions-item>
           <el-descriptions-item label="状态">
+            <el-tag v-if="detail.auditStatus === '0'" type="warning">待审批</el-tag>
             <dict-tag
+              v-else
               :options="dict.type.cms_contract_status"
               :value="detail.status"
             />
@@ -35,7 +39,7 @@
             parseTime(detail.endDate, "{y}-{m}-{d}")
           }}</el-descriptions-item>
           <el-descriptions-item label="会计">{{
-            detail.ownerId
+            detail.ownerName
           }}</el-descriptions-item>
           <el-descriptions-item label="催交状态">
             <dict-tag
@@ -153,16 +157,29 @@
     </el-card>
 
     <!-- 审批记录对话框 -->
-    <el-dialog title="审批记录" :visible.sync="approvalOpen" width="700px" append-to-body>
+    <el-dialog
+      title="审批记录"
+      :visible.sync="approvalOpen"
+      width="700px"
+      append-to-body
+    >
       <el-table v-loading="approvalLoading" :data="approvalList">
         <el-table-column label="审批人" align="center" prop="approverId" />
         <el-table-column label="审批状态" align="center" prop="status">
           <template slot-scope="scope">
-            <dict-tag :options="dict.type.cms_contract_status" :value="scope.row.status" />
+            <dict-tag
+              :options="dict.type.cms_contract_status"
+              :value="scope.row.status"
+            />
           </template>
         </el-table-column>
         <el-table-column label="审批意见" align="center" prop="approvalMsg" />
-        <el-table-column label="审批时间" align="center" prop="approvalTime" width="180">
+        <el-table-column
+          label="审批时间"
+          align="center"
+          prop="approvalTime"
+          width="180"
+        >
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.approvalTime) }}</span>
           </template>
@@ -218,7 +235,7 @@ export default {
     handleApprovalHistory() {
       this.approvalOpen = true;
       this.approvalLoading = true;
-      listApproval({ contractId: this.detail.contractId }).then(response => {
+      listApproval({ contractId: this.detail.contractId }).then((response) => {
         this.approvalList = response.rows;
         this.approvalLoading = false;
       });

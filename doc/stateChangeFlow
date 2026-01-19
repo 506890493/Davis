@@ -1,0 +1,55 @@
+graph TD
+    %% 定义样式
+    classDef contract fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef task fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef newContract fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef action fill:#fce4ec,stroke:#880e4f,stroke-dasharray: 5 5;
+
+    subgraph "老合同 (Old Contract)"
+        Old_Normal(状态: 正常 [0]):::contract
+        Old_Pending(状态: 待催收 [1]):::contract
+        Old_Progress(状态: 催收中 [2]):::contract
+        Old_Done(状态: 已完成 [3]):::contract
+    end
+
+    subgraph "催收任务 (Task)"
+        Task_ToDo(状态: 待处理 [0]):::task
+        Task_Progress(状态: 进行中 [1]):::task
+        Task_Audit(状态: 待审批 [2]):::task
+        Task_Return(状态: 已退回 [3]):::task
+        Task_Done(状态: 已完成 [4]):::task
+    end
+
+    subgraph "新合同 (New Contract)"
+        New_Pending(状态: 待审批 [0]):::newContract
+        New_Rejected(状态: 已驳回 [2]):::newContract
+        New_Passed(状态: 已通过 [1]):::newContract
+    end
+
+    %% 流程连线
+    Start((开始)) --> Old_Normal
+
+    Old_Normal -- "时间 < 30天 (Quartz)" --> Old_Pending
+
+    Old_Pending -- "经理点击催收" --> Action_Assign(创建任务):::action
+    Action_Assign --> Old_Progress
+    Action_Assign --> Task_ToDo
+
+    Task_ToDo -- "会计开始任务" --> Task_Progress
+
+    Task_Progress -- "会计提交续签" --> Action_Submit(提交数据):::action
+
+    Action_Submit --> Old_Done
+    Action_Submit --> Task_Audit
+    Action_Submit --> New_Pending
+
+    New_Pending -- "经理审批" --> Decision{通过?}
+
+    Decision -- "是 (Pass)" --> New_Passed
+    New_Passed -.-> Task_Done
+
+    Decision -- "否 (Reject)" --> New_Rejected
+    New_Rejected -.-> Task_Return
+
+    Task_Return -- "会计修改并重交" --> New_Pending
+    Task_Return -.-> Task_Audit

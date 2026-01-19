@@ -488,10 +488,17 @@ export default {
       this.$refs["form"].validate((valid) => {
         if (valid) {
           let submitData = JSON.parse(JSON.stringify(this.form));
-          if (submitData.annex && typeof submitData.annex === "object") {
-            submitData.annex = JSON.stringify(submitData.annex);
-          } else if (!submitData.annex) {
-            submitData.annex = null;
+          
+          // Reconstruct annex from fileList to handle deletions and additions
+          if (this.upload.fileList && this.upload.fileList.length > 0) {
+            const urls = this.upload.fileList.map(f => f.url);
+            const originalFilenames = this.upload.fileList.map(f => f.name);
+            submitData.annex = JSON.stringify({
+              urls: urls,
+              originalFilenames: originalFilenames
+            });
+          } else {
+            submitData.annex = "";
           }
 
           if (this.form.contractId != null) {

@@ -285,10 +285,13 @@
       <el-table-column label="会计" align="center" prop="ownerName" />
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
+          <el-tag v-if="scope.row.auditStatus === '0'" type="warning">待审批</el-tag>
           <dict-tag
+            v-else
             :options="dict.type.cms_contract_status"
             :value="scope.row.status"
-        /></template>
+          />
+        </template>
       </el-table-column>
       <el-table-column label="催交状态" align="center" prop="reminderStatus">
         <template slot-scope="scope">

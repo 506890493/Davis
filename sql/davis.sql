@@ -1,7 +1,7 @@
 -- ----------------------------
 -- 1. 合同主表 (集成若依规范)
 -- ----------------------------
-create table `davis-backend`.cms_contract
+create table if not exists cms_contract
 (
     contract_id        bigint auto_increment comment '合同ID'
         primary key,
@@ -25,15 +25,17 @@ create table `davis-backend`.cms_contract
     profit             decimal(10, 2) default 0.00 null comment '利润',
     owner_id           bigint                      null comment '归属人ID (关联sys_user)',
     dept_id            bigint                      null comment '归属部门ID (用于数据权限)',
-    status             char           default '0'  null comment '状态（字典：cms_contract_status 0正常 1停用 2过期）',
+    parent_id          bigint                      null comment '用于记录该合同是续签自哪个旧合同',
     del_flag           char           default '0'  null comment '删除标志（0代表存在 2代表删除）',
     create_by          varchar(64)    default ''   null comment '创建者',
     create_time        datetime                    null comment '创建时间',
     update_by          varchar(64)    default ''   null comment '更新者',
     update_time        datetime                    null comment '更新时间',
     remark             varchar(500)                null comment '备注',
-    reminder_status    char           default '0'  null comment '催交状态（字典：cms_reminder_status）',
-    annex              text                        null comment '附件列表（JSON格式存储，包含文件ID和路径，用于列表快速展示）'
+    reminder_status    char           default '0'  null comment '催交状态（字典：cms_reminder_status）',#执行维度 (reminder_status)：管“人为动作”。（无需催收、待催收、催收中、已完成）
+    annex              text                        null comment '附件列表（JSON格式存储，包含文件ID和路径，用于列表快速展示）',
+    status             char           default '0'  null,#时间维度 (计算属性)：管“自然规律”。（未开始、进行中、已过期、即将到期）
+    audit_status       char           default '0'  null comment '审核状态（''0''=待审批, ''1''=通过, ''2''=驳回）' #合规维度 (audit_status)：管“生杀大权”。（待审批、通过、驳回）
 )
     comment '合同管理表';
 
@@ -45,80 +47,84 @@ create table `davis-backend`.cms_contract
 -- 2. 任务表 (关联 sys_user 和 cms_contract)
 -- ----------------------------
 drop table if exists cms_task;
-create table cms_task (
-                          task_id           bigint(20)      not null auto_increment    comment '任务ID',
-                          task_title        varchar(200)    not null                   comment '任务标题',
-                          contract_id       bigint(20)      not null                   comment '关联同ID',
+create table if not exists cms_task
+(
+    task_id            bigint auto_increment comment '任务ID'
+        primary key,
+    task_title         varchar(200)            not null comment '任务标题',
+    contract_id        bigint                  not null comment '关联同ID',
+    task_type          char        default '0' null comment '任务类型（''0''=普通, ''1''=催收）',
+    source_contract_id bigint                  null comment '关联发起的原合同',
+    target_contract_id bigint                  null comment '关联续签后的新合同',
+    priority           char        default '2' null comment '优先级（字典：cms_task_priority 1高 2中 3低）',
+    original_amount    decimal(10, 2)          null comment '原金额',
+    current_amount     decimal(10, 2)          null comment '当前协商金额',
+    assigned_to        bigint                  not null comment '执行人ID (关联sys_user)',
+    deadline           datetime                null comment '任务截止时间',
+    status             char(2)     default '0' null comment '任务状态（字典：cms_task_status 0待处理 1进行中 2待审批 3已退回 4已完成）',
+    del_flag           char        default '0' null comment '删除标志',
+    create_by          varchar(64) default ''  null comment '创建者',
+    create_time        datetime                null comment '创建时间',
+    update_by          varchar(64) default ''  null comment '更新者',
+    update_time        datetime                null comment '更新时间',
+    remark             varchar(500)            null comment '任务描述/备注'
+)
+    comment '任务管理表';
 
-    -- 任务类型与属性
-                          task_type         char(1)         default null               comment '任务类型（字典：cms_task_type）',
-                          priority          char(1)         default '2'                comment '优先级（字典：cms_task_priority 1高 2中 3低）',
-
-    -- 金额变动记录
-                          original_amount   decimal(10,2)   default null               comment '原金额',
-                          current_amount    decimal(10,2)   default null               comment '当前协商金额',
-
-    -- 执行流
-                          assigned_to       bigint(20)      not null                   comment '执行人ID (关联sys_user)',
-                          deadline          datetime                                   comment '截止时间',
-                          status            char(2)         default '0'                comment '任务状态（字典：cms_task_status 0待处理 1进行中 2待审批 3已退回 4已完成）',
-
-    -- 若依标准字段
-                          del_flag          char(1)         default '0'                comment '删除标志',
-                          create_by         varchar(64)     default ''                 comment '创建者',
-                          create_time       datetime                                   comment '创建时间',
-                          update_by         varchar(64)     default ''                 comment '更新者',
-                          update_time       datetime                                   comment '更新时间',
-                          remark            varchar(500)    default null               comment '任务描述/备注',
-                          primary key (task_id)
-) engine=innodb auto_increment=1 comment = '任务管理表';
 
 -- ----------------------------
 -- 3. 审批申请表 (支持 JSON 存储快照)
 -- ----------------------------
 drop table if exists cms_approval;
-create table cms_approval (
-                              approval_id       bigint(20)      not null auto_increment    comment '审批ID',
-                              apply_no          varchar(64)     default null               comment '申请编号',
-
-    -- 关联信息
-                              applicant_id      bigint(20)      not null                   comment '申请人ID (sys_user)',
-                              contract_id       bigint(20)      default null               comment '关联原合同ID',
-                              task_id           bigint(20)      default null               comment '关联任务ID',
-
-                              approval_type     char(1)         not null                   comment '审批类型（字典：cms_approval_type 1新合同 2续费 3变更）',
-
-    -- 核心数据快照 (存储JSON字符串，记录修改前后的数据)
-                              content_snapshot  json            default null               comment '申请内容快照',
-
-    -- 审批结果
-                              status            char(1)         default '0'                comment '审批状态（0待审批 1通过 2拒绝）',
-                              approver_id       bigint(20)      default null               comment '审批人ID',
-                              approval_time     datetime                                   comment '审批时间',
-                              approval_msg      varchar(500)    default null               comment '审批意见',
-
-    -- 若依标准字段
-                              create_by         varchar(64)     default ''                 comment '创建者',
-                              create_time       datetime                                   comment '创建时间',
-                              update_by         varchar(64)     default ''                 comment '更新者',
-                              update_time       datetime                                   comment '更新时间',
-                              primary key (approval_id)
-) engine=innodb auto_increment=1 comment = '业务审批表';
+create table if not exists cms_approval
+(
+    approval_id      bigint auto_increment comment '审批ID'
+        primary key,
+    apply_no         varchar(64)             null comment '申请编号',
+    applicant_id     bigint                  not null comment '申请人ID (sys_user)',
+    contract_id      bigint                  null comment '关联原合同ID',
+    task_id          bigint                  null comment '关联任务ID',
+    approval_type    char                    not null comment '审批类型（字典：cms_approval_type 1新合同 2续费 3变更）',
+    content_snapshot json                    null comment '申请内容快照',
+    status           char        default '0' null comment '审批状态（0待审批 1通过 2拒绝）',
+    approver_id      bigint                  null comment '审批人ID',
+    approval_time    datetime                null comment '审批时间',
+    approval_msg     varchar(500)            null comment '审批意见',
+    create_by        varchar(64) default ''  null comment '创建者',
+    create_time      datetime                null comment '创建时间',
+    update_by        varchar(64) default ''  null comment '更新者',
+    update_time      datetime                null comment '更新时间'
+)
+    comment '业务审批表';
 
 -- ----------------------------
 -- 4. 沟通记录表
 -- ----------------------------
 drop table if exists cms_communication;
-create table cms_communication (
-                                   comm_id           bigint(20)      not null auto_increment    comment '记录ID',
-                                   task_id           bigint(20)      not null                   comment '关联任务ID',
-                                   user_id           bigint(20)      not null                   comment '记录人ID',
-                                   comm_type         char(1)         default '0'                comment '沟通方式（字典：cms_comm_type 0电话 1微信 2邮件 3面谈）',
-                                   content           text            not null                   comment '沟通内容',
+create table if not exists cms_task
+(
+    task_id            bigint auto_increment comment '任务ID'
+        primary key,
+    task_title         varchar(200)            not null comment '任务标题',
+    contract_id        bigint                  not null comment '关联同ID',
+    task_type          char        default '0' null comment '任务类型（''0''=普通, ''1''=催收）',
+    source_contract_id bigint                  null comment '关联发起的原合同',
+    target_contract_id bigint                  null comment '关联续签后的新合同',
+    priority           char        default '2' null comment '优先级（字典：cms_task_priority 1高 2中 3低）',
+    original_amount    decimal(10, 2)          null comment '原金额',
+    current_amount     decimal(10, 2)          null comment '当前协商金额',
+    assigned_to        bigint                  not null comment '执行人ID (关联sys_user)',
+    deadline           datetime                null comment '任务截止时间',
+    status             char(2)     default '0' null comment '任务状态（字典：cms_task_status 0待处理 1进行中 2待审批 3已退回 4已完成）',
+    del_flag           char        default '0' null comment '删除标志',
+    create_by          varchar(64) default ''  null comment '创建者',
+    create_time        datetime                null comment '创建时间',
+    update_by          varchar(64) default ''  null comment '更新者',
+    update_time        datetime                null comment '更新时间',
+    remark             varchar(500)            null comment '任务描述/备注'
+)
+    comment '任务管理表';
 
-                                   create_time       datetime        default null               comment '记录时间',
-                                   primary key (comm_id)
-) engine=innodb auto_increment=1 comment = '任务沟通记录表';
 
 -- ----------------------------
 -- 5. 附件表 (若依通常有 sys_oss，如果没有则用此表)
