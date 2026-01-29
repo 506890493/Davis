@@ -441,12 +441,15 @@ export default {
         this.$message.warning("请先选择文件");
         return;
       }
+      const newFiles = this.upload.fileList.filter((item) => item.raw);
+      if (newFiles.length === 0) {
+        this.$message.warning("所有文件已上传");
+        return;
+      }
       this.upload.isUploading = true;
       const formData = new FormData();
-      this.upload.fileList.forEach((item) => {
-        if (item.raw) {
-          formData.append("files", item.raw);
-        }
+      newFiles.forEach((item) => {
+        formData.append("files", item.raw);
       });
       axios({
         method: "post",
@@ -461,6 +464,12 @@ export default {
           const res = response.data;
           if (res.code === 200) {
             this.$message.success("上传成功");
+            const serverUrls = res.urls.split(",");
+            newFiles.forEach((item, index) => {
+              if (serverUrls[index]) {
+                item.url = serverUrls[index];
+              }
+            });
             this.form.annex = {
               urls: res.urls.split(","),
               newFileNames: res.newFileNames.split(","),

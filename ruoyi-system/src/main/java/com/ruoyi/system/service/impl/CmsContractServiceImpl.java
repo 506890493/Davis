@@ -109,8 +109,10 @@ public class CmsContractServiceImpl implements ICmsContractService
     public int updateCmsContract(CmsContract cmsContract)
     {
         cmsContract.setUpdateTime(DateUtils.getNowDate());
-        cmsContractMapper.deleteCmsFileByContractId(cmsContract.getContractId());
-        insertCmsFile(cmsContract);
+        if (cmsContract.getCmsFileList() != null) {
+            cmsContractMapper.deleteCmsFileByContractId(cmsContract.getContractId());
+            insertCmsFile(cmsContract);
+        }
         return cmsContractMapper.updateCmsContract(cmsContract);
     }
 
@@ -244,7 +246,11 @@ public class CmsContractServiceImpl implements ICmsContractService
             CmsContract fullContract = cmsContractMapper.selectCmsContractByContractId(cmsContract.getContractId());
             CmsApproval approval = new CmsApproval();
             approval.setContractId(cmsContract.getContractId());
-            approval.setApplicantId(fullContract.getOwnerId());
+            Long applicantId = fullContract.getOwnerId();
+            if (applicantId == null) {
+                applicantId = SecurityUtils.getUserId();
+            }
+            approval.setApplicantId(applicantId);
             approval.setApproverId(SecurityUtils.getUserId());
             approval.setStatus(cmsContract.getAuditStatus());
             approval.setApprovalMsg(cmsContract.getRemark());

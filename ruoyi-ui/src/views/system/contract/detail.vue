@@ -132,9 +132,13 @@
               :key="idx"
               :timestamp="file.name"
             >
-              <a :href="file.url" target="_blank" rel="noopener">{{
-                file.url
-              }}</a>
+              <el-image
+                style="width: 100px; height: 100px; border-radius: 5px"
+                :src="file.url"
+                :preview-src-list="annexList.map((f) => f.url)"
+                fit="cover"
+              >
+              </el-image>
             </el-timeline-item>
           </el-timeline>
         </el-card>

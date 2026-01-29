@@ -321,6 +321,7 @@
             size="mini"
             type="text"
             icon="el-icon-money"
+            :disabled="scope.row.reminderStatus === '1' || scope.row.reminderStatus === '2'"
             @click="handleCollection(scope.row)"
             v-hasPermi="['system:contract:import']"
             >催收</el-button

@@ -189,6 +189,15 @@
           <el-button
             size="mini"
             type="text"
+            icon="el-icon-video-play"
+            v-if="scope.row.status === '0'"
+            @click="handleStart(scope.row)"
+            v-hasPermi="['system:task:edit']"
+            >开始</el-button
+          >
+          <el-button
+            size="mini"
+            type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:task:edit']"
@@ -491,6 +500,14 @@ export default {
         this.form = response.data;
         this.open = true;
         this.title = "修改任务管理";
+      });
+    },
+    /** 开始按钮操作 */
+    handleStart(row) {
+      const task = { taskId: row.taskId, status: '1' };
+      updateTask(task).then(response => {
+        this.$modal.msgSuccess("任务已开始");
+        this.getList();
       });
     },
     /** 完成按钮操作 */

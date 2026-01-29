@@ -1,5 +1,7 @@
 package com.ruoyi.system.service.impl;
 
+import com.ruoyi.common.exception.ServiceException;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,9 +66,32 @@ public class CmsTaskServiceImpl implements ICmsTaskService
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertCmsTask(CmsTask cmsTask)
     {
+        // 幂等性检查：检查是否存在未完成的同类型任务分配给同一个人
+        CmsTask queryTask = new CmsTask();
+        queryTask.setContractId(cmsTask.getContractId());
+        queryTask.setAssignedTo(cmsTask.getAssignedTo());
+        queryTask.setTaskType(cmsTask.getTaskType());
+        
+        List<CmsTask> existingTasks = cmsTaskMapper.selectCmsTaskList(queryTask);
+        for (CmsTask task : existingTasks) {
+            // 状态 0待处理 1进行中 2待审批
+            if ("0".equals(task.getStatus()) || "1".equals(task.getStatus()) || "2".equals(task.getStatus())) {
+                throw new ServiceException("该合同已分配给此人催收，且任务未完成");
+            }
+        }
+
         cmsTask.setCreateTime(DateUtils.getNowDate());
+        
+        // 更新合同状态为催收中
+        CmsContract contract = cmsContractService.selectCmsContractByContractId(cmsTask.getContractId());
+        if (contract != null) {
+            contract.setReminderStatus("1"); // 1=已催交/催收中
+            cmsContractService.updateCmsContract(contract);
+        }
+
         // Send notification
         SysNotice notice = new SysNotice();
         notice.setNoticeTitle("新的催收任务");
@@ -85,9 +110,31 @@ public class CmsTaskServiceImpl implements ICmsTaskService
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateCmsTask(CmsTask cmsTask)
     {
         cmsTask.setUpdateTime(DateUtils.getNowDate());
+        
+        // 当任务状态更新为进行中(1)时，同步更新原合同的催收状态
+        if ("1".equals(cmsTask.getStatus())) {
+             CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(cmsTask.getTaskId());
+             if (existingTask != null) {
+                 Long contractIdToUpdate = existingTask.getSourceContractId();
+                 // If sourceContractId is null but it is a collection task, use contractId
+                 if (contractIdToUpdate == null && "1".equals(existingTask.getTaskType())) {
+                     contractIdToUpdate = existingTask.getContractId();
+                 }
+
+                 if (contractIdToUpdate != null) {
+                     CmsContract contract = cmsContractService.selectCmsContractByContractId(contractIdToUpdate);
+                     if (contract != null) {
+                         contract.setReminderStatus("1");
+                         cmsContractService.updateCmsContract(contract);
+                     }
+                 }
+             }
+        }
+        
         return cmsTaskMapper.updateCmsTask(cmsTask);
     }
 
