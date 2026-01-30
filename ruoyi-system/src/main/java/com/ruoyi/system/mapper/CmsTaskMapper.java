@@ -1,7 +1,10 @@
 package com.ruoyi.system.mapper;
 
 import com.ruoyi.system.domain.CmsTask;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 任务管理Mapper接口
@@ -58,4 +61,28 @@ public interface CmsTaskMapper
      * @return 结果
      */
     public int deleteCmsTaskByTaskIds(Long[] taskIds);
+
+    /**
+     * 统计已完成任务的金额
+     *
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @param assignedTo 执行人ID（可选）
+     * @return 金额
+     */
+    public BigDecimal sumCompletedTaskAmount(@Param("startDate") Date startDate, 
+                                              @Param("endDate") Date endDate, 
+                                              @Param("assignedTo") Long assignedTo);
+
+    /**
+     * 统计已完成代账类型任务数量
+     *
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @param assignedTo 执行人ID（可选）
+     * @return 数量
+     */
+    public Long countCompletedBookkeepingTasks(@Param("startDate") Date startDate, 
+                                                @Param("endDate") Date endDate, 
+                                                @Param("assignedTo") Long assignedTo);
 }

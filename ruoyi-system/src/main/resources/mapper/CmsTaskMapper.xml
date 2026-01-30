@@ -123,4 +123,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{taskId}
         </foreach>
     </delete>
+
+    <!-- ========== Dashboard统计查询 ========== -->
+
+    <!-- 统计已完成任务的金额（状态为4已完成） -->
+    <select id="sumCompletedTaskAmount" resultType="java.math.BigDecimal">
+        select IFNULL(SUM(current_amount), 0) from cms_task
+        where status = '4'
+        and update_time between #{startDate} and #{endDate}
+        <if test="assignedTo != null">
+            and assigned_to = #{assignedTo}
+        </if>
+    </select>
+
+    <!-- 统计已完成代账类型任务数量（task_type=1催收，关联代账合同） -->
+    <select id="countCompletedBookkeepingTasks" resultType="Long">
+        select count(*) from cms_task t
+        left join cms_contract c on t.contract_id = c.contract_id
+        where t.status = '4'
+        and c.contract_type = '1'
+        and t.update_time between #{startDate} and #{endDate}
+        <if test="assignedTo != null">
+            and t.assigned_to = #{assignedTo}
+        </if>
+    </select>
+
 </mapper>
