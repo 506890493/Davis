@@ -470,7 +470,6 @@ export default {
         contactPerson: null,
         contactPhone: null,
         ownerId: null,
-        status: null,
         reminderStatus: null,
         auditStatus: null,
       },

@@ -1,7 +1,5 @@
 package com.ruoyi.system.service.impl;
 
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import com.ruoyi.common.utils.DateUtils;
@@ -25,8 +23,7 @@ import com.ruoyi.system.service.ICmsContractService;
  * @date 2025-12-14
  */
 @Service
-public class CmsContractServiceImpl implements ICmsContractService
-{
+public class CmsContractServiceImpl implements ICmsContractService {
     @Autowired
     private CmsContractMapper cmsContractMapper;
 
@@ -40,11 +37,8 @@ public class CmsContractServiceImpl implements ICmsContractService
      * @return 合同管理
      */
     @Override
-    public CmsContract selectCmsContractByContractId(Long contractId)
-    {
-        CmsContract cmsContract = cmsContractMapper.selectCmsContractByContractId(contractId);
-        cmsContract.setStatus(calculateStatus(cmsContract.getStatus(), cmsContract.getDelFlag(), cmsContract.getEndDate(), LocalDate.now()));
-        return cmsContract;
+    public CmsContract selectCmsContractByContractId(Long contractId) {
+        return cmsContractMapper.selectCmsContractByContractId(contractId);
     }
 
     /**
@@ -54,32 +48,8 @@ public class CmsContractServiceImpl implements ICmsContractService
      * @return 合同管理
      */
     @Override
-    public List<CmsContract> selectCmsContractList(CmsContract cmsContract)
-    {
-        List<CmsContract> cmsContracts = cmsContractMapper.selectCmsContractList(cmsContract);
-        LocalDate now = LocalDate.now();
-        for (CmsContract contract : cmsContracts) {
-            String status = contract.getStatus();
-            String delFlag = contract.getDelFlag();
-            Date endDate = contract.getEndDate();
-            contract.setStatus(calculateStatus(status, delFlag, endDate, now));
-        }
-        return cmsContracts;
-    }
-
-    public String calculateStatus(String status, String delFlag, Date endDate, LocalDate now) {
-        if (!"0".equals(status)) {//初始状态：待审批状态
-            if (delFlag != null && !delFlag.isEmpty()) {
-                return "3";//无效状态
-            } else {
-                if (endDate != null && endDate.equals(now.minusDays(1))) {
-                    return "3";//无效状态
-                } else {
-                    return "2";//有效状态
-                }
-            }
-        }
-        return status;
+    public List<CmsContract> selectCmsContractList(CmsContract cmsContract) {
+        return cmsContractMapper.selectCmsContractList(cmsContract);
     }
 
     /**
@@ -90,8 +60,7 @@ public class CmsContractServiceImpl implements ICmsContractService
      */
     @Transactional
     @Override
-    public int insertCmsContract(CmsContract cmsContract)
-    {
+    public int insertCmsContract(CmsContract cmsContract) {
         cmsContract.setCreateTime(DateUtils.getNowDate());
         int rows = cmsContractMapper.insertCmsContract(cmsContract);
         insertCmsFile(cmsContract);
@@ -106,8 +75,7 @@ public class CmsContractServiceImpl implements ICmsContractService
      */
     @Transactional
     @Override
-    public int updateCmsContract(CmsContract cmsContract)
-    {
+    public int updateCmsContract(CmsContract cmsContract) {
         cmsContract.setUpdateTime(DateUtils.getNowDate());
         if (cmsContract.getCmsFileList() != null) {
             cmsContractMapper.deleteCmsFileByContractId(cmsContract.getContractId());
@@ -124,8 +92,7 @@ public class CmsContractServiceImpl implements ICmsContractService
      */
     @Transactional
     @Override
-    public int deleteCmsContractByContractIds(Long[] contractIds)
-    {
+    public int deleteCmsContractByContractIds(Long[] contractIds) {
         cmsContractMapper.deleteCmsFileByContractIds(contractIds);
         return cmsContractMapper.deleteCmsContractByContractIds(contractIds);
     }
@@ -138,8 +105,7 @@ public class CmsContractServiceImpl implements ICmsContractService
      */
     @Transactional
     @Override
-    public int deleteCmsContractByContractId(Long contractId)
-    {
+    public int deleteCmsContractByContractId(Long contractId) {
         cmsContractMapper.deleteCmsFileByContractId(contractId);
         return cmsContractMapper.deleteCmsContractByContractId(contractId);
     }
@@ -149,20 +115,16 @@ public class CmsContractServiceImpl implements ICmsContractService
      * 
      * @param cmsContract 合同管理对象
      */
-    public void insertCmsFile(CmsContract cmsContract)
-    {
+    public void insertCmsFile(CmsContract cmsContract) {
         List<CmsFile> cmsFileList = cmsContract.getCmsFileList();
         Long contractId = cmsContract.getContractId();
-        if (StringUtils.isNotNull(cmsFileList))
-        {
+        if (StringUtils.isNotNull(cmsFileList)) {
             List<CmsFile> list = new ArrayList<CmsFile>();
-            for (CmsFile cmsFile : cmsFileList)
-            {
+            for (CmsFile cmsFile : cmsFileList) {
                 cmsFile.setContractId(contractId);
                 list.add(cmsFile);
             }
-            if (list.size() > 0)
-            {
+            if (list.size() > 0) {
                 cmsContractMapper.batchCmsFile(list);
             }
         }
@@ -171,15 +133,14 @@ public class CmsContractServiceImpl implements ICmsContractService
     /**
      * 导入合同管理数据
      *
-     * @param contractList 合同管理数据列表
+     * @param contractList  合同管理数据列表
      * @param updateSupport 是否支持更新
-     * @param operator 操作人
+     * @param operator      操作人
      * @return 结果
      */
     @Transactional
     @Override
-    public String importCmsContract(List<CmsContract> contractList, boolean updateSupport, String operator)
-    {
+    public String importCmsContract(List<CmsContract> contractList, boolean updateSupport, String operator) {
         if (contractList == null || contractList.isEmpty()) {
             throw new ServiceException("导入合同数据不能为空！");
         }
@@ -189,7 +150,8 @@ public class CmsContractServiceImpl implements ICmsContractService
         StringBuilder failureMsg = new StringBuilder();
         for (CmsContract contract : contractList) {
             try {
-                if (StringUtils.isEmpty(contract.getContractCode()) || StringUtils.isEmpty(contract.getContractName())) {
+                if (StringUtils.isEmpty(contract.getContractCode())
+                        || StringUtils.isEmpty(contract.getContractName())) {
                     failureNum++;
                     failureMsg.append("合同编码或名称为空; ");
                     continue;
@@ -231,18 +193,9 @@ public class CmsContractServiceImpl implements ICmsContractService
      */
     @Override
     @Transactional
-    public int auditContract(CmsContract cmsContract)
-    {
-        // 同步审核状态到主状态
-        if ("1".equals(cmsContract.getAuditStatus())) {
-            cmsContract.setStatus("0"); // 通过 -> 正常
-        } else if ("2".equals(cmsContract.getAuditStatus())) {
-            cmsContract.setStatus("1"); // 驳回 -> 停用
-        }
-
+    public int auditContract(CmsContract cmsContract) {
         int rows = cmsContractMapper.updateCmsContract(cmsContract);
-        if (rows > 0)
-        {
+        if (rows > 0) {
             CmsContract fullContract = cmsContractMapper.selectCmsContractByContractId(cmsContract.getContractId());
             CmsApproval approval = new CmsApproval();
             approval.setContractId(cmsContract.getContractId());

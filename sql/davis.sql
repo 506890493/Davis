@@ -34,7 +34,7 @@ create table if not exists cms_contract
     remark             varchar(500)                null comment '备注',
     reminder_status    char           default '0'  null comment '催交状态（字典：cms_reminder_status）',#执行维度 (reminder_status)：管“人为动作”。（无需催收、待催收、催收中、已完成）
     annex              text                        null comment '附件列表（JSON格式存储，包含文件ID和路径，用于列表快速展示）',
-    status             char           default '0'  null,#时间维度 (计算属性)：管“自然规律”。（未开始、进行中、已过期、即将到期）
+    -- 注意: status 字段已移除, 改为基于 start_date/end_date 动态计算 (0=未开始, 1=进行中, 2=即将到期, 3=已过期)
     audit_status       char           default '0'  null comment '审核状态（''0''=待审批, ''1''=通过, ''2''=驳回）' #合规维度 (audit_status)：管“生杀大权”。（待审批、通过、驳回）
 )
     comment '合同管理表';

@@ -28,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="ownerName"  column="owner_name"  />
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
-        <result property="status"    column="status"    />
+
         <result property="auditStatus"    column="audit_status"    />
         <result property="delFlag"    column="del_flag"    />
         <result property="createBy"    column="create_by"    />
@@ -58,7 +58,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCmsContractVo">
-        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.status, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
+        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
         from cms_contract c
         left join sys_user u on c.owner_id = u.user_id
     </sql>
@@ -87,7 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ownerId != null "> and c.owner_id = #{ownerId}</if>
             <if test="deptId != null "> and c.dept_id = #{deptId}</if>
             <if test="parentId != null "> and c.parent_id = #{parentId}</if>
-            <if test="status != null  and status != ''"> and c.status = #{status}</if>
+
             <if test="auditStatus != null  and auditStatus != ''"> and c.audit_status = #{auditStatus}</if>
             <if test="reminderStatus != null  and reminderStatus != ''"> and c.reminder_status = #{reminderStatus}</if>
             <if test="annex != null  and annex != ''"> and c.annex = #{annex}</if>
@@ -95,7 +95,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectCmsContractByContractId" parameterType="Long" resultMap="CmsContractCmsFileResult">
-        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.status, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
+        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
         from cms_contract c
         left join sys_user u on c.owner_id = u.user_id
         where c.contract_id = #{contractId}
@@ -136,7 +136,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ownerId != null">owner_id,</if>
             <if test="deptId != null">dept_id,</if>
             <if test="parentId != null">parent_id,</if>
-            <if test="status != null">status,</if>
+
             <if test="auditStatus != null">audit_status,</if>
             <if test="delFlag != null">del_flag,</if>
             <if test="createBy != null">create_by,</if>
@@ -169,7 +169,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ownerId != null">#{ownerId},</if>
             <if test="deptId != null">#{deptId},</if>
             <if test="parentId != null">#{parentId},</if>
-            <if test="status != null">#{status},</if>
+
             <if test="auditStatus != null">#{auditStatus},</if>
             <if test="delFlag != null">#{delFlag},</if>
             <if test="createBy != null">#{createBy},</if>
@@ -206,7 +206,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ownerId != null">owner_id = #{ownerId},</if>
             <if test="deptId != null">dept_id = #{deptId},</if>
             <if test="parentId != null">parent_id = #{parentId},</if>
-            <if test="status != null">status = #{status},</if>
+
             <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
             <if test="createBy != null">create_by = #{createBy},</if>

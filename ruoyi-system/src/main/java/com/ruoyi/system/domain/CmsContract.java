@@ -1,6 +1,7 @@
 package com.ruoyi.system.domain;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,8 +16,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author ruoyi
  * @date 2025-12-14
  */
-public class CmsContract extends BaseEntity
-{
+public class CmsContract extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /** 合同ID */
@@ -91,7 +91,7 @@ public class CmsContract extends BaseEntity
     private String rentalAddress;
 
     /** 是否已出租（0否 1是） */
-    @Excel(name = "是否已出租", combo = {"是", "否"}, readConverterExp = "0=否,1=是")
+    @Excel(name = "是否已出租", combo = { "是", "否" }, readConverterExp = "0=否,1=是")
     private String isRented;
 
     /** 利润 */
@@ -113,9 +113,11 @@ public class CmsContract extends BaseEntity
     @Excel(name = "父合同ID")
     private Long parentId;
 
-    /** 状态（字典：cms_contract_status 0正常 1停用 2过期） */
-    @Excel(name = "状态", dictType = "cms_contract_status", comboReadDict = true)
-    private String status;
+    /**
+     * 合同状态（动态计算，不再物理存储）
+     * 字典：cms_contract_status
+     * 0=未开始, 1=进行中, 2=即将到期(<=30天), 3=已过期
+     */
 
     /** 审核状态（'0'=待审批, '1'=通过, '2'=驳回） */
     @Excel(name = "审核状态", dictType = "cms_audit_status", comboReadDict = true)
@@ -135,333 +137,306 @@ public class CmsContract extends BaseEntity
     /** 附件明细信息 */
     private List<CmsFile> cmsFileList;
 
-    public void setContractId(Long contractId) 
-    {
+    public void setContractId(Long contractId) {
         this.contractId = contractId;
     }
 
-    public Long getContractId() 
-    {
+    public Long getContractId() {
         return contractId;
     }
 
-    public void setContractCode(String contractCode) 
-    {
+    public void setContractCode(String contractCode) {
         this.contractCode = contractCode;
     }
 
-    public String getContractCode() 
-    {
+    public String getContractCode() {
         return contractCode;
     }
 
-    public void setContractName(String contractName) 
-    {
+    public void setContractName(String contractName) {
         this.contractName = contractName;
     }
 
-    public String getContractName() 
-    {
+    public String getContractName() {
         return contractName;
     }
 
-    public void setContractType(String contractType) 
-    {
+    public void setContractType(String contractType) {
         this.contractType = contractType;
     }
 
-    public String getContractType() 
-    {
+    public String getContractType() {
         return contractType;
     }
 
-    public void setLegalPerson(String legalPerson) 
-    {
+    public void setLegalPerson(String legalPerson) {
         this.legalPerson = legalPerson;
     }
 
-    public String getLegalPerson() 
-    {
+    public String getLegalPerson() {
         return legalPerson;
     }
 
-    public void setContactPerson(String contactPerson) 
-    {
+    public void setContactPerson(String contactPerson) {
         this.contactPerson = contactPerson;
     }
 
-    public String getContactPerson() 
-    {
+    public String getContactPerson() {
         return contactPerson;
     }
 
-    public void setContactPhone(String contactPhone) 
-    {
+    public void setContactPhone(String contactPhone) {
         this.contactPhone = contactPhone;
     }
 
-    public String getContactPhone() 
-    {
+    public String getContactPhone() {
         return contactPhone;
     }
 
-    public void setContactEmail(String contactEmail) 
-    {
+    public void setContactEmail(String contactEmail) {
         this.contactEmail = contactEmail;
     }
 
-    public String getContactEmail() 
-    {
+    public String getContactEmail() {
         return contactEmail;
     }
 
-    public void setAmount(BigDecimal amount) 
-    {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public BigDecimal getAmount() 
-    {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setPaymentCycle(String paymentCycle) 
-    {
+    public void setPaymentCycle(String paymentCycle) {
         this.paymentCycle = paymentCycle;
     }
 
-    public String getPaymentCycle() 
-    {
+    public String getPaymentCycle() {
         return paymentCycle;
     }
 
-    public void setPaymentDate(Date paymentDate) 
-    {
+    public void setPaymentDate(Date paymentDate) {
         this.paymentDate = paymentDate;
     }
 
-    public Date getPaymentDate() 
-    {
+    public Date getPaymentDate() {
         return paymentDate;
     }
 
-    public void setPaymentMethod(String paymentMethod) 
-    {
+    public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
-    public String getPaymentMethod() 
-    {
+    public String getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setStartDate(Date startDate) 
-    {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public Date getStartDate() 
-    {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setEndDate(Date endDate) 
-    {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    public Date getEndDate() 
-    {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setTaxType(String taxType) 
-    {
+    public void setTaxType(String taxType) {
         this.taxType = taxType;
     }
 
-    public String getTaxType() 
-    {
+    public String getTaxType() {
         return taxType;
     }
 
-    public void setEstablishmentDate(Date establishmentDate) 
-    {
+    public void setEstablishmentDate(Date establishmentDate) {
         this.establishmentDate = establishmentDate;
     }
 
-    public Date getEstablishmentDate() 
-    {
+    public Date getEstablishmentDate() {
         return establishmentDate;
     }
 
-    public void setRentalAddress(String rentalAddress) 
-    {
+    public void setRentalAddress(String rentalAddress) {
         this.rentalAddress = rentalAddress;
     }
 
-    public String getRentalAddress() 
-    {
+    public String getRentalAddress() {
         return rentalAddress;
     }
 
-    public void setIsRented(String isRented) 
-    {
+    public void setIsRented(String isRented) {
         this.isRented = isRented;
     }
 
-    public String getIsRented() 
-    {
+    public String getIsRented() {
         return isRented;
     }
 
-    public void setProfit(BigDecimal profit) 
-    {
+    public void setProfit(BigDecimal profit) {
         this.profit = profit;
     }
 
-    public BigDecimal getProfit() 
-    {
+    public BigDecimal getProfit() {
         return profit;
     }
 
-    public void setOwnerId(Long ownerId) 
-    {
+    public void setOwnerId(Long ownerId) {
         this.ownerId = ownerId;
     }
 
-    public Long getOwnerId() 
-    {
+    public Long getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerName(String ownerName) 
-    {
+    public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
     }
 
-    public String getOwnerName() 
-    {
+    public String getOwnerName() {
         return ownerName;
     }
 
-    public void setDeptId(Long deptId) 
-    {
+    public void setDeptId(Long deptId) {
         this.deptId = deptId;
     }
 
-    public Long getDeptId() 
-    {
+    public Long getDeptId() {
         return deptId;
     }
 
-    public void setParentId(Long parentId)
-    {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 
-    public Long getParentId()
-    {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setAuditStatus(String auditStatus)
-    {
+    public void setAuditStatus(String auditStatus) {
         this.auditStatus = auditStatus;
     }
 
-    public String getAuditStatus()
-    {
+    public String getAuditStatus() {
         return auditStatus;
     }
 
-    public void setStatus(String status) 
-    {
-        this.status = status;
+    /**
+     * 兼容 Jackson 反序列化，忽略传入的 status 值
+     */
+    public void setStatus(String status) {
+        // no-op: status 由 getStatus() 动态计算
     }
 
-    public String getStatus() 
-    {
-        return status;
+    /**
+     * 动态计算合同状态（基于 startDate / endDate 与当前日期）
+     * 0=未开始, 1=进行中, 2=即将到期(<=30天), 3=已过期
+     */
+    public String getStatus() {
+        Date now = new Date();
+        // 清除时分秒，只比较日期
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date today = cal.getTime();
+
+        if (startDate != null && today.before(startDate)) {
+            return "0"; // 未开始
+        }
+        if (endDate != null && today.after(endDate)) {
+            return "3"; // 已过期
+        }
+        if (endDate != null) {
+            cal.setTime(today);
+            cal.add(Calendar.DAY_OF_MONTH, 30);
+            Date thirtyDaysLater = cal.getTime();
+            if (!endDate.after(thirtyDaysLater)) {
+                return "2"; // 即将到期 (<=30天)
+            }
+        }
+        return "1"; // 进行中
     }
 
-    public void setDelFlag(String delFlag) 
-    {
+    public void setDelFlag(String delFlag) {
         this.delFlag = delFlag;
     }
 
-    public String getDelFlag() 
-    {
+    public String getDelFlag() {
         return delFlag;
     }
 
-    public void setReminderStatus(String reminderStatus) 
-    {
+    public void setReminderStatus(String reminderStatus) {
         this.reminderStatus = reminderStatus;
     }
 
-    public String getReminderStatus() 
-    {
+    public String getReminderStatus() {
         return reminderStatus;
     }
 
-    public void setAnnex(String annex) 
-    {
+    public void setAnnex(String annex) {
         this.annex = annex;
     }
 
-    public String getAnnex() 
-    {
+    public String getAnnex() {
         return annex;
     }
 
-    public List<CmsFile> getCmsFileList()
-    {
+    public List<CmsFile> getCmsFileList() {
         return cmsFileList;
     }
 
-    public void setCmsFileList(List<CmsFile> cmsFileList)
-    {
+    public void setCmsFileList(List<CmsFile> cmsFileList) {
         this.cmsFileList = cmsFileList;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("contractId", getContractId())
-            .append("contractCode", getContractCode())
-            .append("contractName", getContractName())
-            .append("contractType", getContractType())
-            .append("legalPerson", getLegalPerson())
-            .append("contactPerson", getContactPerson())
-            .append("contactPhone", getContactPhone())
-            .append("contactEmail", getContactEmail())
-            .append("amount", getAmount())
-            .append("paymentCycle", getPaymentCycle())
-            .append("paymentDate", getPaymentDate())
-            .append("paymentMethod", getPaymentMethod())
-            .append("startDate", getStartDate())
-            .append("endDate", getEndDate())
-            .append("taxType", getTaxType())
-            .append("establishmentDate", getEstablishmentDate())
-            .append("rentalAddress", getRentalAddress())
-            .append("isRented", getIsRented())
-            .append("profit", getProfit())
-            .append("ownerId", getOwnerId())
-            .append("ownerName", getOwnerName())
-            .append("deptId", getDeptId())
-            .append("parentId", getParentId())
-            .append("status", getStatus())
-            .append("auditStatus", getAuditStatus())
-            .append("delFlag", getDelFlag())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .append("reminderStatus", getReminderStatus())
-            .append("annex", getAnnex())
-            .append("cmsFileList", getCmsFileList())
-            .toString();
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("contractId", getContractId())
+                .append("contractCode", getContractCode())
+                .append("contractName", getContractName())
+                .append("contractType", getContractType())
+                .append("legalPerson", getLegalPerson())
+                .append("contactPerson", getContactPerson())
+                .append("contactPhone", getContactPhone())
+                .append("contactEmail", getContactEmail())
+                .append("amount", getAmount())
+                .append("paymentCycle", getPaymentCycle())
+                .append("paymentDate", getPaymentDate())
+                .append("paymentMethod", getPaymentMethod())
+                .append("startDate", getStartDate())
+                .append("endDate", getEndDate())
+                .append("taxType", getTaxType())
+                .append("establishmentDate", getEstablishmentDate())
+                .append("rentalAddress", getRentalAddress())
+                .append("isRented", getIsRented())
+                .append("profit", getProfit())
+                .append("ownerId", getOwnerId())
+                .append("ownerName", getOwnerName())
+                .append("deptId", getDeptId())
+                .append("parentId", getParentId())
+                .append("status(computed)", getStatus())
+                .append("auditStatus", getAuditStatus())
+                .append("delFlag", getDelFlag())
+                .append("createBy", getCreateBy())
+                .append("createTime", getCreateTime())
+                .append("updateBy", getUpdateBy())
+                .append("updateTime", getUpdateTime())
+                .append("remark", getRemark())
+                .append("reminderStatus", getReminderStatus())
+                .append("annex", getAnnex())
+                .append("cmsFileList", getCmsFileList())
+                .toString();
     }
 }

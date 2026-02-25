@@ -69,11 +69,14 @@ spring:
   redis:
     cluster:
       nodes:
-        - 127.0.0.1:6381
-        - 127.0.0.1:6382
-        - 127.0.0.1:6383
+        - 127.0.0.1:7001
+        - 127.0.0.1:7002
+        - 127.0.0.1:7003
+        - 127.0.0.1:7004
+        - 127.0.0.1:7005
+        - 127.0.0.1:7006
       max-redirects: 3  # 集群重定向次数，默认 3
-    password: 123456
+    # password: 123456
     lettuce:
       pool:
         max-active: 8
@@ -81,11 +84,11 @@ spring:
         min-idle: 0
         max-wait: -1ms
       timeout: 10s
-#    # 地址
+    # 地址
 #    host: localhost
-#    # 端口，默认为6379
+    # 端口，默认为6379
 #    port: 6381
-#    # 数据库索引
+    # 数据库索引
 #    database: 0
 #    # 密码
 #    password: 123456

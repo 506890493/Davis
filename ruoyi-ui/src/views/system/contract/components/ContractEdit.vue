@@ -30,17 +30,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="状态" prop="status">
-              <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in dict.type.cms_contract_status"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{ dict.label }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
+
         </el-row>
 
         <template v-if="dialogType === accountingType">
@@ -283,13 +273,11 @@ export default {
     "cms_pay_cycle",
     "cms_pay_method",
     "cms_reminder_status",
-    "cms_contract_status",
   ],
   data() {
     return {
       isEdit: false,
       form: {
-        status: '0',
         contractType: null,
       },
       rules: {
@@ -373,7 +361,6 @@ export default {
         profit: null,
         ownerId: null,
         deptId: null,
-        status: "0",
         delFlag: null,
         createBy: null,
         createTime: null,
