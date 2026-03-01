@@ -1,0 +1,17 @@
+ruoyi-system/src/main/java/com/ruoyi/system/domain/CmsNotification.java
+ruoyi-system/src/main/java/com/ruoyi/system/service/ICmsNotificationService.java
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsNotificationServiceImpl.java
+ruoyi-system/src/main/java/com/ruoyi/system/mapper/CmsNotificationMapper.java
+ruoyi-system/src/main/resources/mapper/system/CmsNotificationMapper.xml
+ruoyi-admin/src/main/java/com/ruoyi/web/controller/davis/CmsNotificationController.java
+ruoyi-ui/src/api/system/notification.js
+--- Endpoint verification ---
+32:    @GetMapping("/unreadCount")
+33:    public AjaxResult unreadCount()
+58:    @PutMapping("/read/{notificationId}")
+68:    @PutMapping("/readAll")
+--- DashboardServiceImpl notification integration ---
+20:import com.ruoyi.system.service.ICmsNotificationService;
+38:    private ICmsNotificationService notificationService;
+81:                notificationService.createNotification(
+--- BUILD STATUS: SUCCESS ---

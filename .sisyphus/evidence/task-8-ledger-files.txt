@@ -1,0 +1,8 @@
+ruoyi-system/src/main/java/com/ruoyi/system/domain/vo/LedgerSummaryVo.java
+ruoyi-system/src/main/java/com/ruoyi/system/service/ICmsLedgerService.java
+ruoyi-admin/src/main/java/com/ruoyi/web/controller/davis/CmsLedgerController.java
+    @PreAuthorize("@ss.hasPermi('cms:ledger:list')")
+    @PreAuthorize("@ss.hasPermi('cms:ledger:list')")
+    @PreAuthorize("@ss.hasPermi('cms:ledger:list')")
+    @PreAuthorize("@ss.hasPermi('cms:ledger:list')")
+ruoyi-ui/src/api/system/ledger.js

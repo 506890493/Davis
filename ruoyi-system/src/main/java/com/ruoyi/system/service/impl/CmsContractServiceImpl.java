@@ -14,6 +14,8 @@ import com.ruoyi.system.domain.CmsApproval;
 import com.ruoyi.system.mapper.CmsContractMapper;
 import com.ruoyi.system.service.ICmsApprovalService;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.system.service.ICmsContractService;
 import com.ruoyi.system.service.ISysConfigService;
 
@@ -45,6 +47,12 @@ public class CmsContractServiceImpl implements ICmsContractService {
         CmsContract contract = cmsContractMapper.selectCmsContractByContractId(contractId);
         if (contract != null) {
             contract.setReminderDays(getReminderDays());
+            // Amount hiding for non-admin
+            String roleType = determineRoleType();
+            if (!"admin".equals(roleType)) {
+                contract.setAmount(null);
+                contract.setProfit(null);
+            }
         }
         return contract;
     }
@@ -57,11 +65,31 @@ public class CmsContractServiceImpl implements ICmsContractService {
      */
     @Override
     public List<CmsContract> selectCmsContractList(CmsContract cmsContract) {
+        // Role-based data filtering
+        String roleType = determineRoleType();
+        if ("accountant".equals(roleType)) {
+            // Accountant can only see contracts where ownerId = their userId
+            cmsContract.setOwnerId(SecurityUtils.getUserId());
+        } else if ("sales".equals(roleType)) {
+            // Sales can only see contracts they created
+            cmsContract.setCreateBy(SecurityUtils.getUsername());
+        }
+        // else admin: see all (no filter)
+
         List<CmsContract> list = cmsContractMapper.selectCmsContractList(cmsContract);
         int days = getReminderDays();
         for (CmsContract contract : list) {
             contract.setReminderDays(days);
         }
+
+        // Amount hiding for non-admin
+        if (!"admin".equals(roleType)) {
+            for (CmsContract contract : list) {
+                contract.setAmount(null);
+                contract.setProfit(null);
+            }
+        }
+
         return list;
     }
 
@@ -240,6 +268,34 @@ public class CmsContractServiceImpl implements ICmsContractService {
             // ignore, use default
         }
         return 30;
+    }
+
+
+    /**
+     * 判断当前用户角色类型
+     * @return admin/accountant/sales
+     */
+    private String determineRoleType() {
+        try {
+            LoginUser loginUser = SecurityUtils.getLoginUser();
+            if (loginUser != null && loginUser.getUser() != null) {
+                java.util.List<SysRole> roles = loginUser.getUser().getRoles();
+                if (roles != null) {
+                    for (SysRole role : roles) {
+                        if ("admin".equals(role.getRoleKey())) return "admin";
+                    }
+                    for (SysRole role : roles) {
+                        if ("accountant".equals(role.getRoleKey())) return "accountant";
+                    }
+                    for (SysRole role : roles) {
+                        if ("sales".equals(role.getRoleKey())) return "sales";
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // default to admin view if role can't be determined
+        }
+        return "admin";
     }
 
 }

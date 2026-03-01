@@ -34,3 +34,20 @@
 ## Worktree
 - All work done in: /Users/shipeter/codes/davis/Davis-work
 - Main repo at: /Users/shipeter/codes/davis/Davis
+
+## Task 7: Notification Bell Backend (Completed)
+- Created cms_notification table (notification_id, user_id, title, content, notification_type, related_id, is_read, create_time)
+- Full stack: Entity → Mapper → Mapper XML → Service Interface → ServiceImpl → Controller → Frontend API
+- Mapper uses param1/param2/param3 for multi-param methods (existsByUserAndRelated)
+- Controller endpoints: GET /unreadCount, GET /list, PUT /read/{id}, PUT /readAll — all use system:notification:list permission
+- DashboardServiceImpl auto-generates notifications when querying expiring contracts (dedup via existsByUserAndRelated)
+- notification.js frontend API created at ruoyi-ui/src/api/system/notification.js
+- Evidence saved to .sisyphus/evidence/task-7-file-check.txt
+
+## Task 9: Data Isolation (Completed)
+- Verified role-based data permissions in the backend.
+- `CmsContractServiceImpl.selectCmsContractList()` filters by role (accountant: ownerId filter, sales: createBy filter).
+- `CmsContractServiceImpl.selectCmsContractList()` and `selectCmsContractByContractId()` nullify amount/profit for non-admin users.
+- `CmsTaskServiceImpl.selectCmsTaskList()` filters by assignedTo for non-admin.
+- `CmsDashboardServiceImpl` accountant stats query uses current user's ID instead of null.
+- Evidence saved to `.sisyphus/evidence/task-9-data-isolation.txt`.

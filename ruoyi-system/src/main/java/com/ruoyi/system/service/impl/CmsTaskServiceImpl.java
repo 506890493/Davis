@@ -14,6 +14,13 @@ import com.ruoyi.system.domain.CmsContract;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.service.ISysNoticeService;
 import com.ruoyi.system.domain.SysNotice;
+import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.ISysRoleService;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.core.domain.entity.SysRole;
 
 
 
@@ -34,6 +41,12 @@ public class CmsTaskServiceImpl implements ICmsTaskService
 
     @Autowired
     private ISysNoticeService noticeService;
+
+    @Autowired
+    private ISysUserService sysUserService;
+
+    @Autowired
+    private ISysRoleService sysRoleService;
 
     /**
      * 查询任务管理
@@ -56,6 +69,11 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     @Override
     public List<CmsTask> selectCmsTaskList(CmsTask cmsTask)
     {
+        // Non-admin users only see tasks assigned to them
+        String roleType = determineRoleType();
+        if (!"admin".equals(roleType)) {
+            cmsTask.setAssignedTo(SecurityUtils.getUserId());
+        }
         return cmsTaskMapper.selectCmsTaskList(cmsTask);
     }
 
@@ -193,4 +211,59 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         task.setTargetContractId(targetContract.getContractId());
         return cmsTaskMapper.updateCmsTask(task);
     }
+
+    /**
+     * 判断当前用户角色类型
+     * @return admin/accountant/sales
+     */
+    private String determineRoleType() {
+        try {
+            LoginUser loginUser = SecurityUtils.getLoginUser();
+            if (loginUser != null && loginUser.getUser() != null) {
+                java.util.List<SysRole> roles = loginUser.getUser().getRoles();
+                if (roles != null) {
+                    for (SysRole role : roles) {
+                        if ("admin".equals(role.getRoleKey())) return "admin";
+                    }
+                    for (SysRole role : roles) {
+                        if ("accountant".equals(role.getRoleKey())) return "accountant";
+                    }
+                    for (SysRole role : roles) {
+                        if ("sales".equals(role.getRoleKey())) return "sales";
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // default to admin view if role can't be determined
+        }
+        return "admin";
+    }
+
+    /**
+     * 获取可分配的会计用户列表
+     *
+     * @return 会计角色用户列表
+     */
+    @Override
+    public List<SysUser> getAssignableUsers()
+    {
+        // 查找accountant角色
+        SysRole queryRole = new SysRole();
+        List<SysRole> allRoles = sysRoleService.selectRoleList(queryRole);
+        Long accountantRoleId = null;
+        for (SysRole role : allRoles) {
+            if ("accountant".equals(role.getRoleKey())) {
+                accountantRoleId = role.getRoleId();
+                break;
+            }
+        }
+        if (accountantRoleId == null) {
+            return new ArrayList<>();
+        }
+        // 通过角色ID查询已分配该角色的用户
+        SysUser queryUser = new SysUser();
+        queryUser.setRoleId(accountantRoleId);
+        return sysUserService.selectAllocatedList(queryUser);
+    }
+
 }

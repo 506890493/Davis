@@ -8,6 +8,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.CmsTask;
 import com.ruoyi.system.service.ICmsTaskService;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -94,5 +95,16 @@ public class CmsTaskController extends BaseController
     public AjaxResult remove(@PathVariable Long[] taskIds)
     {
         return toAjax(cmsTaskService.deleteCmsTaskByTaskIds(taskIds));
+    }
+
+    /**
+     * 获取可分配的会计用户列表
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:dispatch')")
+    @GetMapping("/assignableUsers")
+    public AjaxResult getAssignableUsers()
+    {
+        List<SysUser> users = cmsTaskService.getAssignableUsers();
+        return success(users);
     }
 }

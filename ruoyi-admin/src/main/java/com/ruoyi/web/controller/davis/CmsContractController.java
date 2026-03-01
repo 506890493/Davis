@@ -93,17 +93,28 @@ public class CmsContractController extends BaseController
     @PostMapping("/collection")
     public AjaxResult createCollectionTask(@RequestBody CmsTask cmsTask)
     {
-        cmsTask.setTaskType("1"); // 催收任务
-        
         // Ensure contractId is set
         if (cmsTask.getContractId() == null) {
             cmsTask.setContractId(cmsTask.getSourceContractId());
         }
 
-        // Generate task title
+        // Fetch contract to get name and amount
         CmsContract contract = cmsContractService.selectCmsContractByContractId(cmsTask.getSourceContractId());
         String contractName = (contract != null) ? contract.getContractName() : "未知合同";
-        cmsTask.setTaskTitle("催收任务: " + contractName);
+        
+        // Set originalAmount
+        if (contract != null) {
+            cmsTask.setOriginalAmount(contract.getAmount());
+        }
+
+        // Generate task title based on taskType
+        if ("2".equals(cmsTask.getTaskType())) {
+            cmsTask.setTaskTitle("续费任务: " + contractName);
+        } else {
+            // Default to collection task
+            cmsTask.setTaskType("1");
+            cmsTask.setTaskTitle("催收任务: " + contractName);
+        }
 
         return toAjax(cmsTaskService.insertCmsTask(cmsTask));
     }

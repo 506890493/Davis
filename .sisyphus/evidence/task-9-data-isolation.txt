@@ -1,0 +1,15 @@
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:51:            String roleType = determineRoleType();
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:52:            if (!"admin".equals(roleType)) {
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:53:                contract.setAmount(null);
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:69:        String roleType = determineRoleType();
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:70:        if ("accountant".equals(roleType)) {
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:72:            cmsContract.setOwnerId(SecurityUtils.getUserId());
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:73:        } else if ("sales".equals(roleType)) {
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:86:        if (!"admin".equals(roleType)) {
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:88:                contract.setAmount(null);
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsContractServiceImpl.java:278:    private String determineRoleType() {
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsTaskServiceImpl.java:73:        String roleType = determineRoleType();
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsTaskServiceImpl.java:74:        if (!"admin".equals(roleType)) {
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsTaskServiceImpl.java:75:            cmsTask.setAssignedTo(SecurityUtils.getUserId());
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsTaskServiceImpl.java:93:        queryTask.setAssignedTo(cmsTask.getAssignedTo());
+ruoyi-system/src/main/java/com/ruoyi/system/service/impl/CmsTaskServiceImpl.java:219:    private String determineRoleType() {

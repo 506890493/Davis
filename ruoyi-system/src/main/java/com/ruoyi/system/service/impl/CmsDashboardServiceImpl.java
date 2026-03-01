@@ -17,6 +17,7 @@ import com.ruoyi.system.domain.vo.DashboardStatsVo;
 import com.ruoyi.system.mapper.CmsContractMapper;
 import com.ruoyi.system.mapper.CmsTaskMapper;
 import com.ruoyi.system.service.ICmsDashboardService;
+import com.ruoyi.system.service.ICmsNotificationService;
 
 /**
  * Dashboard统计Service业务层处理
@@ -32,6 +33,9 @@ public class CmsDashboardServiceImpl implements ICmsDashboardService
 
     @Autowired
     private CmsTaskMapper cmsTaskMapper;
+
+    @Autowired
+    private ICmsNotificationService notificationService;
 
     /**
      * 获取Dashboard统计数据
@@ -67,7 +71,23 @@ public class CmsDashboardServiceImpl implements ICmsDashboardService
             // 销售/其他：查看自己的数据
             buildSalesStats(stats, startDate, endDate, userId);
         }
-        
+
+        // Auto-create expiry notifications for current user
+        List<CmsContract> expiringContracts = stats.getExpiringContracts();
+        if (expiringContracts != null)
+        {
+            for (CmsContract contract : expiringContracts)
+            {
+                notificationService.createNotification(
+                    userId,
+                    "合同即将到期: " + contract.getContractName(),
+                    "合同 " + contract.getContractName() + " 即将在30天内到期",
+                    "1",
+                    contract.getContractId()
+                );
+            }
+        }
+
         return stats;
     }
 
@@ -99,23 +119,23 @@ public class CmsDashboardServiceImpl implements ICmsDashboardService
     private void buildAccountantStats(DashboardStatsVo stats, Date startDate, Date endDate)
     {
         // 应收金额（本月到期合同总金额）
-        BigDecimal receivable = cmsContractMapper.sumExpiringContractAmount(startDate, endDate, null);
+        BigDecimal receivable = cmsContractMapper.sumExpiringContractAmount(startDate, endDate, SecurityUtils.getUserId());
         stats.setTotalReceivable(receivable);
         
         // 已完成金额（本月已完成任务的金额）
-        BigDecimal received = cmsTaskMapper.sumCompletedTaskAmount(startDate, endDate, null);
+        BigDecimal received = cmsTaskMapper.sumCompletedTaskAmount(startDate, endDate, SecurityUtils.getUserId());
         stats.setTotalReceived(received);
         
         // 代账收费应完成家数（代账类型合同本月到期数量）
-        Long bookkeepingTarget = cmsContractMapper.countBookkeepingContracts(startDate, endDate, null);
+        Long bookkeepingTarget = cmsContractMapper.countBookkeepingContracts(startDate, endDate, SecurityUtils.getUserId());
         stats.setBookkeepingTargetCount(bookkeepingTarget);
         
         // 代账收费已完成家数（代账类型已完成任务数量）
-        Long bookkeepingDone = cmsTaskMapper.countCompletedBookkeepingTasks(startDate, endDate, null);
+        Long bookkeepingDone = cmsTaskMapper.countCompletedBookkeepingTasks(startDate, endDate, SecurityUtils.getUserId());
         stats.setBookkeepingDoneCount(bookkeepingDone);
         
         // 也展示本月到期合同列表
-        List<CmsContract> expiringContracts = cmsContractMapper.selectExpiringContracts(startDate, endDate, null);
+        List<CmsContract> expiringContracts = cmsContractMapper.selectExpiringContracts(startDate, endDate, SecurityUtils.getUserId());
         stats.setExpiringContracts(expiringContracts);
         stats.setExpiringContractCount((long) expiringContracts.size());
     }

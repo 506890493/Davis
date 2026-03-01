@@ -2,6 +2,7 @@ package com.ruoyi.system.service;
 
 import com.ruoyi.system.domain.CmsContract;
 import com.ruoyi.system.domain.CmsTask;
+import com.ruoyi.common.core.domain.entity.SysUser;
 
 import java.util.List;
 
@@ -69,4 +70,11 @@ public interface ICmsTaskService
      * @return 结果
      */
     public int completeCollectionTask(Long taskId, CmsContract newContract);
+
+    /**
+     * 获取可分配的会计用户列表
+     *
+     * @return 会计角色用户列表
+     */
+    public List<SysUser> getAssignableUsers();
 }

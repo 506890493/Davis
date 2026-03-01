@@ -1,0 +1,505 @@
+*2
+$6
+SELECT
+$1
+0
+*3
+$3
+SET
+$30
+sys_config:sys.index.sideTheme
+$12
+"theme-dark"
+*3
+$3
+SET
+$41
+sys_config:sys.account.initPasswordModify
+$3
+"1"
+*3
+$3
+SET
+$23
+sys_dict:cms_pay_method
+$895
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":114L,"dictLabel":"微信支付","dictSort":1L,"dictType":"cms_pay_method","dictValue":"1","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:42","default":false,"dictCode":112L,"dictLabel":"支付宝","dictSort":2L,"dictType":"cms_pay_method","dictValue":"2","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":116L,"dictLabel":"对公转账","dictSort":3L,"dictType":"cms_pay_method","dictValue":"3","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$22
+sys_dict:sys_show_hide
+$671
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":4L,"dictLabel":"显示","dictSort":1L,"dictType":"sys_show_hide","dictValue":"0","isDefault":"Y","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"显示菜单","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":5L,"dictLabel":"隐藏","dictSort":2L,"dictType":"sys_show_hide","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"隐藏菜单","status":"0"}]
+*3
+$3
+SET
+$28
+sys_dict:cms_reminder_status
+$1293
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:38:41","default":false,"dictCode":134L,"dictLabel":"已完成","dictSort":0L,"dictType":"cms_reminder_status","dictValue":"3","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":120L,"dictLabel":"无需催收","dictSort":1L,"dictType":"cms_reminder_status","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":121L,"dictLabel":"待催收","dictSort":2L,"dictType":"cms_reminder_status","dictValue":"1","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":122L,"dictLabel":"催收中","dictSort":3L,"dictType":"cms_reminder_status","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$24
+sys_dict:sys_notice_type
+$666
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":14L,"dictLabel":"通知","dictSort":1L,"dictType":"sys_notice_type","dictValue":"1","isDefault":"Y","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"通知","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":15L,"dictLabel":"公告","dictSort":2L,"dictType":"sys_notice_type","dictValue":"2","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"remark":"公告","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:sys_common_status
+$682
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":28L,"dictLabel":"成功","dictSort":1L,"dictType":"sys_common_status","dictValue":"0","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常状态","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":29L,"dictLabel":"失败","dictSort":2L,"dictType":"sys_common_status","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"停用状态","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:cms_task_priority
+$1365
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:21:24","default":false,"dictCode":133L,"dictLabel":"低","dictSort":0L,"dictType":"cms_task_priority","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"remark":"有空再做","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:09","default":false,"dictCode":130L,"dictLabel":"极高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"3","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"必须立即处理","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:58","default":false,"dictCode":132L,"dictLabel":"普通","dictSort":0L,"dictType":"cms_task_priority","dictValue":"1","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常排期","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:30","default":false,"dictCode":131L,"dictLabel":"高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"优先处理","status":"0"}]
+*3
+$3
+SET
+$25
+sys_dict:cms_audit_status
+$954
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:36","default":false,"dictCode":137L,"dictLabel":"驳回","dictSort":0L,"dictType":"cms_audit_status","dictValue":"2","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:19","default":false,"dictCode":136L,"dictLabel":"通过","dictSort":0L,"dictType":"cms_audit_status","dictValue":"1","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:02","default":false,"dictCode":135L,"dictLabel":"待审批","dictSort":0L,"dictType":"cms_audit_status","dictValue":"0","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*5
+$3
+SET
+$46
+captcha_codes:9604bac73652453a93fc712360a26eed
+$3
+"3"
+$4
+PXAT
+$13
+1772027151942
+*2
+$3
+DEL
+$46
+captcha_codes:9604bac73652453a93fc712360a26eed
+*5
+$3
+SET
+$49
+login_tokens:ab7e02d1-54d5-4125-853d-c83a97a87532
+$1260
+{"@type":"com.ruoyi.common.core.domain.model.LoginUser","browser":"Chrome 14","deptId":103L,"expireTime":1772028835018,"ipaddr":"127.0.0.1","loginLocation":"内网IP","loginTime":1772027035018,"os":"Mac OS X","permissions":Set["*:*:*"],"token":"ab7e02d1-54d5-4125-853d-c83a97a87532","user":{"admin":true,"avatar":"/profile/avatar/2025/12/14/5fa1a24919f3414d9b7893afd71be8bd.jpg","createBy":"admin","createTime":"2025-11-09 09:11:59","delFlag":"0","dept":{"ancestors":"0,100,101","children":[],"deptId":103L,"deptName":"研发部门","leader":"若依","orderNum":1,"params":{"@type":"java.util.HashMap"},"parentId":101L,"status":"0"},"deptId":103L,"email":"ry@163.com","loginDate":"2026-02-07 20:58:40","loginIp":"127.0.0.1","nickName":"迪迦","params":{"@type":"java.util.HashMap"},"password":"$2a$10$97ZZ74HEH6UFEf7aT9DkUOeQd7RtezYm0sKrdBZ1TTPRSu3NRx50q","phonenumber":"15888888888","pwdUpdateDate":"2025-12-13 07:24:43","remark":"管理员","roles":[{"admin":true,"dataScope":"1","deptCheckStrictly":false,"flag":false,"menuCheckStrictly":false,"params":{"@type":"java.util.HashMap"},"roleId":1L,"roleKey":"admin","roleName":"超级管理员","roleSort":1,"status":"0"}],"sex":"0","status":"0","userId":1L,"userName":"admin"},"userId":1L,"username":"admin"}
+$4
+PXAT
+$13
+1772028835048
+*5
+$3
+SET
+$49
+login_tokens:ab7e02d1-54d5-4125-853d-c83a97a87532
+$1344
+{"@type":"com.ruoyi.common.core.domain.model.LoginUser","browser":"Chrome 14","deptId":103L,"expireTime":1772029618749,"ipaddr":"127.0.0.1","loginLocation":"内网IP","loginTime":1772027818749,"os":"Mac OS X","permissions":Set["*:*:*"],"token":"ab7e02d1-54d5-4125-853d-c83a97a87532","user":{"admin":true,"avatar":"/profile/avatar/2025/12/14/5fa1a24919f3414d9b7893afd71be8bd.jpg","createBy":"admin","createTime":"2025-11-09 09:11:59","delFlag":"0","dept":{"ancestors":"0,100,101","children":[],"deptId":103L,"deptName":"研发部门","leader":"若依","orderNum":1,"params":{"@type":"java.util.HashMap","@type":"java.util.HashMap"},"parentId":101L,"status":"0"},"deptId":103L,"email":"ry@163.com","loginDate":"2026-02-07 20:58:40","loginIp":"127.0.0.1","nickName":"迪迦","params":{"@type":"java.util.HashMap","@type":"java.util.HashMap"},"password":"$2a$10$97ZZ74HEH6UFEf7aT9DkUOeQd7RtezYm0sKrdBZ1TTPRSu3NRx50q","phonenumber":"15888888888","pwdUpdateDate":"2025-12-13 07:24:43","remark":"管理员","roles":[{"admin":true,"dataScope":"1","deptCheckStrictly":false,"flag":false,"menuCheckStrictly":false,"params":{"@type":"java.util.HashMap","@type":"java.util.HashMap"},"roleId":1L,"roleKey":"admin","roleName":"超级管理员","roleSort":1,"status":"0"}],"sex":"0","status":"0","userId":1L,"userName":"admin"},"userId":1L,"username":"admin"}
+$4
+PXAT
+$13
+1772029618778
+*3
+$3
+SET
+$30
+sys_config:sys.index.sideTheme
+$12
+"theme-dark"
+*3
+$3
+SET
+$41
+sys_config:sys.account.initPasswordModify
+$3
+"1"
+*3
+$3
+SET
+$23
+sys_dict:cms_pay_method
+$895
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":114L,"dictLabel":"微信支付","dictSort":1L,"dictType":"cms_pay_method","dictValue":"1","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:42","default":false,"dictCode":112L,"dictLabel":"支付宝","dictSort":2L,"dictType":"cms_pay_method","dictValue":"2","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":116L,"dictLabel":"对公转账","dictSort":3L,"dictType":"cms_pay_method","dictValue":"3","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$22
+sys_dict:sys_show_hide
+$671
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":4L,"dictLabel":"显示","dictSort":1L,"dictType":"sys_show_hide","dictValue":"0","isDefault":"Y","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"显示菜单","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":5L,"dictLabel":"隐藏","dictSort":2L,"dictType":"sys_show_hide","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"隐藏菜单","status":"0"}]
+*3
+$3
+SET
+$28
+sys_dict:cms_reminder_status
+$1293
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:38:41","default":false,"dictCode":134L,"dictLabel":"已完成","dictSort":0L,"dictType":"cms_reminder_status","dictValue":"3","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":120L,"dictLabel":"无需催收","dictSort":1L,"dictType":"cms_reminder_status","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":121L,"dictLabel":"待催收","dictSort":2L,"dictType":"cms_reminder_status","dictValue":"1","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":122L,"dictLabel":"催收中","dictSort":3L,"dictType":"cms_reminder_status","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$24
+sys_dict:sys_notice_type
+$666
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":14L,"dictLabel":"通知","dictSort":1L,"dictType":"sys_notice_type","dictValue":"1","isDefault":"Y","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"通知","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":15L,"dictLabel":"公告","dictSort":2L,"dictType":"sys_notice_type","dictValue":"2","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"remark":"公告","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:sys_common_status
+$682
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":28L,"dictLabel":"成功","dictSort":1L,"dictType":"sys_common_status","dictValue":"0","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常状态","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":29L,"dictLabel":"失败","dictSort":2L,"dictType":"sys_common_status","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"停用状态","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:cms_task_priority
+$1365
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:21:24","default":false,"dictCode":133L,"dictLabel":"低","dictSort":0L,"dictType":"cms_task_priority","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"remark":"有空再做","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:09","default":false,"dictCode":130L,"dictLabel":"极高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"3","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"必须立即处理","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:58","default":false,"dictCode":132L,"dictLabel":"普通","dictSort":0L,"dictType":"cms_task_priority","dictValue":"1","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常排期","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:30","default":false,"dictCode":131L,"dictLabel":"高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"优先处理","status":"0"}]
+*3
+$3
+SET
+$25
+sys_dict:cms_audit_status
+$954
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:36","default":false,"dictCode":137L,"dictLabel":"驳回","dictSort":0L,"dictType":"cms_audit_status","dictValue":"2","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:19","default":false,"dictCode":136L,"dictLabel":"通过","dictSort":0L,"dictType":"cms_audit_status","dictValue":"1","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:02","default":false,"dictCode":135L,"dictLabel":"待审批","dictSort":0L,"dictType":"cms_audit_status","dictValue":"0","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$30
+sys_config:sys.index.sideTheme
+$12
+"theme-dark"
+*3
+$3
+SET
+$41
+sys_config:sys.account.initPasswordModify
+$3
+"1"
+*3
+$3
+SET
+$23
+sys_dict:cms_pay_method
+$895
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":114L,"dictLabel":"微信支付","dictSort":1L,"dictType":"cms_pay_method","dictValue":"1","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:42","default":false,"dictCode":112L,"dictLabel":"支付宝","dictSort":2L,"dictType":"cms_pay_method","dictValue":"2","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":116L,"dictLabel":"对公转账","dictSort":3L,"dictType":"cms_pay_method","dictValue":"3","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$22
+sys_dict:sys_show_hide
+$671
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":4L,"dictLabel":"显示","dictSort":1L,"dictType":"sys_show_hide","dictValue":"0","isDefault":"Y","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"显示菜单","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":5L,"dictLabel":"隐藏","dictSort":2L,"dictType":"sys_show_hide","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"隐藏菜单","status":"0"}]
+*3
+$3
+SET
+$28
+sys_dict:cms_reminder_status
+$1293
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:38:41","default":false,"dictCode":134L,"dictLabel":"已完成","dictSort":0L,"dictType":"cms_reminder_status","dictValue":"3","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":120L,"dictLabel":"无需催收","dictSort":1L,"dictType":"cms_reminder_status","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":121L,"dictLabel":"待催收","dictSort":2L,"dictType":"cms_reminder_status","dictValue":"1","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":122L,"dictLabel":"催收中","dictSort":3L,"dictType":"cms_reminder_status","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$24
+sys_dict:sys_notice_type
+$666
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":14L,"dictLabel":"通知","dictSort":1L,"dictType":"sys_notice_type","dictValue":"1","isDefault":"Y","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"通知","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":15L,"dictLabel":"公告","dictSort":2L,"dictType":"sys_notice_type","dictValue":"2","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"remark":"公告","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:sys_common_status
+$682
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":28L,"dictLabel":"成功","dictSort":1L,"dictType":"sys_common_status","dictValue":"0","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常状态","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":29L,"dictLabel":"失败","dictSort":2L,"dictType":"sys_common_status","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"停用状态","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:cms_task_priority
+$1365
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:21:24","default":false,"dictCode":133L,"dictLabel":"低","dictSort":0L,"dictType":"cms_task_priority","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"remark":"有空再做","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:09","default":false,"dictCode":130L,"dictLabel":"极高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"3","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"必须立即处理","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:58","default":false,"dictCode":132L,"dictLabel":"普通","dictSort":0L,"dictType":"cms_task_priority","dictValue":"1","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常排期","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:30","default":false,"dictCode":131L,"dictLabel":"高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"优先处理","status":"0"}]
+*3
+$3
+SET
+$25
+sys_dict:cms_audit_status
+$954
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:36","default":false,"dictCode":137L,"dictLabel":"驳回","dictSort":0L,"dictType":"cms_audit_status","dictValue":"2","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:19","default":false,"dictCode":136L,"dictLabel":"通过","dictSort":0L,"dictType":"cms_audit_status","dictValue":"1","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:02","default":false,"dictCode":135L,"dictLabel":"待审批","dictSort":0L,"dictType":"cms_audit_status","dictValue":"0","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$30
+sys_config:sys.index.sideTheme
+$12
+"theme-dark"
+*3
+$3
+SET
+$41
+sys_config:sys.account.initPasswordModify
+$3
+"1"
+*3
+$3
+SET
+$23
+sys_dict:cms_pay_method
+$895
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":114L,"dictLabel":"微信支付","dictSort":1L,"dictType":"cms_pay_method","dictValue":"1","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:42","default":false,"dictCode":112L,"dictLabel":"支付宝","dictSort":2L,"dictType":"cms_pay_method","dictValue":"2","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":116L,"dictLabel":"对公转账","dictSort":3L,"dictType":"cms_pay_method","dictValue":"3","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$22
+sys_dict:sys_show_hide
+$671
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":4L,"dictLabel":"显示","dictSort":1L,"dictType":"sys_show_hide","dictValue":"0","isDefault":"Y","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"显示菜单","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":5L,"dictLabel":"隐藏","dictSort":2L,"dictType":"sys_show_hide","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"隐藏菜单","status":"0"}]
+*3
+$3
+SET
+$28
+sys_dict:cms_reminder_status
+$1293
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:38:41","default":false,"dictCode":134L,"dictLabel":"已完成","dictSort":0L,"dictType":"cms_reminder_status","dictValue":"3","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":120L,"dictLabel":"无需催收","dictSort":1L,"dictType":"cms_reminder_status","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":121L,"dictLabel":"待催收","dictSort":2L,"dictType":"cms_reminder_status","dictValue":"1","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":122L,"dictLabel":"催收中","dictSort":3L,"dictType":"cms_reminder_status","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$24
+sys_dict:sys_notice_type
+$666
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":14L,"dictLabel":"通知","dictSort":1L,"dictType":"sys_notice_type","dictValue":"1","isDefault":"Y","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"通知","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":15L,"dictLabel":"公告","dictSort":2L,"dictType":"sys_notice_type","dictValue":"2","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"remark":"公告","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:sys_common_status
+$682
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":28L,"dictLabel":"成功","dictSort":1L,"dictType":"sys_common_status","dictValue":"0","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常状态","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":29L,"dictLabel":"失败","dictSort":2L,"dictType":"sys_common_status","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"停用状态","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:cms_task_priority
+$1365
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:21:24","default":false,"dictCode":133L,"dictLabel":"低","dictSort":0L,"dictType":"cms_task_priority","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"remark":"有空再做","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:09","default":false,"dictCode":130L,"dictLabel":"极高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"3","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"必须立即处理","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:58","default":false,"dictCode":132L,"dictLabel":"普通","dictSort":0L,"dictType":"cms_task_priority","dictValue":"1","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常排期","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:30","default":false,"dictCode":131L,"dictLabel":"高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"优先处理","status":"0"}]
+*3
+$3
+SET
+$25
+sys_dict:cms_audit_status
+$954
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:36","default":false,"dictCode":137L,"dictLabel":"驳回","dictSort":0L,"dictType":"cms_audit_status","dictValue":"2","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:19","default":false,"dictCode":136L,"dictLabel":"通过","dictSort":0L,"dictType":"cms_audit_status","dictValue":"1","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:02","default":false,"dictCode":135L,"dictLabel":"待审批","dictSort":0L,"dictType":"cms_audit_status","dictValue":"0","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$30
+sys_config:sys.index.sideTheme
+$12
+"theme-dark"
+*3
+$3
+SET
+$41
+sys_config:sys.account.initPasswordModify
+$3
+"1"
+*3
+$3
+SET
+$23
+sys_dict:cms_pay_method
+$895
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":114L,"dictLabel":"微信支付","dictSort":1L,"dictType":"cms_pay_method","dictValue":"1","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:42","default":false,"dictCode":112L,"dictLabel":"支付宝","dictSort":2L,"dictType":"cms_pay_method","dictValue":"2","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":116L,"dictLabel":"对公转账","dictSort":3L,"dictType":"cms_pay_method","dictValue":"3","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$22
+sys_dict:sys_show_hide
+$671
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":4L,"dictLabel":"显示","dictSort":1L,"dictType":"sys_show_hide","dictValue":"0","isDefault":"Y","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"显示菜单","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":5L,"dictLabel":"隐藏","dictSort":2L,"dictType":"sys_show_hide","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"隐藏菜单","status":"0"}]
+*3
+$3
+SET
+$28
+sys_dict:cms_reminder_status
+$1293
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:38:41","default":false,"dictCode":134L,"dictLabel":"已完成","dictSort":0L,"dictType":"cms_reminder_status","dictValue":"3","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":120L,"dictLabel":"无需催收","dictSort":1L,"dictType":"cms_reminder_status","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":121L,"dictLabel":"待催收","dictSort":2L,"dictType":"cms_reminder_status","dictValue":"1","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":122L,"dictLabel":"催收中","dictSort":3L,"dictType":"cms_reminder_status","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$24
+sys_dict:sys_notice_type
+$666
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":14L,"dictLabel":"通知","dictSort":1L,"dictType":"sys_notice_type","dictValue":"1","isDefault":"Y","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"通知","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":15L,"dictLabel":"公告","dictSort":2L,"dictType":"sys_notice_type","dictValue":"2","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"remark":"公告","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:sys_common_status
+$682
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":28L,"dictLabel":"成功","dictSort":1L,"dictType":"sys_common_status","dictValue":"0","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常状态","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":29L,"dictLabel":"失败","dictSort":2L,"dictType":"sys_common_status","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"停用状态","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:cms_task_priority
+$1365
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:21:24","default":false,"dictCode":133L,"dictLabel":"低","dictSort":0L,"dictType":"cms_task_priority","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"remark":"有空再做","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:09","default":false,"dictCode":130L,"dictLabel":"极高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"3","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"必须立即处理","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:58","default":false,"dictCode":132L,"dictLabel":"普通","dictSort":0L,"dictType":"cms_task_priority","dictValue":"1","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常排期","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:30","default":false,"dictCode":131L,"dictLabel":"高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"优先处理","status":"0"}]
+*3
+$3
+SET
+$25
+sys_dict:cms_audit_status
+$954
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:36","default":false,"dictCode":137L,"dictLabel":"驳回","dictSort":0L,"dictType":"cms_audit_status","dictValue":"2","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:19","default":false,"dictCode":136L,"dictLabel":"通过","dictSort":0L,"dictType":"cms_audit_status","dictValue":"1","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:02","default":false,"dictCode":135L,"dictLabel":"待审批","dictSort":0L,"dictType":"cms_audit_status","dictValue":"0","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$30
+sys_config:sys.index.sideTheme
+$12
+"theme-dark"
+*3
+$3
+SET
+$41
+sys_config:sys.account.initPasswordModify
+$3
+"1"
+*3
+$3
+SET
+$23
+sys_dict:cms_pay_method
+$895
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":114L,"dictLabel":"微信支付","dictSort":1L,"dictType":"cms_pay_method","dictValue":"1","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:42","default":false,"dictCode":112L,"dictLabel":"支付宝","dictSort":2L,"dictType":"cms_pay_method","dictValue":"2","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":116L,"dictLabel":"对公转账","dictSort":3L,"dictType":"cms_pay_method","dictValue":"3","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$22
+sys_dict:sys_show_hide
+$671
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":4L,"dictLabel":"显示","dictSort":1L,"dictType":"sys_show_hide","dictValue":"0","isDefault":"Y","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"显示菜单","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":5L,"dictLabel":"隐藏","dictSort":2L,"dictType":"sys_show_hide","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"隐藏菜单","status":"0"}]
+*3
+$3
+SET
+$28
+sys_dict:cms_reminder_status
+$1293
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:38:41","default":false,"dictCode":134L,"dictLabel":"已完成","dictSort":0L,"dictType":"cms_reminder_status","dictValue":"3","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":120L,"dictLabel":"无需催收","dictSort":1L,"dictType":"cms_reminder_status","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":121L,"dictLabel":"待催收","dictSort":2L,"dictType":"cms_reminder_status","dictValue":"1","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":122L,"dictLabel":"催收中","dictSort":3L,"dictType":"cms_reminder_status","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$24
+sys_dict:sys_notice_type
+$666
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":14L,"dictLabel":"通知","dictSort":1L,"dictType":"sys_notice_type","dictValue":"1","isDefault":"Y","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"通知","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":15L,"dictLabel":"公告","dictSort":2L,"dictType":"sys_notice_type","dictValue":"2","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"remark":"公告","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:sys_common_status
+$682
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":28L,"dictLabel":"成功","dictSort":1L,"dictType":"sys_common_status","dictValue":"0","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常状态","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":29L,"dictLabel":"失败","dictSort":2L,"dictType":"sys_common_status","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"停用状态","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:cms_task_priority
+$1365
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:21:24","default":false,"dictCode":133L,"dictLabel":"低","dictSort":0L,"dictType":"cms_task_priority","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"remark":"有空再做","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:09","default":false,"dictCode":130L,"dictLabel":"极高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"3","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"必须立即处理","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:58","default":false,"dictCode":132L,"dictLabel":"普通","dictSort":0L,"dictType":"cms_task_priority","dictValue":"1","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常排期","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:30","default":false,"dictCode":131L,"dictLabel":"高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"优先处理","status":"0"}]
+*3
+$3
+SET
+$25
+sys_dict:cms_audit_status
+$954
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:36","default":false,"dictCode":137L,"dictLabel":"驳回","dictSort":0L,"dictType":"cms_audit_status","dictValue":"2","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:19","default":false,"dictCode":136L,"dictLabel":"通过","dictSort":0L,"dictType":"cms_audit_status","dictValue":"1","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:02","default":false,"dictCode":135L,"dictLabel":"待审批","dictSort":0L,"dictType":"cms_audit_status","dictValue":"0","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*5
+$3
+SET
+$49
+login_tokens:ab7e02d1-54d5-4125-853d-c83a97a87532
+$1344
+{"@type":"com.ruoyi.common.core.domain.model.LoginUser","browser":"Chrome 14","deptId":103L,"expireTime":1772031127057,"ipaddr":"127.0.0.1","loginLocation":"内网IP","loginTime":1772029327057,"os":"Mac OS X","permissions":Set["*:*:*"],"token":"ab7e02d1-54d5-4125-853d-c83a97a87532","user":{"admin":true,"avatar":"/profile/avatar/2025/12/14/5fa1a24919f3414d9b7893afd71be8bd.jpg","createBy":"admin","createTime":"2025-11-09 09:11:59","delFlag":"0","dept":{"ancestors":"0,100,101","children":[],"deptId":103L,"deptName":"研发部门","leader":"若依","orderNum":1,"params":{"@type":"java.util.HashMap","@type":"java.util.HashMap"},"parentId":101L,"status":"0"},"deptId":103L,"email":"ry@163.com","loginDate":"2026-02-07 20:58:40","loginIp":"127.0.0.1","nickName":"迪迦","params":{"@type":"java.util.HashMap","@type":"java.util.HashMap"},"password":"$2a$10$97ZZ74HEH6UFEf7aT9DkUOeQd7RtezYm0sKrdBZ1TTPRSu3NRx50q","phonenumber":"15888888888","pwdUpdateDate":"2025-12-13 07:24:43","remark":"管理员","roles":[{"admin":true,"dataScope":"1","deptCheckStrictly":false,"flag":false,"menuCheckStrictly":false,"params":{"@type":"java.util.HashMap","@type":"java.util.HashMap"},"roleId":1L,"roleKey":"admin","roleName":"超级管理员","roleSort":1,"status":"0"}],"sex":"0","status":"0","userId":1L,"userName":"admin"},"userId":1L,"username":"admin"}
+$4
+PXAT
+$13
+1772031127078
+*3
+$3
+SET
+$30
+sys_config:sys.index.sideTheme
+$12
+"theme-dark"
+*3
+$3
+SET
+$41
+sys_config:sys.account.initPasswordModify
+$3
+"1"
+*3
+$3
+SET
+$23
+sys_dict:cms_pay_method
+$895
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":114L,"dictLabel":"微信支付","dictSort":1L,"dictType":"cms_pay_method","dictValue":"1","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:42","default":false,"dictCode":112L,"dictLabel":"支付宝","dictSort":2L,"dictType":"cms_pay_method","dictValue":"2","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 11:56:45","default":false,"dictCode":116L,"dictLabel":"对公转账","dictSort":3L,"dictType":"cms_pay_method","dictValue":"3","isDefault":"N","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$22
+sys_dict:sys_show_hide
+$671
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":4L,"dictLabel":"显示","dictSort":1L,"dictType":"sys_show_hide","dictValue":"0","isDefault":"Y","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"显示菜单","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":5L,"dictLabel":"隐藏","dictSort":2L,"dictType":"sys_show_hide","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"隐藏菜单","status":"0"}]
+*3
+$3
+SET
+$28
+sys_dict:cms_reminder_status
+$1293
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:38:41","default":false,"dictCode":134L,"dictLabel":"已完成","dictSort":0L,"dictType":"cms_reminder_status","dictValue":"3","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":120L,"dictLabel":"无需催收","dictSort":1L,"dictType":"cms_reminder_status","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":121L,"dictLabel":"待催收","dictSort":2L,"dictType":"cms_reminder_status","dictValue":"1","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-30 12:31:34","default":false,"dictCode":122L,"dictLabel":"催收中","dictSort":3L,"dictType":"cms_reminder_status","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*3
+$3
+SET
+$24
+sys_dict:sys_notice_type
+$666
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":true,"dictCode":14L,"dictLabel":"通知","dictSort":1L,"dictType":"sys_notice_type","dictValue":"1","isDefault":"Y","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"通知","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":15L,"dictLabel":"公告","dictSort":2L,"dictType":"sys_notice_type","dictValue":"2","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"remark":"公告","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:sys_common_status
+$682
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":28L,"dictLabel":"成功","dictSort":1L,"dictType":"sys_common_status","dictValue":"0","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常状态","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2025-11-09 09:12:02","default":false,"dictCode":29L,"dictLabel":"失败","dictSort":2L,"dictType":"sys_common_status","dictValue":"1","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"停用状态","status":"0"}]
+*3
+$3
+SET
+$26
+sys_dict:cms_task_priority
+$1365
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:21:24","default":false,"dictCode":133L,"dictLabel":"低","dictSort":0L,"dictType":"cms_task_priority","dictValue":"0","isDefault":"N","listClass":"info","params":{"@type":"java.util.HashMap"},"remark":"有空再做","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:09","default":false,"dictCode":130L,"dictLabel":"极高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"3","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"remark":"必须立即处理","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:58","default":false,"dictCode":132L,"dictLabel":"普通","dictSort":0L,"dictType":"cms_task_priority","dictValue":"1","isDefault":"N","listClass":"primary","params":{"@type":"java.util.HashMap"},"remark":"正常排期","status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 06:20:30","default":false,"dictCode":131L,"dictLabel":"高","dictSort":0L,"dictType":"cms_task_priority","dictValue":"2","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"remark":"优先处理","status":"0"}]
+*3
+$3
+SET
+$25
+sys_dict:cms_audit_status
+$954
+[{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:36","default":false,"dictCode":137L,"dictLabel":"驳回","dictSort":0L,"dictType":"cms_audit_status","dictValue":"2","isDefault":"N","listClass":"danger","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:19","default":false,"dictCode":136L,"dictLabel":"通过","dictSort":0L,"dictType":"cms_audit_status","dictValue":"1","isDefault":"N","listClass":"success","params":{"@type":"java.util.HashMap"},"status":"0"},{"@type":"com.ruoyi.common.core.domain.entity.SysDictData","createBy":"admin","createTime":"2026-01-18 09:41:02","default":false,"dictCode":135L,"dictLabel":"待审批","dictSort":0L,"dictType":"cms_audit_status","dictValue":"0","isDefault":"N","listClass":"warning","params":{"@type":"java.util.HashMap"},"status":"0"}]
+*2
+$6
+SELECT
+$1
+0
+*2
+$3
+DEL
+$49
+login_tokens:ab7e02d1-54d5-4125-853d-c83a97a87532

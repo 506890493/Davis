@@ -318,4 +318,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order by c.create_time desc
     </select>
 
+    <!-- ========== 总账报表查询 ========== -->
+
+    <!-- 按合同类型统计收入金额 -->
+    <select id="sumAmountByType" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(amount), 0)
+        FROM cms_contract
+        WHERE del_flag = '0'
+        AND contract_type = #{contractType}
+        <if test="year != null">AND YEAR(start_date) = #{year}</if>
+        <if test="month != null">AND MONTH(start_date) = #{month}</if>
+    </select>
+
+    <!-- 按合同类型统计合同数量 -->
+    <select id="countByType" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM cms_contract
+        WHERE del_flag = '0'
+        AND contract_type = #{contractType}
+        <if test="year != null">AND YEAR(start_date) = #{year}</if>
+        <if test="month != null">AND MONTH(start_date) = #{month}</if>
+    </select>
+
+    <!-- 按人员统计总账数据 -->
+    <select id="selectLedgerByPerson" resultType="com.ruoyi.system.domain.vo.LedgerByPersonVo">
+        SELECT
+            u.user_name as userName,
+            u.nick_name as nickName,
+            COUNT(c.contract_id) as contractCount,
+            COALESCE(SUM(c.amount), 0) as totalAmount
+        FROM cms_contract c
+        LEFT JOIN sys_user u ON c.owner_id = u.user_id
+        WHERE c.del_flag = '0'
+        AND u.user_id IS NOT NULL
+        <if test="year != null">AND YEAR(c.start_date) = #{year}</if>
+        <if test="month != null">AND MONTH(c.start_date) = #{month}</if>
+        GROUP BY u.user_id, u.user_name, u.nick_name
+        ORDER BY totalAmount DESC
+    </select>
 </mapper>

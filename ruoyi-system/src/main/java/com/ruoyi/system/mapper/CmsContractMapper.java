@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import com.ruoyi.system.domain.CmsContract;
+import com.ruoyi.system.domain.vo.LedgerByPersonVo;
 import com.ruoyi.system.domain.CmsFile;
 import org.apache.ibatis.annotations.Param;
 
@@ -171,4 +172,38 @@ public interface CmsContractMapper
      * @return 合同列表
      */
     public List<CmsContract> selectMyCustomers(@Param("ownerId") Long ownerId);
+
+    /**
+     * 按合同类型统计收入金额
+     *
+     * @param contractType 合同类型
+     * @param year 年份（可选）
+     * @param month 月份（可选）
+     * @return 金额
+     */
+    public BigDecimal sumAmountByType(@Param("contractType") String contractType,
+                                      @Param("year") Integer year,
+                                      @Param("month") Integer month);
+
+    /**
+     * 按合同类型统计合同数量
+     *
+     * @param contractType 合同类型
+     * @param year 年份（可选）
+     * @param month 月份（可选）
+     * @return 数量
+     */
+    public Integer countByType(@Param("contractType") String contractType,
+                               @Param("year") Integer year,
+                               @Param("month") Integer month);
+
+    /**
+     * 按人员统计总账数据
+     *
+     * @param year 年份（可选）
+     * @param month 月份（可选）
+     * @return 人员统计列表
+     */
+    public List<LedgerByPersonVo> selectLedgerByPerson(@Param("year") Integer year,
+                                                        @Param("month") Integer month);
 }

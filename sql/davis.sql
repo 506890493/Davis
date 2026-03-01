@@ -674,3 +674,18 @@ insert into sys_role_menu(role_id, menu_id) values(101, 2033); -- 合同管理�
 insert into sys_role_menu(role_id, menu_id) values(101, 2034); -- 合同管理新增(地址)
 insert into sys_role_menu(role_id, menu_id) values(101, 2035); -- 合同管理修改(地址)
 insert into sys_role_menu(role_id, menu_id) values(101, 2037); -- 合同管理导出(地址)
+
+-- ========================
+-- cms_notification 通知提醒表
+-- ========================
+create table if not exists cms_notification (
+  notification_id  bigint(20)   not null auto_increment comment '通知ID',
+  user_id          bigint(20)   not null comment '接收人用户ID',
+  title            varchar(200) not null comment '通知标题',
+  content          varchar(500) default '' comment '通知内容',
+  notification_type char(1)     default '1' comment '通知类型(1=到期提醒 2=任务通知 3=审批通知)',
+  related_id       bigint(20)   default null comment '关联业务ID(合同ID或任务ID)',
+  is_read          char(1)      default '0' comment '是否已读(0=未读 1=已读)',
+  create_time      datetime     default null comment '创建时间',
+  primary key (notification_id)
+) engine=innodb auto_increment=1 comment = '通知提醒表';
