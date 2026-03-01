@@ -1,0 +1,36 @@
+mysql: [Warning] Using a password on the command line interface can be insecure.
+role_name	menu_name	perms
+会计	合同管理	
+会计	任务管理	system:task:list
+会计	任务管理查询	system:task:query
+会计	任务管理新增	system:task:add
+会计	任务管理修改	system:task:edit
+会计	任务管理删除	system:task:remove
+会计	任务管理导出	system:task:export
+会计	代账合同	system:contract:list
+会计	地址出售	system:contract:list
+会计	合同管理查询	system:contract:query
+会计	合同管理新增	system:contract:add
+会计	合同管理修改	system:contract:edit
+会计	合同管理删除	system:contract:remove
+会计	合同管理导出	system:contract:export
+会计	合同管理查询	system:contract:query
+会计	合同管理新增	system:contract:add
+会计	合同管理修改	system:contract:edit
+会计	合同管理删除	system:contract:remove
+会计	合同管理导出	system:contract:export
+销售	合同管理	
+销售	任务管理	system:task:list
+销售	任务管理查询	system:task:query
+销售	任务管理修改	system:task:edit
+销售	任务管理导出	system:task:export
+销售	代账合同	system:contract:list
+销售	地址出售	system:contract:list
+销售	合同管理查询	system:contract:query
+销售	合同管理新增	system:contract:add
+销售	合同管理修改	system:contract:edit
+销售	合同管理导出	system:contract:export
+销售	合同管理查询	system:contract:query
+销售	合同管理新增	system:contract:add
+销售	合同管理修改	system:contract:edit
+销售	合同管理导出	system:contract:export

@@ -15,6 +15,7 @@ import com.ruoyi.system.mapper.CmsContractMapper;
 import com.ruoyi.system.service.ICmsApprovalService;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.service.ICmsContractService;
+import com.ruoyi.system.service.ISysConfigService;
 
 /**
  * 合同管理Service业务层处理
@@ -29,6 +30,9 @@ public class CmsContractServiceImpl implements ICmsContractService {
 
     @Autowired
     private ICmsApprovalService cmsApprovalService;
+    @Autowired
+    private ISysConfigService configService;
+
 
     /**
      * 查询合同管理
@@ -38,7 +42,11 @@ public class CmsContractServiceImpl implements ICmsContractService {
      */
     @Override
     public CmsContract selectCmsContractByContractId(Long contractId) {
-        return cmsContractMapper.selectCmsContractByContractId(contractId);
+        CmsContract contract = cmsContractMapper.selectCmsContractByContractId(contractId);
+        if (contract != null) {
+            contract.setReminderDays(getReminderDays());
+        }
+        return contract;
     }
 
     /**
@@ -49,7 +57,12 @@ public class CmsContractServiceImpl implements ICmsContractService {
      */
     @Override
     public List<CmsContract> selectCmsContractList(CmsContract cmsContract) {
-        return cmsContractMapper.selectCmsContractList(cmsContract);
+        List<CmsContract> list = cmsContractMapper.selectCmsContractList(cmsContract);
+        int days = getReminderDays();
+        for (CmsContract contract : list) {
+            contract.setReminderDays(days);
+        }
+        return list;
     }
 
     /**
@@ -213,4 +226,20 @@ public class CmsContractServiceImpl implements ICmsContractService {
         }
         return rows;
     }
+    /**
+     * 获取到期提醒天数配置
+     * @return 天数，默认30
+     */
+    private int getReminderDays() {
+        try {
+            String val = configService.selectConfigByKey("cms.reminder.days");
+            if (StringUtils.isNotEmpty(val)) {
+                return Integer.parseInt(val.trim());
+            }
+        } catch (Exception e) {
+            // ignore, use default
+        }
+        return 30;
+    }
+
 }

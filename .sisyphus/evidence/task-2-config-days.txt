@@ -1,0 +1,10 @@
+140:    private transient Integer reminderDays;
+143:    public void setReminderDays(Integer reminderDays) {
+144:        this.reminderDays = reminderDays;
+148:        return reminderDays;
+373:            int threshold = (reminderDays != null) ? reminderDays : 30;
+18:import com.ruoyi.system.service.ISysConfigService;
+34:    private ISysConfigService configService;
+47:            contract.setReminderDays(getReminderDays());
+61:        int days = getReminderDays();
+233:    private int getReminderDays() {

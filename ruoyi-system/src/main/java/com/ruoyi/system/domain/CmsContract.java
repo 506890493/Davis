@@ -136,6 +136,17 @@ public class CmsContract extends BaseEntity {
 
     /** 附件明细信息 */
     private List<CmsFile> cmsFileList;
+    /** 到期提醒天数（非持久化，由Service层注入配置值） */
+    private transient Integer reminderDays;
+
+
+    public void setReminderDays(Integer reminderDays) {
+        this.reminderDays = reminderDays;
+    }
+
+    public Integer getReminderDays() {
+        return reminderDays;
+    }
 
     public void setContractId(Long contractId) {
         this.contractId = contractId;
@@ -359,10 +370,11 @@ public class CmsContract extends BaseEntity {
         }
         if (endDate != null) {
             cal.setTime(today);
-            cal.add(Calendar.DAY_OF_MONTH, 30);
-            Date thirtyDaysLater = cal.getTime();
-            if (!endDate.after(thirtyDaysLater)) {
-                return "2"; // 即将到期 (<=30天)
+            int threshold = (reminderDays != null) ? reminderDays : 30;
+            cal.add(Calendar.DAY_OF_MONTH, threshold);
+            Date thresholdDate = cal.getTime();
+            if (!endDate.after(thresholdDate)) {
+                return "2"; // 即将到期 (<=threshold天)
             }
         }
         return "1"; // 进行中

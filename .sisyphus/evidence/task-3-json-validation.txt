@@ -1,0 +1,6 @@
+provinces: 34 ZJ: FOUND
+-rw-r--r--  1 shipeter  staff  28926 Mar  1 15:48 ruoyi-ui/src/assets/json/china-area.json
+ruoyi-ui/src/components/AreaCascader/index.vue
+  <el-cascader
+      this.$emit('input', result)
+      this.$emit('change', result)

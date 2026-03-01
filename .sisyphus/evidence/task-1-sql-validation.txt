@@ -1,0 +1,10 @@
+insert into sys_dict_type(dict_name, dict_type, status, create_by, create_time, remark) values('合同任务类型', 'cms_task_type', '0', 'admin', sysdate(), '合同任务类型');
+insert into sys_dict_data(dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark) values(0, '普通', '0', 'cms_task_type', '', 'primary', 'N', '0', 'admin', sysdate(), '');
+insert into sys_dict_data(dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark) values(1, '催收', '1', 'cms_task_type', '', 'warning', 'N', '0', 'admin', sysdate(), '');
+insert into sys_dict_data(dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark) values(2, '续费', '2', 'cms_task_type', '', 'success', 'N', '0', 'admin', sysdate(), '');
+insert into sys_dict_data(dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark) values(3, '终止', '3', 'cms_task_type', '', 'danger', 'N', '0', 'admin', sysdate(), '');
+insert into sys_config(config_name, config_key, config_value, config_type, create_by, create_time, remark) values('合同到期提醒天数', 'cms.reminder.days', '30', 'N', 'admin', sysdate(), '提前N天提醒合同到期');
+values('总账报表', 2010, 4, 'ledger', 'system/ledger/index', 1, 0, 'C', '0', '0', 'cms:ledger:list', 'chart', 'admin', sysdate(), '总账财务报表');
+values('任务派发', 2016, 5, '#', '#', 1, 0, 'F', '0', '0', 'cms:task:dispatch', '#', 'admin', sysdate(), '');
+values('合同审批', 2023, 6, '#', '#', 1, 0, 'F', '0', '0', 'cms:contract:audit', '#', 'admin', sysdate(), '');
+create table if not exists cms_communication (
