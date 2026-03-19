@@ -60,3 +60,35 @@ export function completeCollectionTask(data) {
     data: data
   })
 }
+// 获取可分配会计列表
+export function getAssignableUsers() {
+  return request({
+    url: '/system/task/assignableUsers',
+    method: 'get'
+  })
+}
+// 退回(讲价)
+export function returnToAdmin(data) {
+  return request({ url: '/cms/task/returnToAdmin', method: 'post', data: data })
+}
+
+// 重新派发
+export function redispatch(data) {
+  return request({ url: '/cms/task/redispatch', method: 'post', data: data })
+}
+
+// 申请终止
+export function requestTermination(data) {
+  return request({ url: '/cms/task/requestTermination', method: 'post', data: data })
+}
+
+// 确认终止
+export function confirmTermination(params) {
+  return request({ url: '/cms/task/confirmTermination', method: 'post', params: params })
+}
+
+// 完成续签
+export function completeRenewal(data) {
+  return request({ url: '/cms/task/completeRenewal', method: 'post', data: data })
+}
+

@@ -32,7 +32,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="原金额" prop="originalAmount">
+      <el-form-item label="原金额" prop="originalAmount" v-if="showAmount">
         <el-input
           v-model="queryParams.originalAmount"
           placeholder="请输入原金额"
@@ -40,7 +40,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="当前协商金额" prop="currentAmount">
+      <el-form-item label="当前协商金额" prop="currentAmount" v-if="showAmount">
         <el-input
           v-model="queryParams.currentAmount"
           placeholder="请输入当前协商金额"
@@ -152,11 +152,12 @@
           <dict-tag :options="dict.type.cms_task_priority" :value="scope.row.priority"/>
         </template>
       </el-table-column>
-      <el-table-column label="原金额" align="center" prop="originalAmount" />
+      <el-table-column label="原金额" align="center" prop="originalAmount" v-if="showAmount" />
       <el-table-column
         label="当前协商金额"
         align="center"
         prop="currentAmount"
+        v-if="showAmount"
       />
       <el-table-column
         label="执行人"
@@ -186,15 +187,69 @@
         width="200"
       >
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-video-play"
-            v-if="scope.row.status === '0'"
-            @click="handleStart(scope.row)"
-            v-hasPermi="['system:task:edit']"
-            >开始</el-button
-          >
+          <!-- Admin buttons -->
+          <template v-if="isAdmin">
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-s-promotion"
+              v-if="scope.row.status === '3'"
+              @click="handleRedispatch(scope.row)"
+              v-hasPermi="['system:task:edit']"
+              >重新派发</el-button
+            >
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-s-check"
+              v-if="scope.row.status === '2' && scope.row.taskType === '3'"
+              @click="handleConfirmTerm(scope.row)"
+              v-hasPermi="['system:task:edit']"
+              >审批终止</el-button
+            >
+          </template>
+
+          <!-- Accountant buttons -->
+          <template v-if="isAccountant">
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-video-play"
+              v-if="scope.row.status === '0'"
+              @click="handleStart(scope.row)"
+              v-hasPermi="['system:task:edit']"
+              >开始处理</el-button
+            >
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-document-checked"
+              v-if="scope.row.status === '1' && scope.row.taskType === '2'"
+              @click="handleCompleteRenewal(scope.row)"
+              v-hasPermi="['system:task:edit']"
+              >完成续签</el-button
+            >
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-back"
+              v-if="scope.row.status === '1'"
+              @click="handleReturn(scope.row)"
+              v-hasPermi="['system:task:edit']"
+              >退回(讲价)</el-button
+            >
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-close"
+              v-if="scope.row.status === '1'"
+              @click="handleRequestTerm(scope.row)"
+              v-hasPermi="['system:task:edit']"
+              >申请终止</el-button
+            >
+          </template>
+
+          <!-- Common buttons -->
           <el-button
             size="mini"
             type="text"
@@ -207,6 +262,7 @@
             size="mini"
             type="text"
             icon="el-icon-check"
+            v-if="scope.row.status === '1' && scope.row.taskType === '1'"
             @click="handleComplete(scope.row)"
             v-hasPermi="['system:task:edit']"
             >完成</el-button
@@ -243,10 +299,10 @@
         <el-form-item label="优先级" prop="priority">
           <el-input v-model="form.priority" placeholder="请输入优先级" />
         </el-form-item>
-        <el-form-item label="原金额" prop="originalAmount">
+        <el-form-item label="原金额" prop="originalAmount" v-if="showAmount">
           <el-input v-model="form.originalAmount" placeholder="请输入原金额" />
         </el-form-item>
-        <el-form-item label="当前协商金额" prop="currentAmount">
+        <el-form-item label="当前协商金额" prop="currentAmount" v-if="showAmount">
           <el-input
             v-model="form.currentAmount"
             placeholder="请输入当前协商金额"
@@ -311,7 +367,7 @@
             placeholder="请输入联系电话"
           />
         </el-form-item>
-        <el-form-item label="合同金额" prop="amount">
+        <el-form-item label="合同金额" prop="amount" v-if="showAmount">
           <el-input v-model="renewForm.amount" placeholder="请输入合同金额" />
         </el-form-item>
         <el-form-item label="开始日期" prop="startDate">
@@ -356,6 +412,114 @@
         <el-button @click="renewOpen = false">取 消</el-button>
       </div>
     </el-dialog>
+    <!-- 退回(讲价)对话框 -->
+    <el-dialog title="退回(讲价)" :visible.sync="returnOpen" width="500px" append-to-body>
+      <el-form ref="returnForm" :model="returnForm" label-width="120px">
+        <el-form-item label="原金额" v-if="showAmount">
+          <el-input v-model="returnForm.originalAmount" disabled />
+        </el-form-item>
+        <el-form-item label="客户期望金额" prop="currentAmount" v-if="showAmount">
+          <el-input-number v-model="returnForm.currentAmount" :min="0" :precision="2" :step="100" />
+        </el-form-item>
+        <el-form-item label="退回原因" prop="remark">
+          <el-input v-model="returnForm.remark" type="textarea" placeholder="请输入退回原因" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitReturn">确 定</el-button>
+        <el-button @click="returnOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 重新派发对话框 -->
+    <el-dialog title="重新派发" :visible.sync="redispatchOpen" width="500px" append-to-body>
+      <el-form ref="redispatchForm" :model="redispatchForm" label-width="120px">
+        <el-form-item label="退回原因">
+          <el-input v-model="redispatchForm.remark" type="textarea" disabled />
+        </el-form-item>
+        <el-form-item label="原金额" v-if="showAmount">
+          <el-input v-model="redispatchForm.originalAmount" disabled />
+        </el-form-item>
+        <el-form-item label="客户期望金额" v-if="showAmount">
+          <el-input v-model="redispatchForm.currentAmount" disabled />
+        </el-form-item>
+        <el-form-item label="修改后金额" prop="newAmount" v-if="showAmount">
+          <el-input-number v-model="redispatchForm.newAmount" :min="0" :precision="2" :step="100" />
+        </el-form-item>
+        <el-form-item label="分配会计" prop="assigneeId">
+          <el-select v-model="redispatchForm.assigneeId" placeholder="请选择分配会计">
+            <el-option
+              v-for="user in assignableUsers"
+              :key="user.userId"
+              :label="user.nickName"
+              :value="user.userId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="截止日期" prop="deadline">
+          <el-date-picker
+            v-model="redispatchForm.deadline"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择截止日期"
+          ></el-date-picker>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitRedispatch">确 定</el-button>
+        <el-button @click="redispatchOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 申请终止对话框 -->
+    <el-dialog title="申请终止" :visible.sync="requestTermOpen" width="500px" append-to-body>
+      <el-form ref="requestTermForm" :model="requestTermForm" label-width="100px">
+        <el-form-item label="终止原因" prop="remark">
+          <el-input v-model="requestTermForm.remark" type="textarea" placeholder="请输入终止原因" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitRequestTerm">确 定</el-button>
+        <el-button @click="requestTermOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 确认终止对话框 -->
+    <el-dialog title="审批终止" :visible.sync="confirmTermOpen" width="500px" append-to-body>
+      <el-form ref="confirmTermForm" :model="confirmTermForm" label-width="100px">
+        <el-form-item label="终止原因">
+          <el-input v-model="confirmTermForm.remark" type="textarea" disabled />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="success" @click="submitConfirmTerm(true)">同 意</el-button>
+        <el-button type="danger" @click="submitConfirmTerm(false)">拒 绝</el-button>
+        <el-button @click="confirmTermOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 完成续签对话框 -->
+    <el-dialog title="完成续签" :visible.sync="completeRenewalOpen" width="500px" append-to-body>
+      <el-form ref="completeRenewalForm" :model="completeRenewalForm" label-width="100px">
+        <el-form-item label="续签新金额" prop="newAmount" v-if="showAmount">
+          <el-input-number v-model="completeRenewalForm.newAmount" :min="0" :precision="2" :step="100" />
+        </el-form-item>
+        <el-form-item label="续签期限" prop="newPeriod">
+          <el-date-picker
+            v-model="completeRenewalForm.newPeriod"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="yyyy-MM-dd"
+          ></el-date-picker>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitCompleteRenewal">确 定</el-button>
+        <el-button @click="completeRenewalOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -367,6 +531,12 @@ import {
   addTask,
   updateTask,
   completeCollectionTask,
+  returnToAdmin,
+  redispatch,
+  requestTermination,
+  confirmTermination,
+  completeRenewal,
+  getAssignableUsers
 } from "@/api/system/task";
 import { getContract } from "@/api/system/contract";
 
@@ -411,6 +581,27 @@ export default {
       form: {},
       renewOpen: false,
       renewForm: {},
+      
+      // 退回(讲价)
+      returnOpen: false,
+      returnForm: {},
+      
+      // 重新派发
+      redispatchOpen: false,
+      redispatchForm: {},
+      assignableUsers: [],
+      
+      // 申请终止
+      requestTermOpen: false,
+      requestTermForm: {},
+      
+      // 确认终止
+      confirmTermOpen: false,
+      confirmTermForm: {},
+      
+      // 完成续签
+      completeRenewalOpen: false,
+      completeRenewalForm: {},
       rules: {
         contractName: [
           { required: true, message: "公司名称不能为空", trigger: "blur" },
@@ -433,10 +624,31 @@ export default {
   created() {
     this.getList();
   },
+computed: {
+isAdmin() {
+return this.$store.state.user.roles.includes('admin');
+},
+isAccountant() {
+return this.$store.state.user.roles.includes('accountant');
+    },
+    showAmount() {
+      const roles = this.$store.getters.roles || [];
+      if (roles.includes("admin")) {
+        return true;
+      }
+      if (roles.includes("accountant") || roles.includes("sales")) {
+        return false;
+      }
+      return true;
+    }
+},
   methods: {
     /** 查询任务管理列表 */
     getList() {
       this.loading = true;
+      if (this.isAccountant && !this.isAdmin) {
+        this.queryParams.assignedTo = this.$store.state.user.id;
+      }
       listTask(this.queryParams).then((response) => {
         this.taskList = response.rows;
         this.total = response.total;
@@ -532,6 +744,103 @@ export default {
         this.$modal.msgSuccess("任务完成");
       }
     },
+    /** 退回按钮操作 */
+    handleReturn(row) {
+      this.returnForm = {
+        taskId: row.taskId,
+        originalAmount: row.originalAmount,
+        currentAmount: row.currentAmount || row.originalAmount,
+        remark: null
+      };
+      this.returnOpen = true;
+    },
+    submitReturn() {
+      returnToAdmin(this.returnForm).then(response => {
+        this.$modal.msgSuccess("退回成功");
+        this.returnOpen = false;
+        this.getList();
+      });
+    },
+
+    /** 重新派发按钮操作 */
+    handleRedispatch(row) {
+      this.redispatchForm = {
+        taskId: row.taskId,
+        remark: row.remark,
+        originalAmount: row.originalAmount,
+        currentAmount: row.currentAmount,
+        newAmount: row.currentAmount || row.originalAmount,
+        assigneeId: null,
+        deadline: null
+      };
+      getAssignableUsers().then(response => {
+        this.assignableUsers = response.data;
+        this.redispatchOpen = true;
+      });
+    },
+    submitRedispatch() {
+      redispatch(this.redispatchForm).then(response => {
+        this.$modal.msgSuccess("重新派发成功");
+        this.redispatchOpen = false;
+        this.getList();
+      });
+    },
+
+    /** 申请终止按钮操作 */
+    handleRequestTerm(row) {
+      this.requestTermForm = {
+        taskId: row.taskId,
+        remark: null
+      };
+      this.requestTermOpen = true;
+    },
+    submitRequestTerm() {
+      requestTermination(this.requestTermForm).then(response => {
+        this.$modal.msgSuccess("申请终止成功");
+        this.requestTermOpen = false;
+        this.getList();
+      });
+    },
+
+    /** 审批终止按钮操作 */
+    handleConfirmTerm(row) {
+      this.confirmTermForm = {
+        taskId: row.taskId,
+        remark: row.remark
+      };
+      this.confirmTermOpen = true;
+    },
+    submitConfirmTerm(approved) {
+      confirmTermination({ taskId: this.confirmTermForm.taskId, approved: approved }).then(response => {
+        this.$modal.msgSuccess("审批完成");
+        this.confirmTermOpen = false;
+        this.getList();
+      });
+    },
+
+    /** 完成续签按钮操作 */
+    handleCompleteRenewal(row) {
+      this.completeRenewalForm = {
+        taskId: row.taskId,
+        newAmount: row.originalAmount,
+        newPeriod: []
+      };
+      this.completeRenewalOpen = true;
+    },
+    submitCompleteRenewal() {
+      const data = {
+        taskId: this.completeRenewalForm.taskId,
+        newAmount: this.completeRenewalForm.newAmount,
+        startDate: this.completeRenewalForm.newPeriod ? this.completeRenewalForm.newPeriod[0] : null,
+        endDate: this.completeRenewalForm.newPeriod ? this.completeRenewalForm.newPeriod[1] : null
+      };
+      completeRenewal(data).then(response => {
+        this.$modal.msgSuccess("完成续签成功");
+        this.completeRenewalOpen = false;
+        this.getList();
+      });
+    },
+
     /** 提交续签合同 */
     submitRenew() {
       this.$refs["renewForm"].validate((valid) => {

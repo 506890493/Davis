@@ -76,5 +76,46 @@ public interface ICmsTaskService
      *
      * @return 会计角色用户列表
      */
+    /**
+     * 会计将任务退回管理员(讲价)
+     *
+     * @param task 任务信息
+     * @return 结果
+     */
+    public int returnToAdmin(CmsTask task);
+
+    /**
+     * 管理员修改协商金额后重新派发
+     *
+     * @param task 任务信息
+     * @return 结果
+     */
+    public int redispatch(CmsTask task);
+
+    /**
+     * 会计发起终止合作请求
+     *
+     * @param task 任务信息
+     * @return 结果
+     */
+    public int requestTermination(CmsTask task);
+
+    /**
+     * 管理员确认终止合作
+     *
+     * @param taskId 任务ID
+     * @param approved 是否同意终止
+     * @return 结果
+     */
+    public int confirmTermination(Long taskId, boolean approved);
+
+    /**
+     * 会计完成续签
+     *
+     * @param task 任务信息
+     * @return 结果
+     */
+    public int completeRenewal(CmsTask task);
+
     public List<SysUser> getAssignableUsers();
 }

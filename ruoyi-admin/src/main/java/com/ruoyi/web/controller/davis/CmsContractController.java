@@ -93,8 +93,11 @@ public class CmsContractController extends BaseController
     @PostMapping("/collection")
     public AjaxResult createCollectionTask(@RequestBody CmsTask cmsTask)
     {
-        // Ensure contractId is set
-        if (cmsTask.getContractId() == null) {
+        // Ensure sourceContractId and contractId are set
+        if (cmsTask.getSourceContractId() == null && cmsTask.getContractId() != null) {
+            cmsTask.setSourceContractId(cmsTask.getContractId());
+        }
+        if (cmsTask.getContractId() == null && cmsTask.getSourceContractId() != null) {
             cmsTask.setContractId(cmsTask.getSourceContractId());
         }
 

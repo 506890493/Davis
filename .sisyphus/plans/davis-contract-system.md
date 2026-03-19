@@ -83,17 +83,17 @@
 - 权限: 角色级字段隐藏(金额)、数据权限(仅查看自己客户)
 
 ### Definition of Done
-- [ ] 管理员可从合同列表发起催收任务，选择指定会计
-- [ ] 会计可接受任务、完成续签、发起讲价退回、发起终止
-- [ ] 管理员可修改协商金额后重新派发
-- [ ] 管理员可确认终止合作
-- [ ] 导航栏铃铛显示未读提醒数量，点击展开详情
-- [ ] 地址租赁表单有省市区三级选择器
-- [ ] 会计/销售看不到金额字段
-- [ ] 管理员可查看总账报表（月/年、按人、趋势图、导出Excel）
-- [ ] 到期提醒天数通过系统参数配置
-- [ ] `mvn clean package -Dmaven.test.skip=true` 编译通过
-- [ ] `npm run build:prod` 构建通过
+- [x] 管理员可从合同列表发起催收任务，选择指定会计
+- [x] 会计可接受任务、完成续签、发起讲价退回、发起终止
+- [x] 管理员可修改协商金额后重新派发
+- [x] 管理员可确认终止合作
+- [x] 导航栏铃铛显示未读提醒数量，点击展开详情
+- [x] 地址租赁表单有省市区三级选择器
+- [x] 会计/销售看不到金额字段
+- [x] 管理员可查看总账报表（月/年、按人、趋势图、导出Excel）
+- [x] 到期提醒天数通过系统参数配置
+- [x] `mvn clean package -Dmaven.test.skip=true` 编译通过
+- [x] `npm run build:prod` 构建通过
 
 ### Must Have
 - 任务派发完整流程（派发→接受→完成/退回/终止）
@@ -216,7 +216,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ### Wave 1: Foundation
 
-- [ ] 1. SQL修复 + 新增字典/菜单/系统参数配置
+- [x] 1. SQL修复 + 新增字典/菜单/系统参数配置
 
   **What to do**:
   - 修复 `sql/davis.sql` 中第4节「沟通记录表」的copy-paste bug：当前错误地创建了 `cms_task` 而非 `cms_communication`。删除重复的cms_task DDL，保留正确的cms_communication表定义
@@ -297,7 +297,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 2. 到期提醒天数可配置（后端）
+- [x] 2. 到期提醒天数可配置（后端）
 
   **What to do**:
   - 修改 `CmsContract.java` 的 `getStatus()` 方法：将硬编码的 `30` 替换为从Spring容器获取的配置值
@@ -365,7 +365,7 @@ Max Concurrent: 5 (Wave 2 & 3)
   - Message: `feat(contract): 到期提醒天数改为sys_config可配置`
   - Files: `CmsContract.java`, `CmsContractServiceImpl.java`
 
-- [ ] 3. 省市区JSON数据 + 级联选择器组件
+- [x] 3. 省市区JSON数据 + 级联选择器组件
 
   **What to do**:
   - 下载或创建中国省市区三级JSON数据文件，放到 `ruoyi-ui/src/assets/json/china-area.json`，格式为 `[{value:'浙江省', label:'浙江省', children:[{value:'杭州市', label:'杭州市', children:[{value:'西湖区', label:'西湖区'}...]}...]}...]`
@@ -435,7 +435,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 4. 角色权限配置（按钮级权限补充 + 角色菜单分配）
+- [x] 4. 角色权限配置（按钮级权限补充 + 角色菜单分配）
 
   **What to do**:
   - ⚠️ 角色已存在于DB中（admin=1, accountant=2, manager=100, sales=101），**不要重新创建角色**
@@ -515,7 +515,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ### Wave 2: Core Backend
 
-- [ ] 5. 任务派发后端完善（选择会计、编辑合同细节）
+- [x] 5. 任务派发后端完善（选择会计、编辑合同细节）
 
   **What to do**:
   - 在 `CmsContractController` 的 `createCollectionTask` 方法中完善逻辑：
@@ -592,7 +592,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 6. 讲价/退回/终止后端流程
+- [x] 6. 讲价/退回/终止后端流程
 
   **What to do**:
   - 新增API `POST /system/task/returnToAdmin`：会计将任务退回管理员
@@ -697,7 +697,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 7. 通知提醒后端（到期提醒铃铛API）
+- [x] 7. 通知提醒后端（到期提醒铃铛API）
 
   **What to do**:
   - 新增 `CmsNotificationController`（或复用 `SysNoticeController`），提供以下API：
@@ -782,7 +782,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 8. 总账报表后端API
+- [x] 8. 总账报表后端API
 
   **What to do**:
   - 新增 `CmsLedgerController`：
@@ -873,7 +873,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 9. 角色数据权限后端（金额隐藏、仅看自己客户）
+- [x] 9. 角色数据权限后端（金额隐藏、仅看自己客户）
 
   **What to do**:
   - 修改 `CmsContractServiceImpl.selectCmsContractList()`：
@@ -959,7 +959,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ### Wave 3: Frontend
 
-- [ ] 10. 任务派发页面（管理员专用）
+- [x] 10. 任务派发页面（管理员专用）
 
   **What to do**:
   - 重构 `ruoyi-ui/src/views/system/contract/index.vue` 合同列表中的「创建催收任务」交互：
@@ -1033,7 +1033,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 11. 通知铃铛前端组件
+- [x] 11. 通知铃铛前端组件
 
   **What to do**:
   - 新增组件 `ruoyi-ui/src/components/NotificationBell/index.vue`：
@@ -1093,7 +1093,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 12. 合同表单按类型区分（代账/地址）
+- [x] 12. 合同表单按类型区分（代账/地址）
 
   **What to do**:
   - 修改 `ruoyi-ui/src/views/system/contract/add.vue`：
@@ -1170,7 +1170,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 13. 讲价/退回/终止前端交互
+- [x] 13. 讲价/退回/终止前端交互
 
   **What to do**:
   - 在 `task/index.vue` 中新增以下交互对话框：
@@ -1240,7 +1240,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 14. 总账报表前端页面（ECharts+表格+导出）
+- [x] 14. 总账报表前端页面（ECharts+表格+导出）
 
   **What to do**:
   - 新建 `ruoyi-ui/src/views/system/ledger/index.vue`：
@@ -1306,7 +1306,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 15. 角色数据权限前端（金额隐藏）
+- [x] 15. 角色数据权限前端（金额隐藏）
 
   **What to do**:
   - 修改 `ruoyi-ui/src/views/system/contract/index.vue`：
@@ -1369,7 +1369,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ### Wave 4: Integration + Build Verification
 
-- [ ] 16. 后端编译验证 + API集成测试
+- [x] 16. 后端编译验证 + API集成测试
 
   **What to do**:
   - 运行 `mvn clean package -Dmaven.test.skip=true` 确认编译通过
@@ -1414,7 +1414,7 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 ---
 
-- [ ] 17. 前端构建验证 + UI集成检查
+- [x] 17. 前端构建验证 + UI集成检查
 
   **What to do**:
   - 运行 `cd ruoyi-ui && npm run build:prod` 确认构建通过
@@ -1463,19 +1463,19 @@ Max Concurrent: 5 (Wave 2 & 3)
 
 > 4 review agents run in PARALLEL. ALL must APPROVE. Rejection → fix → re-run.
 
-- [ ] F1. **Plan Compliance Audit** — `oracle`
+- [x] F1. **Plan Compliance Audit** — `oracle`
   Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, curl endpoint, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
   Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
 
-- [ ] F2. **Code Quality Review** — `unspecified-high`
+- [x] F2. **Code Quality Review** — `unspecified-high`
   Run `mvn clean package -Dmaven.test.skip=true` + `npm run build:prod`. Review all changed files for: `@SuppressWarnings`, empty catches, System.out.println in prod, commented-out code, unused imports. Check AI slop: excessive comments, over-abstraction, generic names. Verify all Controller methods have `@PreAuthorize` and CUD operations have `@Log`.
   Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Files [N clean/N issues] | VERDICT`
 
-- [ ] F3. **Real Manual QA** — `unspecified-high` (+ `playwright` skill for UI)
+- [x] F3. **Real Manual QA** — `unspecified-high` (+ `playwright` skill for UI)
   Start from clean state. Execute EVERY QA scenario from EVERY task — follow exact steps, capture evidence. Test cross-task integration (dispatch → accept → negotiate → return → re-dispatch → complete). Test edge cases: empty state, invalid input, rapid actions. Save to `.sisyphus/evidence/final-qa/`.
   Output: `Scenarios [N/N pass] | Integration [N/N] | Edge Cases [N tested] | VERDICT`
 
-- [ ] F4. **Scope Fidelity Check** — `deep`
+- [x] F4. **Scope Fidelity Check** — `deep`
   For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance. Detect cross-task contamination: Task N touching Task M's files. Flag unaccounted changes.
   Output: `Tasks [N/N compliant] | Contamination [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`
 
@@ -1499,13 +1499,13 @@ cd /Users/shipeter/codes/davis/Davis/ruoyi-ui && npm run build:prod  # Expected:
 ```
 
 ### Final Checklist
-- [ ] 管理员可派发催收任务给指定会计
-- [ ] 会计可接受、完成、退回(讲价)、发起终止
-- [ ] 管理员可修改协商金额、重新派发、确认终止
-- [ ] 导航栏铃铛显示未读到期提醒
-- [ ] 地址租赁有省市区三级选择
-- [ ] 会计/销售看不到金额字段
-- [ ] 管理员可查看总账报表(月/年/按人/趋势图/导出)
-- [ ] 到期提醒天数可在系统参数中配置
-- [ ] 后端编译通过，前端构建通过
-- [ ] 所有"Must NOT Have"项均未出现
+- [x] 管理员可派发催收任务给指定会计
+- [x] 会计可接受、完成、退回(讲价)、发起终止
+- [x] 管理员可修改协商金额、重新派发、确认终止
+- [x] 导航栏铃铛显示未读到期提醒
+- [x] 地址租赁有省市区三级选择
+- [x] 会计/销售看不到金额字段
+- [x] 管理员可查看总账报表(月/年/按人/趋势图/导出)
+- [x] 到期提醒天数可在系统参数中配置
+- [x] 后端编译通过，前端构建通过
+- [x] 所有"Must NOT Have"项均未出现

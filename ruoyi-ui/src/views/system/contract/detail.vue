@@ -71,9 +71,10 @@
           <el-descriptions-item label="联系邮箱">{{
             detail.contactEmail
           }}</el-descriptions-item>
-          <el-descriptions-item label="收费标准">{{
-            detail.amount
-          }}</el-descriptions-item>
+          <el-descriptions-item label="收费标准">
+            <span v-if="showAmount">{{ detail.amount }}</span>
+            <span v-else>***</span>
+          </el-descriptions-item>
           <el-descriptions-item label="付款周期">
             <dict-tag
               :options="dict.type.cms_pay_cycle"
@@ -227,10 +228,20 @@ export default {
     isAgency() {
       return this.detail.contractType === this.dictAccounting;
     },
-    isRent() {
-      return this.detail.contractType === this.dictRent;
+isRent() {
+return this.detail.contractType === this.dictRent;
     },
-  },
+    showAmount() {
+      const roles = this.$store.getters.roles || [];
+      if (roles.includes("admin")) {
+        return true;
+      }
+      if (roles.includes("accountant") || roles.includes("sales")) {
+        return false;
+      }
+      return true;
+    }
+},
   created() {
     this.fetch();
   },

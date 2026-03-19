@@ -1,0 +1,3 @@
+- When modifying forms with conditional fields, it's important to dynamically update the validation rules to prevent validation errors on hidden fields.
+- Element UI's `el-form` validates fields based on the `rules` object. If a field is in `rules` but not in the DOM (e.g., due to `v-if`), it will not be validated. However, if a field is required by the backend, it should be kept in the common section or handled appropriately.
+- When replacing a wrapper component with the actual form code, ensure all necessary imports (e.g., API methods, custom components) are included and correctly registered.

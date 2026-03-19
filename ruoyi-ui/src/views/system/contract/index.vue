@@ -235,7 +235,12 @@
             }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="收费标准" align="center" prop="amount" />
+        <el-table-column label="收费标准" align="center" prop="amount">
+          <template slot-scope="scope">
+            <span v-if="showAmount">{{ scope.row.amount }}</span>
+            <span v-else>***</span>
+          </template>
+        </el-table-column>
         <el-table-column
           label="收款日期"
           align="center"
@@ -317,14 +322,13 @@
             >详情</el-button
           >
           <el-button
-            v-if="viewMode !== 'pending' && (scope.row.contractType === '1' || scope.row.contractType === '2')"
+            v-if="viewMode !== 'pending' && isAdmin"
             size="mini"
             type="text"
-            icon="el-icon-money"
-            :disabled="scope.row.reminderStatus === '1' || scope.row.reminderStatus === '2'"
-            @click="handleCollection(scope.row)"
-            v-hasPermi="['system:contract:import']"
-            >催收</el-button
+            icon="el-icon-s-promotion"
+            @click="handleDispatch(scope.row)"
+            v-hasPermi="['cms:task:dispatch']"
+            >派发任务</el-button
           >
           <template v-if="viewMode === 'pending'">
             <el-button
@@ -356,21 +360,31 @@
       @pagination="getList"
     />
 
-    <!-- 发起催收对话框 -->
+    <!-- 派发任务对话框 -->
     <el-dialog
-      title="发起催收"
-      :visible.sync="collectionOpen"
+      title="派发任务"
+      :visible.sync="dispatchOpen"
       width="500px"
       append-to-body
     >
-      <el-form ref="collectionForm" :model="collectionForm" label-width="80px">
-        <el-form-item label="指派给" prop="assignedTo">
+      <el-form ref="dispatchForm" :model="dispatchForm" label-width="80px">
+        <el-form-item label="任务类型" prop="taskType">
+          <el-select v-model="dispatchForm.taskType" placeholder="请选择任务类型">
+            <el-option
+              v-for="dict in dict.type.cms_task_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="分配会计" prop="assignedTo">
           <el-select
-            v-model="collectionForm.assignedTo"
-            placeholder="请选择指派人"
+            v-model="dispatchForm.assignedTo"
+            placeholder="请选择分配会计"
           >
             <el-option
-              v-for="user in userList"
+              v-for="user in assignableUsers"
               :key="user.userId"
               :label="user.userName"
               :value="user.userId"
@@ -380,7 +394,7 @@
         <el-form-item label="截止日期" prop="deadline">
           <el-date-picker
             clearable
-            v-model="collectionForm.deadline"
+            v-model="dispatchForm.deadline"
             type="date"
             value-format="yyyy-MM-dd"
             placeholder="请选择截止日期"
@@ -389,15 +403,15 @@
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input
-            v-model="collectionForm.remark"
+            v-model="dispatchForm.remark"
             type="textarea"
             placeholder="请输入内容"
           />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitCollection">确 定</el-button>
-        <el-button @click="collectionOpen = false">取 消</el-button>
+        <el-button type="primary" @click="submitDispatch">确 定</el-button>
+        <el-button @click="dispatchOpen = false">取 消</el-button>
       </div>
     </el-dialog>
 
@@ -435,7 +449,7 @@ import {
   auditContract,
 } from "@/api/system/contract";
 import { listUser } from "@/api/system/user";
-import { createCollectionTask } from "@/api/system/task";
+import { createCollectionTask, getAssignableUsers } from "@/api/system/task";
 import { getToken } from "@/utils/auth";
 import axios from "axios";
 
@@ -448,6 +462,7 @@ export default {
     "cms_contract_status",
     "cms_pay_cycle",
     "cms_pay_method",
+    "cms_task_type"
   ],
   data() {
     return {
@@ -491,9 +506,9 @@ export default {
       importFileList: [],
       importUpdateSupport: true,
       importing: false,
-      collectionOpen: false,
-      collectionForm: {},
-      userList: [],
+      dispatchOpen: false,
+      dispatchForm: {},
+      assignableUsers: [],
       viewMode: "all",
       rejectDialogOpen: false,
       rejectForm: {
@@ -501,9 +516,21 @@ export default {
       },
     };
   },
+  computed: {
+    showAmount() {
+      const roles = this.$store.getters.roles || [];
+      if (roles.includes("admin")) {
+        return true;
+      }
+      if (roles.includes("accountant") || roles.includes("sales")) {
+        return false;
+      }
+      return true;
+    }
+  },
   created() {
     this.syncTypeFromRoute(true);
-    this.getUserList();
+    this.getAssignableUsersList();
   },
   watch: {
     $route() {
@@ -670,26 +697,27 @@ export default {
         this.importing = false;
       }
     },
-    getUserList() {
-      listUser().then((response) => {
-        this.userList = response.rows;
+    getAssignableUsersList() {
+      getAssignableUsers().then((response) => {
+        this.assignableUsers = response.data || response.rows;
       });
     },
-    handleCollection(row) {
-      this.collectionForm = {
+    handleDispatch(row) {
+      this.dispatchForm = {
         sourceContractId: row.contractId,
+        taskType: null,
         assignedTo: null,
         deadline: null,
         remark: null,
       };
-      this.collectionOpen = true;
+      this.dispatchOpen = true;
     },
-    submitCollection() {
-      this.$refs["collectionForm"].validate((valid) => {
+    submitDispatch() {
+      this.$refs["dispatchForm"].validate((valid) => {
         if (valid) {
-          createCollectionTask(this.collectionForm).then((response) => {
-            this.$modal.msgSuccess("催收任务创建成功");
-            this.collectionOpen = false;
+          createCollectionTask(this.dispatchForm).then((response) => {
+            this.$modal.msgSuccess("任务派发成功");
+            this.dispatchOpen = false;
           });
         }
       });

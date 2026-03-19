@@ -18,6 +18,10 @@
       <template v-if="device !== 'mobile'">
         <search id="header-search" class="right-menu-item" />
 
+        <notification-bell id="notification-bell" class="right-menu-item hover-effect" />
+
+        <screenfull id="screenfull" class="right-menu-item hover-effect" />
+
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
         <el-tooltip content="布局大小" effect="dark" placement="bottom">
@@ -55,6 +59,8 @@ import Breadcrumb from "@/components/Breadcrumb";
 import TopNav from "@/components/TopNav";
 import Hamburger from "@/components/Hamburger";
 import Screenfull from "@/components/Screenfull";
+import NotificationBell from "@/components/NotificationBell";
+import * as notificationApi from "@/api/system/notification";
 import SizeSelect from "@/components/SizeSelect";
 import Search from "@/components/HeaderSearch";
 import RuoYiGit from "@/components/RuoYi/Git";
@@ -68,6 +74,8 @@ export default {
     Breadcrumb,
     TopNav,
     Hamburger,
+    NotificationBell,
+    Screenfull,
     Screenfull,
     SizeSelect,
     Search,

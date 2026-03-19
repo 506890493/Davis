@@ -51,3 +51,5 @@
 - `CmsTaskServiceImpl.selectCmsTaskList()` filters by assignedTo for non-admin.
 - `CmsDashboardServiceImpl` accountant stats query uses current user's ID instead of null.
 - Evidence saved to `.sisyphus/evidence/task-9-data-isolation.txt`.
+- Task 8 (Ledger Backend API) was already completed by the orchestrator. Verified all files exist and compile successfully.
+- Task 5: Enhanced task dispatch backend. Added /assignableUsers endpoint to CmsTaskController. Enhanced createCollectionTask in CmsContractController to accept assignedTo, taskType, currentAmount, deadline, and auto-generate task title. Added getAssignableUsers to frontend task.js.

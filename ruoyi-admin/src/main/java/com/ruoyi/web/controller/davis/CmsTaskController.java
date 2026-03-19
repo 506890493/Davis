@@ -98,6 +98,7 @@ public class CmsTaskController extends BaseController
     }
 
     /**
+    /**
      * 获取可分配的会计用户列表
      */
     @PreAuthorize("@ss.hasPermi('cms:task:dispatch')")
@@ -106,5 +107,84 @@ public class CmsTaskController extends BaseController
     {
         List<SysUser> users = cmsTaskService.getAssignableUsers();
         return success(users);
+    }
+
+    /**
+     * 会计将任务退回管理员(讲价)
+     * POST /system/task/returnToAdmin
+     * @param taskId 任务ID
+     * @param remark 退回原因
+     * @param currentAmount 客户期望价格
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:edit')")
+    @Log(title = "任务管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/returnToAdmin")
+    public AjaxResult returnToAdmin(@RequestBody CmsTask task)
+    {
+        return toAjax(cmsTaskService.returnToAdmin(task));
+    }
+
+    /**
+     * 管理员修改协商金额后重新派发
+     * POST /system/task/redispatch
+     * @param taskId 任务ID
+     * @param currentAmount 修改后的金额
+     * @param assigneeId 新分配的会计ID
+     * @param deadline 截止日期
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:dispatch')")
+    @Log(title = "任务管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/redispatch")
+    public AjaxResult redispatch(@RequestBody CmsTask task)
+    {
+        return toAjax(cmsTaskService.redispatch(task));
+    }
+
+    /**
+     * 会计发起终止合作请求
+     * POST /system/task/requestTermination
+     * @param taskId 任务ID
+     * @param remark 终止原因
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:edit')")
+    @Log(title = "任务管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/requestTermination")
+    public AjaxResult requestTermination(@RequestBody CmsTask task)
+    {
+        return toAjax(cmsTaskService.requestTermination(task));
+    }
+
+    /**
+     * 管理员确认终止合作
+     * POST /system/task/confirmTermination
+     * @param taskId 任务ID
+     * @param approved 是否同意终止
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:audit')")
+    @Log(title = "任务管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/confirmTermination")
+    public AjaxResult confirmTermination(@RequestBody java.util.Map<String, Object> params)
+    {
+        Long taskId = Long.valueOf(params.get("taskId").toString());
+        boolean approved = Boolean.parseBoolean(params.get("approved").toString());
+        return toAjax(cmsTaskService.confirmTermination(taskId, approved));
+    }
+
+    /**
+     * 会计完成续签
+     * POST /system/task/completeRenewal
+     * @param taskId 任务ID
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:edit')")
+    @Log(title = "任务管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/completeRenewal")
+    public AjaxResult completeRenewal(@RequestBody CmsTask task)
+    {
+        return toAjax(cmsTaskService.completeRenewal(task));
     }
 }
