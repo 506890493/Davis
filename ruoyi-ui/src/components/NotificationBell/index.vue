@@ -57,7 +57,7 @@ export default {
   methods: {
     fetchUnreadCount() {
       getUnreadCount().then(res => {
-        this.unreadCount = res.data || 0
+        this.unreadCount = (res.data && res.data.count) || 0
       })
     },
     fetchNotifications() {

@@ -237,7 +237,7 @@
         </el-table-column>
         <el-table-column label="收费标准" align="center" prop="amount">
           <template slot-scope="scope">
-            <span v-if="showAmount">{{ scope.row.amount }}</span>
+            <span v-if="showAmount">{{ scope.row.amount }} 元</span>
             <span v-else>***</span>
           </template>
         </el-table-column>
@@ -259,21 +259,11 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="联系邮箱" align="center" prop="contactEmail" />
         <el-table-column label="付款周期" align="center" prop="paymentCycle">
           <template slot-scope="scope">
             <dict-tag
               :options="dict.type.cms_pay_cycle"
               :value="scope.row.paymentCycle"
-            />
-          </template>
-        </el-table-column>
-
-        <el-table-column label="收款方式" align="center" prop="paymentMethod">
-          <template slot-scope="scope">
-            <dict-tag
-              :options="dict.type.cms_pay_method"
-              :value="scope.row.paymentMethod"
             />
           </template>
         </el-table-column>

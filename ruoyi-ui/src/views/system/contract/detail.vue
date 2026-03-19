@@ -72,7 +72,7 @@
             detail.contactEmail
           }}</el-descriptions-item>
           <el-descriptions-item label="收费标准">
-            <span v-if="showAmount">{{ detail.amount }}</span>
+            <span v-if="showAmount">{{ detail.amount }} 元</span>
             <span v-else>***</span>
           </el-descriptions-item>
           <el-descriptions-item label="付款周期">
