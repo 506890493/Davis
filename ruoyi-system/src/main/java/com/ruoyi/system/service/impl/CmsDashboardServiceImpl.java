@@ -187,13 +187,15 @@ public class CmsDashboardServiceImpl implements ICmsDashboardService
                 if ("accountant".equals(roleKey) || "finance".equals(roleKey)) {
                     return "accountant";
                 }
+                if ("manager".equals(roleKey)) {
+                    return "admin";
+                }
                 if ("sales".equals(roleKey)) {
                     return "sales";
                 }
             }
         }
         
-        // 默认返回销售类型（只能看自己的数据）
         return "sales";
     }
 

@@ -326,8 +326,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM cms_contract
         WHERE del_flag = '0'
         AND contract_type = #{contractType}
-        <if test="year != null">AND YEAR(start_date) = #{year}</if>
-        <if test="month != null">AND MONTH(start_date) = #{month}</if>
+        <if test="beginDate != null and endDate != null">
+            AND start_date BETWEEN #{beginDate} AND #{endDate}
+        </if>
+        <if test="beginDate == null and endDate == null and year != null and month != null">
+            AND YEAR(start_date) = #{year} AND MONTH(start_date) = #{month}
+        </if>
     </select>
 
     <!-- 按合同类型统计合同数量 -->
@@ -336,8 +340,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM cms_contract
         WHERE del_flag = '0'
         AND contract_type = #{contractType}
-        <if test="year != null">AND YEAR(start_date) = #{year}</if>
-        <if test="month != null">AND MONTH(start_date) = #{month}</if>
+        <if test="beginDate != null and endDate != null">
+            AND start_date BETWEEN #{beginDate} AND #{endDate}
+        </if>
+        <if test="beginDate == null and endDate == null and year != null and month != null">
+            AND YEAR(start_date) = #{year} AND MONTH(start_date) = #{month}
+        </if>
     </select>
 
     <!-- 按人员统计总账数据 -->
@@ -351,8 +359,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LEFT JOIN sys_user u ON c.owner_id = u.user_id
         WHERE c.del_flag = '0'
         AND u.user_id IS NOT NULL
-        <if test="year != null">AND YEAR(c.start_date) = #{year}</if>
-        <if test="month != null">AND MONTH(c.start_date) = #{month}</if>
+        <if test="beginDate != null and endDate != null">
+            AND c.start_date BETWEEN #{beginDate} AND #{endDate}
+        </if>
+        <if test="beginDate == null and endDate == null and year != null and month != null">
+            AND YEAR(c.start_date) = #{year} AND MONTH(c.start_date) = #{month}
+        </if>
         GROUP BY u.user_id, u.user_name, u.nick_name
         ORDER BY totalAmount DESC
     </select>

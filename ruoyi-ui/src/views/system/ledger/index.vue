@@ -1,19 +1,23 @@
 <template>
   <div class="app-container">
-    <div v-if="checkRole(['admin'])">
+    <div v-if="checkRole(['admin','manager'])">
       <!-- Date Range Picker and Export Button -->
       <el-form :inline="true" class="demo-form-inline">
-        <el-form-item label="日期范围">
+        <el-form-item label="开始日期">
           <el-date-picker
-            v-model="dateRange"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+            v-model="beginDate"
+            placeholder="开始日期"
             value-format="yyyy-MM-dd"
-            @change="handleQuery"
-          >
-          </el-date-picker>
+            style="width: 150px;"
+          />
+        </el-form-item>
+        <el-form-item label="结束日期">
+          <el-date-picker
+            v-model="endDate"
+            placeholder="结束日期"
+            value-format="yyyy-MM-dd"
+            style="width: 150px;"
+          />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" @click="handleQuery">查询</el-button>
@@ -114,7 +118,8 @@ export default {
   data() {
     return {
       activeTab: 'summary',
-      dateRange: [],
+      beginDate: '2000-01-01',
+      endDate: new Date().toISOString().slice(0, 10),
       loading: false,
       summaryData: {
         totalContracts: 0,
@@ -138,7 +143,7 @@ export default {
     };
   },
   created() {
-    if (this.checkRole(['admin'])) {
+    if (this.checkRole(['admin', 'manager'])) {
       this.getSummary();
     }
   },
@@ -155,6 +160,10 @@ export default {
   methods: {
     checkRole,
     handleQuery() {
+      if (this.endDate && this.beginDate && this.endDate < this.beginDate) {
+        this.$message.error('结束日期必须在开始日期之后');
+        return;
+      }
       if (this.activeTab === 'summary') {
         this.getSummary();
       } else if (this.activeTab === 'byPerson') {
@@ -178,17 +187,15 @@ export default {
       }
     },
     getQueryParams() {
-      const params = {};
-      if (this.dateRange && this.dateRange.length === 2) {
-        params.beginDate = this.dateRange[0];
-        params.endDate = this.dateRange[1];
-      }
-      return params;
+      return {
+        beginDate: this.beginDate,
+        endDate: this.endDate
+      };
     },
     getSummary() {
       this.loading = true;
       const params = this.getQueryParams();
-      
+
       // 1. Get Ledger Summary
       getLedgerSummary(params).then(response => {
         const data = response.data || {};

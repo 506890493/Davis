@@ -54,7 +54,7 @@ public class CmsNotificationController extends BaseController
     /**
      * 标记通知为已读
      */
-    @PreAuthorize("@ss.hasPermi('system:notification:list')")
+    @PreAuthorize("@ss.hasPermi('system:notification:edit')")
     @PutMapping("/read/{notificationId}")
     public AjaxResult markRead(@PathVariable Long notificationId)
     {
@@ -64,7 +64,7 @@ public class CmsNotificationController extends BaseController
     /**
      * 标记所有通知为已读
      */
-    @PreAuthorize("@ss.hasPermi('system:notification:list')")
+    @PreAuthorize("@ss.hasPermi('system:notification:edit')")
     @PutMapping("/readAll")
     public AjaxResult markAllRead()
     {

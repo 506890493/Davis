@@ -34,17 +34,19 @@ public class CmsLedgerServiceImpl implements ICmsLedgerService
      *
      * @param year 年份（可选）
      * @param month 月份（可选）
+     * @param beginDate 开始日期（可选）
+     * @param endDate 结束日期（可选）
      * @return 汇总数据
      */
     @Override
-    public LedgerSummaryVo getSummary(Integer year, Integer month)
+    public LedgerSummaryVo getSummary(Integer year, Integer month, String beginDate, String endDate)
     {
         LedgerSummaryVo vo = new LedgerSummaryVo();
 
-        BigDecimal dazhangAmt = contractMapper.sumAmountByType("1", year, month);
-        BigDecimal addressAmt = contractMapper.sumAmountByType("2", year, month);
-        Integer dazhangCnt = contractMapper.countByType("1", year, month);
-        Integer addressCnt = contractMapper.countByType("2", year, month);
+        BigDecimal dazhangAmt = contractMapper.sumAmountByType("1", year, month, beginDate, endDate);
+        BigDecimal addressAmt = contractMapper.sumAmountByType("2", year, month, beginDate, endDate);
+        Integer dazhangCnt = contractMapper.countByType("1", year, month, beginDate, endDate);
+        Integer addressCnt = contractMapper.countByType("2", year, month, beginDate, endDate);
 
         vo.setDazhangAmount(dazhangAmt != null ? dazhangAmt : BigDecimal.ZERO);
         vo.setAddressAmount(addressAmt != null ? addressAmt : BigDecimal.ZERO);
@@ -62,12 +64,14 @@ public class CmsLedgerServiceImpl implements ICmsLedgerService
      *
      * @param year 年份（可选）
      * @param month 月份（可选）
+     * @param beginDate 开始日期（可选）
+     * @param endDate 结束日期（可选）
      * @return 人员统计列表
      */
     @Override
-    public List<LedgerByPersonVo> getByPerson(Integer year, Integer month)
+    public List<LedgerByPersonVo> getByPerson(Integer year, Integer month, String beginDate, String endDate)
     {
-        return contractMapper.selectLedgerByPerson(year, month);
+        return contractMapper.selectLedgerByPerson(year, month, beginDate, endDate);
     }
 
     /**
@@ -88,8 +92,8 @@ public class CmsLedgerServiceImpl implements ICmsLedgerService
         for (int m = 1; m <= 12; m++)
         {
             months.add(m + "月");
-            BigDecimal dz = contractMapper.sumAmountByType("1", year, m);
-            BigDecimal addr = contractMapper.sumAmountByType("2", year, m);
+            BigDecimal dz = contractMapper.sumAmountByType("1", year, m, null, null);
+            BigDecimal addr = contractMapper.sumAmountByType("2", year, m, null, null);
             dz = dz != null ? dz : BigDecimal.ZERO;
             addr = addr != null ? addr : BigDecimal.ZERO;
             dazhangData.add(dz);

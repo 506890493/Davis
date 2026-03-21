@@ -179,11 +179,15 @@ public interface CmsContractMapper
      * @param contractType 合同类型
      * @param year 年份（可选）
      * @param month 月份（可选）
+     * @param beginDate 开始日期（可选）
+     * @param endDate 结束日期（可选）
      * @return 金额
      */
     public BigDecimal sumAmountByType(@Param("contractType") String contractType,
                                       @Param("year") Integer year,
-                                      @Param("month") Integer month);
+                                      @Param("month") Integer month,
+                                      @Param("beginDate") String beginDate,
+                                      @Param("endDate") String endDate);
 
     /**
      * 按合同类型统计合同数量
@@ -191,19 +195,27 @@ public interface CmsContractMapper
      * @param contractType 合同类型
      * @param year 年份（可选）
      * @param month 月份（可选）
+     * @param beginDate 开始日期（可选）
+     * @param endDate 结束日期（可选）
      * @return 数量
      */
     public Integer countByType(@Param("contractType") String contractType,
                                @Param("year") Integer year,
-                               @Param("month") Integer month);
+                               @Param("month") Integer month,
+                               @Param("beginDate") String beginDate,
+                               @Param("endDate") String endDate);
 
     /**
      * 按人员统计总账数据
      *
      * @param year 年份（可选）
      * @param month 月份（可选）
+     * @param beginDate 开始日期（可选）
+     * @param endDate 结束日期（可选）
      * @return 人员统计列表
      */
     public List<LedgerByPersonVo> selectLedgerByPerson(@Param("year") Integer year,
-                                                        @Param("month") Integer month);
+                                                        @Param("month") Integer month,
+                                                        @Param("beginDate") String beginDate,
+                                                        @Param("endDate") String endDate);
 }

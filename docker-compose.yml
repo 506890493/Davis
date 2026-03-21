@@ -105,14 +105,14 @@ services:
     image: bytebase/dbhub:latest
     container_name: dbhub
     ports:
-      - "8080:8080"
+      - "8090:8090"
     environment:
       - DBHUB_LOG_LEVEL=info
     command:
       - --transport
       - http
       - --port
-      - "8080"
+      - "8090"
       - --dsn
 #      - "postgres://user:password@database:5432/davis-backend"  #这里是数据库连接， 按自己的数据库配置
       - 'mysql://root:123456@host.docker.internal:3306/davis-backend'  #这里是配置连接到宿主机3306的mysql示例

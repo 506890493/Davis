@@ -39,9 +39,11 @@ public class CmsLedgerController extends BaseController
     @PreAuthorize("@ss.hasPermi('cms:ledger:list')")
     @GetMapping("/summary")
     public AjaxResult summary(@RequestParam(required = false) Integer year,
-                              @RequestParam(required = false) Integer month)
+                              @RequestParam(required = false) Integer month,
+                              @RequestParam(required = false) String beginDate,
+                              @RequestParam(required = false) String endDate)
     {
-        return success(ledgerService.getSummary(year, month));
+        return success(ledgerService.getSummary(year, month, beginDate, endDate));
     }
 
     /**
@@ -50,9 +52,11 @@ public class CmsLedgerController extends BaseController
     @PreAuthorize("@ss.hasPermi('cms:ledger:list')")
     @GetMapping("/byPerson")
     public AjaxResult byPerson(@RequestParam(required = false) Integer year,
-                               @RequestParam(required = false) Integer month)
+                               @RequestParam(required = false) Integer month,
+                               @RequestParam(required = false) String beginDate,
+                               @RequestParam(required = false) String endDate)
     {
-        return success(ledgerService.getByPerson(year, month));
+        return success(ledgerService.getByPerson(year, month, beginDate, endDate));
     }
 
     /**
@@ -77,9 +81,11 @@ public class CmsLedgerController extends BaseController
     @PostMapping("/export")
     public void export(HttpServletResponse response,
                        @RequestParam(required = false) Integer year,
-                       @RequestParam(required = false) Integer month)
+                       @RequestParam(required = false) Integer month,
+                       @RequestParam(required = false) String beginDate,
+                       @RequestParam(required = false) String endDate)
     {
-        List<LedgerByPersonVo> list = ledgerService.getByPerson(year, month);
+        List<LedgerByPersonVo> list = ledgerService.getByPerson(year, month, beginDate, endDate);
         ExcelUtil<LedgerByPersonVo> util = new ExcelUtil<>(LedgerByPersonVo.class);
         util.exportExcel(response, list, "总账报表数据");
     }
