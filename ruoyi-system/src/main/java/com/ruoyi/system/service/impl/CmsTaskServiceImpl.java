@@ -384,4 +384,46 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setUpdateTime(DateUtils.getNowDate());
         return cmsTaskMapper.updateCmsTask(updateTask);
     }
+
+    /**
+     * 确认收款（催收任务完成）
+     *
+     * @param task 任务信息（包含taskId, actualAmount, receiveRemark）
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int confirmPayment(CmsTask task)
+    {
+        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
+        if (existingTask == null) {
+            throw new ServiceException("任务不存在");
+        }
+
+        CmsTask updateTask = new CmsTask();
+        updateTask.setTaskId(task.getTaskId());
+        updateTask.setActualAmount(task.getActualAmount());
+        updateTask.setReceiveRemark(task.getReceiveRemark());
+        updateTask.setStatus("4"); // 4已完成
+        updateTask.setUpdateTime(DateUtils.getNowDate());
+        
+        int result = cmsTaskMapper.updateCmsTask(updateTask);
+
+        // 更新关联合同的actual_amount
+        Long contractIdToUpdate = existingTask.getSourceContractId();
+        if (contractIdToUpdate == null) {
+            contractIdToUpdate = existingTask.getContractId();
+        }
+        
+        if (contractIdToUpdate != null) {
+            CmsContract contract = cmsContractService.selectCmsContractByContractId(contractIdToUpdate);
+            if (contract != null) {
+                contract.setActualAmount(task.getActualAmount());
+                contract.setReminderStatus("3"); // 3已完成
+                cmsContractService.updateCmsContract(contract);
+            }
+        }
+
+        return result;
+    }
 }

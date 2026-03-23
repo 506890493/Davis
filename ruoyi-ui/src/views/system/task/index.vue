@@ -160,6 +160,17 @@
         v-if="showAmount"
       />
       <el-table-column
+        label="实际收款金额"
+        align="center"
+        prop="actualAmount"
+        v-if="showAmount"
+      />
+      <el-table-column
+        label="收款备注"
+        align="center"
+        prop="receiveRemark"
+      />
+      <el-table-column
         label="执行人"
         align="center"
         prop="assignedToName"
@@ -263,9 +274,9 @@
             type="text"
             icon="el-icon-check"
             v-if="scope.row.status === '1' && scope.row.taskType === '1'"
-            @click="handleComplete(scope.row)"
+            @click="handlePayment(scope.row)"
             v-hasPermi="['system:task:edit']"
-            >完成</el-button
+            >确认收款</el-button
           >
           <el-button
             size="mini"
@@ -520,6 +531,31 @@
         <el-button @click="completeRenewalOpen = false">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 确认收款对话框 -->
+    <el-dialog title="确认收款" :visible.sync="paymentDialogOpen" width="500px" append-to-body>
+      <el-form ref="paymentForm" :model="paymentForm" :rules="paymentRules" label-width="100px">
+        <el-form-item label="合同名称">
+          <el-input v-model="paymentForm.contractName" disabled />
+        </el-form-item>
+        <el-form-item label="原金额" v-if="showAmount">
+          <el-input v-model="paymentForm.originalAmount" disabled />
+        </el-form-item>
+        <el-form-item label="协商金额" v-if="showAmount">
+          <el-input v-model="paymentForm.currentAmount" disabled />
+        </el-form-item>
+        <el-form-item label="实际收款" prop="actualAmount" v-if="showAmount">
+          <el-input-number v-model="paymentForm.actualAmount" :min="0" :precision="2" :step="100" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="收款备注" prop="receiveRemark">
+          <el-input v-model="paymentForm.receiveRemark" type="textarea" placeholder="请输入收款备注" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitPayment">确 定</el-button>
+        <el-button @click="paymentDialogOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -536,7 +572,8 @@ import {
   requestTermination,
   confirmTermination,
   completeRenewal,
-  getAssignableUsers
+  getAssignableUsers,
+  confirmPayment
 } from "@/api/system/task";
 import { getContract } from "@/api/system/contract";
 
@@ -602,6 +639,13 @@ export default {
       // 完成续签
       completeRenewalOpen: false,
       completeRenewalForm: {},
+      
+      // 确认收款
+      paymentDialogOpen: false,
+      paymentForm: {},
+      paymentRules: {
+        actualAmount: [{ required: true, message: "请输入实际收款金额", trigger: "blur" }]
+      },
       rules: {
         contractName: [
           { required: true, message: "公司名称不能为空", trigger: "blur" },
@@ -838,6 +882,35 @@ return this.$store.state.user.roles.includes('accountant');
         this.$modal.msgSuccess("完成续签成功");
         this.completeRenewalOpen = false;
         this.getList();
+      });
+    },
+
+    /** 确认收款按钮操作 */
+    handlePayment(row) {
+      this.paymentForm = {
+        taskId: row.taskId,
+        contractName: row.taskTitle.replace('催收任务: ', ''),
+        originalAmount: row.originalAmount,
+        currentAmount: row.currentAmount || row.originalAmount,
+        actualAmount: row.currentAmount || row.originalAmount,
+        receiveRemark: ''
+      };
+      this.paymentDialogOpen = true;
+    },
+    submitPayment() {
+      this.$refs.paymentForm.validate(valid => {
+        if (valid) {
+          const data = {
+            taskId: this.paymentForm.taskId,
+            actualAmount: this.paymentForm.actualAmount,
+            receiveRemark: this.paymentForm.receiveRemark
+          };
+          confirmPayment(data).then(response => {
+            this.$modal.msgSuccess("收款确认成功");
+            this.paymentDialogOpen = false;
+            this.getList();
+          });
+        }
       });
     },
 

@@ -26,6 +26,9 @@ public class DashboardStatsVo
     /** 本月到期合同数 */
     private Long expiringContractCount;
     
+    /** 合同总数 */
+    private Long totalContracts;
+    
     /** 本月到期合同列表 */
     private List<CmsContract> expiringContracts;
 
@@ -53,6 +56,17 @@ public class DashboardStatsVo
     
     /** 本月新增客户数 */
     private Long newCustomerCount;
+
+    /** ========== 客户统计（管理员视图） ========== */
+    
+    /** 客户总数 */
+    private Long totalCustomers;
+    
+    /** 代账类型客户数 */
+    private Long accountingCustomerCount;
+    
+    /** 租赁类型客户数 */
+    private Long rentalCustomerCount;
 
     public String getRoleType() {
         return roleType;
@@ -84,6 +98,14 @@ public class DashboardStatsVo
 
     public void setExpiringContractCount(Long expiringContractCount) {
         this.expiringContractCount = expiringContractCount;
+    }
+
+    public Long getTotalContracts() {
+        return totalContracts;
+    }
+
+    public void setTotalContracts(Long totalContracts) {
+        this.totalContracts = totalContracts;
     }
 
     public List<CmsContract> getExpiringContracts() {
@@ -148,5 +170,29 @@ public class DashboardStatsVo
 
     public void setNewCustomerCount(Long newCustomerCount) {
         this.newCustomerCount = newCustomerCount;
+    }
+
+    public Long getTotalCustomers() {
+        return totalCustomers;
+    }
+
+    public void setTotalCustomers(Long totalCustomers) {
+        this.totalCustomers = totalCustomers;
+    }
+
+    public Long getAccountingCustomerCount() {
+        return accountingCustomerCount;
+    }
+
+    public void setAccountingCustomerCount(Long accountingCustomerCount) {
+        this.accountingCustomerCount = accountingCustomerCount;
+    }
+
+    public Long getRentalCustomerCount() {
+        return rentalCustomerCount;
+    }
+
+    public void setRentalCustomerCount(Long rentalCustomerCount) {
+        this.rentalCustomerCount = rentalCustomerCount;
     }
 }

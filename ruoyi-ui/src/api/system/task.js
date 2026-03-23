@@ -92,3 +92,8 @@ export function completeRenewal(data) {
   return request({ url: '/cms/task/completeRenewal', method: 'post', data: data })
 }
 
+// 确认收款
+export function confirmPayment(data) {
+  return request({ url: '/system/task/confirmPayment', method: 'post', data: data })
+}
+

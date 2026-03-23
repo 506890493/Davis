@@ -130,6 +130,12 @@ export const constantRoutes = [
         name: "Rent",
         meta: { title: "地址出售", activeMenu: "/system/contract" },
       },
+      {
+        path: "ledger",
+        component: () => import("@/views/system/contract/index"),
+        name: "Ledger",
+        meta: { title: "待审批合同", activeMenu: "/system/contract" },
+      },
     ],
   },
 ];

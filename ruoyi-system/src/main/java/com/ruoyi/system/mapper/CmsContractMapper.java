@@ -166,6 +166,13 @@ public interface CmsContractMapper
                                   @Param("ownerId") Long ownerId);
 
     /**
+     * 统计合同总数
+     *
+     * @return 数量
+     */
+    public Long countAllContracts();
+
+    /**
      * 查询用户的客户列表
      *
      * @param ownerId 归属人ID

@@ -1,0 +1,19 @@
+name: contract-customer-association
+description: 代账合同和地址合同与客户实体关联管理
+status: draft
+artifacts:
+  - id: proposal
+    type: proposal
+    name: 需求提案
+    description: 说明需求背景和目标
+  - id: design
+    type: design
+    name: 设计文档
+    description: 详细技术设计方案
+  - id: tasks
+    type: tasks
+    name: 实现任务
+    description: 具体的实现步骤清单
+apply:
+  requires:
+    - tasks

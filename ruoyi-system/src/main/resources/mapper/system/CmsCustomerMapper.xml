@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CmsCustomerMapper">
+    
+    <resultMap type="CmsCustomer" id="CmsCustomerResult">
+        <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="customerType"    column="customer_type"    />
+        <result property="contactPerson"    column="contact_person"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="contactEmail"    column="contact_email"    />
+        <result property="address"    column="address"    />
+        <result property="remark"    column="remark"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="ownerName"  column="owner_name"  />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCmsCustomerVo">
+        select c.customer_id, c.customer_name, c.customer_type, c.contact_person, 
+               c.contact_phone, c.contact_email, c.address, c.remark, c.owner_id, 
+               u.nick_name as owner_name, c.del_flag, c.create_by, c.create_time, 
+               c.update_by, c.update_time
+        from cms_customer c
+        left join sys_user u on c.owner_id = u.user_id
+    </sql>
+
+    <select id="selectCmsCustomerList" parameterType="CmsCustomer" resultMap="CmsCustomerResult">
+        <include refid="selectCmsCustomerVo"/>
+        <where>  
+            <if test="customerName != null and customerName != ''"> and c.customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="customerType != null and customerType != ''"> and c.customer_type = #{customerType}</if>
+            <if test="contactPerson != null and contactPerson != ''"> and c.contact_person like concat('%', #{contactPerson}, '%')</if>
+            <if test="contactPhone != null and contactPhone != ''"> and c.contact_phone = #{contactPhone}</if>
+            <if test="contactEmail != null and contactEmail != ''"> and c.contact_email like concat('%', #{contactEmail}, '%')</if>
+            <if test="ownerId != null"> and c.owner_id = #{ownerId}</if>
+            and c.del_flag = '0'
+        </where>
+        order by c.create_time desc
+    </select>
+
+    <select id="selectCmsCustomerById" parameterType="Long" resultMap="CmsCustomerResult">
+        <include refid="selectCmsCustomerVo"/>
+        where c.customer_id = #{customerId}
+    </select>
+
+    <insert id="insertCmsCustomer" parameterType="CmsCustomer" useGeneratedKeys="true" keyProperty="customerId">
+        insert into cms_customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerName != null and customerName != ''">customer_name,</if>
+            <if test="customerType != null">customer_type,</if>
+            <if test="contactPerson != null">contact_person,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="contactEmail != null">contact_email,</if>
+            <if test="address != null">address,</if>
+            <if test="remark != null">remark,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerName != null and customerName != ''">#{customerName},</if>
+            <if test="customerType != null">#{customerType},</if>
+            <if test="contactPerson != null">#{contactPerson},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="contactEmail != null">#{contactEmail},</if>
+            <if test="address != null">#{address},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCmsCustomer" parameterType="CmsCustomer">
+        update cms_customer
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerName != null and customerName != ''">customer_name = #{customerName},</if>
+            <if test="customerType != null">customer_type = #{customerType},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="contactEmail != null">contact_email = #{contactEmail},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where customer_id = #{customerId}
+    </update>
+
+    <delete id="deleteCmsCustomerById" parameterType="Long">
+        update cms_customer set del_flag = '1' where customer_id = #{customerId}
+    </delete>
+
+    <delete id="deleteCmsCustomerByIds" parameterType="Long">
+        update cms_customer set del_flag = '1' where customer_id in 
+        <foreach item="customerId" collection="array" open="(" separator="," close=")">
+            #{customerId}
+        </foreach>
+    </delete>
+
+    <select id="countCustomer" resultType="Long">
+        select count(*) from cms_customer where del_flag = '0'
+    </select>
+
+    <select id="countCustomerByOwner" resultType="Long">
+        select count(*) from cms_customer where del_flag = '0' and owner_id = #{ownerId}
+    </select>
+
+    <select id="countCustomerByType" resultType="Long">
+        select count(*) from cms_customer where del_flag = '0' and customer_type = #{customerType}
+    </select>
+
+</mapper>

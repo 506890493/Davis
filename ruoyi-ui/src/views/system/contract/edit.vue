@@ -22,6 +22,18 @@
               <el-input v-model="form.contractName" placeholder="请输入公司名称" />
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item label="关联客户" prop="customerId">
+              <el-select v-model="form.customerId" placeholder="请选择客户" clearable filterable style="width: 100%">
+                <el-option
+                  v-for="customer in customerList"
+                  :key="customer.customerId"
+                  :label="customer.customerName"
+                  :value="customer.customerId"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
         </el-row>
 
         <template v-if="form.contractType === '0'">
@@ -119,6 +131,7 @@
 
 <script>
 import { getContract, updateContract } from "@/api/system/contract";
+import { listCustomer } from "@/api/system/customer";
 import AreaCascader from "@/components/AreaCascader";
 
 export default {
@@ -126,11 +139,13 @@ export default {
   components: { AreaCascader },
   data() {
     return {
+      customerList: [],
       form: {
         contractId: null,
         contractType: "0",
         contractCode: null,
         contractName: null,
+        customerId: null,
         creditCode: null,
         startDate: null,
         endDate: null,
@@ -163,12 +178,18 @@ export default {
     };
   },
   created() {
+    this.getCustomerList();
     const contractId = this.$route.params.contractId;
     if (contractId) {
       this.getDetail(contractId);
     }
   },
   methods: {
+    getCustomerList() {
+      listCustomer({ pageNum: 1, pageSize: 9999 }).then(response => {
+        this.customerList = response.data.rows || [];
+      });
+    },
     getDetail(contractId) {
       getContract(contractId).then(response => {
         this.form = response.data;

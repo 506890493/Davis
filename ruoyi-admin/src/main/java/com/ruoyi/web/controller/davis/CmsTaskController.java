@@ -187,4 +187,18 @@ public class CmsTaskController extends BaseController
     {
         return toAjax(cmsTaskService.completeRenewal(task));
     }
+
+    /**
+     * 确认收款（催收任务完成）
+     * POST /system/task/confirmPayment
+     * @param task 任务信息（包含taskId, actualAmount, receiveRemark）
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:edit')")
+    @Log(title = "确认收款", businessType = BusinessType.UPDATE)
+    @PostMapping("/confirmPayment")
+    public AjaxResult confirmPayment(@RequestBody CmsTask task)
+    {
+        return toAjax(cmsTaskService.confirmPayment(task));
+    }
 }

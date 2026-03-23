@@ -69,6 +69,14 @@ public class CmsTask extends BaseEntity
     /** 删除标志 */
     private String delFlag;
 
+    /** 实际收款金额 */
+    @Excel(name = "实际收款金额")
+    private BigDecimal actualAmount;
+
+    /** 收款备注 */
+    @Excel(name = "收款备注")
+    private String receiveRemark;
+
     /** 执行人名称 */
     private String assignedToName;
 
@@ -189,6 +197,26 @@ public class CmsTask extends BaseEntity
         return delFlag;
     }
 
+    public void setActualAmount(BigDecimal actualAmount)
+    {
+        this.actualAmount = actualAmount;
+    }
+
+    public BigDecimal getActualAmount()
+    {
+        return actualAmount;
+    }
+
+    public void setReceiveRemark(String receiveRemark)
+    {
+        this.receiveRemark = receiveRemark;
+    }
+
+    public String getReceiveRemark()
+    {
+        return receiveRemark;
+    }
+
     public void setAssignedToName(String assignedToName)
     {
         this.assignedToName = assignedToName;
@@ -216,6 +244,8 @@ public class CmsTask extends BaseEntity
             .append("deadline", getDeadline())
             .append("status", getStatus())
             .append("delFlag", getDelFlag())
+            .append("actualAmount", getActualAmount())
+            .append("receiveRemark", getReceiveRemark())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

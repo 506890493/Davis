@@ -77,11 +77,6 @@
       </el-form-item>
     </el-form>
 
-    <el-tabs v-model="viewMode" @tab-click="handleTabClick">
-      <el-tab-pane label="所有合同" name="all"></el-tab-pane>
-      <el-tab-pane label="待审批合同" name="pending"></el-tab-pane>
-    </el-tabs>
-
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
@@ -300,7 +295,7 @@
         label="操作"
         align="center"
         class-name="small-padding fixed-width"
-        :width="viewMode === 'pending' ? '200' : '150'"
+        width="150"
       >
         <template slot-scope="scope">
           <el-button
@@ -312,7 +307,7 @@
             >详情</el-button
           >
           <el-button
-            v-if="viewMode !== 'pending' && isAdmin"
+            v-if="isAdmin"
             size="mini"
             type="text"
             icon="el-icon-s-promotion"
@@ -320,24 +315,6 @@
             v-hasPermi="['cms:task:dispatch']"
             >派发任务</el-button
           >
-          <template v-if="viewMode === 'pending'">
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-check"
-              @click="handleApprove(scope.row)"
-              v-hasPermi="['cms:contract:audit']"
-              >通过</el-button
-            >
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-close"
-              @click="handleReject(scope.row)"
-              v-hasPermi="['cms:contract:audit']"
-              >驳回</el-button
-            >
-          </template>
         </template>
       </el-table-column>
     </el-table>
@@ -615,6 +592,17 @@ export default {
       if (name === this.accountingType || name === this.rentType) {
         this.currentType = name;
         this.queryParams.contractType = this.mapViewToDict(name);
+        this.queryParams.auditStatus = null;
+        if (initial) {
+          this.queryParams.pageNum = 1;
+          this.getList();
+        } else {
+          this.handleQuery();
+        }
+      } else if (name === "Ledger") {
+        this.currentType = null;
+        this.queryParams.contractType = null;
+        this.queryParams.auditStatus = "0";
         if (initial) {
           this.queryParams.pageNum = 1;
           this.getList();
@@ -710,40 +698,6 @@ export default {
             this.dispatchOpen = false;
           });
         }
-      });
-    },
-    handleTabClick(tab) {
-      this.viewMode = tab.name;
-      this.queryParams.auditStatus = this.viewMode === "pending" ? "0" : null;
-      this.handleQuery();
-    },
-    handleApprove(row) {
-      this.$modal
-        .confirm('是否确认通过合同"' + row.contractName + '"的审批？')
-        .then(() => {
-          return auditContract({
-            contractId: row.contractId,
-            auditStatus: "1",
-          });
-        })
-        .then(() => {
-          this.getList();
-          this.$modal.msgSuccess("审批通过");
-        })
-        .catch(() => {});
-    },
-    handleReject(row) {
-      this.rejectForm = {
-        contractId: row.contractId,
-        reason: "",
-      };
-      this.rejectDialogOpen = true;
-    },
-    submitReject() {
-      auditContract({ contractId: this.rejectForm.contractId, auditStatus: '2', remark: this.rejectForm.reason }).then(() => {
-        this.getList();
-        this.rejectDialogOpen = false;
-        this.$modal.msgSuccess("审批驳回");
       });
     },
   },

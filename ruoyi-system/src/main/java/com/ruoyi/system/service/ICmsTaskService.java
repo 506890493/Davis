@@ -117,5 +117,13 @@ public interface ICmsTaskService
      */
     public int completeRenewal(CmsTask task);
 
+    /**
+     * 确认收款（催收任务完成）
+     *
+     * @param task 任务信息（包含taskId, actualAmount, receiveRemark）
+     * @return 结果
+     */
+    public int confirmPayment(CmsTask task);
+
     public List<SysUser> getAssignableUsers();
 }
