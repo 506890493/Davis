@@ -121,6 +121,10 @@ public class CmsContract extends BaseEntity {
     @Excel(name = "客户ID")
     private Long customerId;
 
+    /** 客户名称 */
+    @Excel(name = "客户名称")
+    private String customerName;
+
     /**
      * 合同状态（动态计算，不再物理存储）
      * 字典：cms_contract_status
@@ -354,6 +358,14 @@ public class CmsContract extends BaseEntity {
 
     public Long getCustomerId() {
         return customerId;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerName() {
+        return customerName;
     }
 
     public void setAuditStatus(String auditStatus) {

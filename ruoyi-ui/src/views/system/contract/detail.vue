@@ -49,7 +49,12 @@
           </el-descriptions-item>
           <el-descriptions-item label="备注" :span="2">{{
             detail.remark
-          }}</el-descriptions-item>
+          }}          </el-descriptions-item>
+        </el-descriptions>
+
+        <el-descriptions v-if="detail.customerId" class="mt20" title="客户信息" :column="2" border>
+          <el-descriptions-item label="客户名称">{{ detail.customerName }}</el-descriptions-item>
+          <el-descriptions-item label="客户ID">{{ detail.customerId }}</el-descriptions-item>
         </el-descriptions>
 
         <el-descriptions

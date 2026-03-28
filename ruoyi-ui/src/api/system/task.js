@@ -97,3 +97,12 @@ export function confirmPayment(data) {
   return request({ url: '/system/task/confirmPayment', method: 'post', data: data })
 }
 
+// 获取任务操作日志
+export function historyTaskLog(query) {
+  return request({
+    url: '/system/task/log',
+    method: 'get',
+    params: query
+  })
+}
+

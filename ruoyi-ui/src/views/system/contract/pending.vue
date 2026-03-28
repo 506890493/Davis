@@ -310,7 +310,7 @@
       </el-table-column>
       
       <!-- 待审批页面显示操作按钮 -->
-      <el-table-column v-if="isPendingPage" label="操作" align="center" width="200">
+      <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -509,10 +509,6 @@ export default {
       const roles = this.$store.getters.roles || [];
       return roles.includes("admin") || roles.includes("manager");
     },
-    isPendingPage() {
-      const path = this.$route.path;
-      return path.includes("/pending");
-    },
     showAmount() {
       const roles = this.$store.getters.roles || [];
       if (roles.includes("admin")) {
@@ -525,13 +521,8 @@ export default {
     }
   },
   created() {
-    this.syncTypeFromRoute(true);
+    this.initPage();
     this.getAssignableUsersList();
-  },
-  watch: {
-    $route() {
-      this.syncTypeFromRoute();
-    },
   },
   methods: {
     getList() {
@@ -644,42 +635,11 @@ export default {
     syncDialogType(val) {
       this.dialogType = this.mapDictToView(val);
     },
-    syncTypeFromRoute(initial = false) {
-      const name = this.$route.name;
-      const path = this.$route.path;
-      if (name === this.accountingType || name === this.rentType) {
-        this.currentType = name;
-        this.queryParams.contractType = this.mapViewToDict(name);
-        this.queryParams.auditStatus = '1';
-        if (initial) {
-          this.queryParams.pageNum = 1;
-          this.getList();
-        } else {
-          this.handleQuery();
-        }
-      } else if (name === "Ledger" || path.includes("/pending") || path.includes("/ledger")) {
-        this.currentType = null;
-        this.queryParams.contractType = null;
-        this.queryParams.auditStatus = "0";
-        if (initial) {
-          this.queryParams.pageNum = 1;
-          this.getList();
-        } else {
-          this.handleQuery();
-        }
-      } else if (name === "Rejected" || path.includes("/rejected")) {
-        this.currentType = null;
-        this.queryParams.contractType = null;
-        this.queryParams.auditStatus = "2";
-        if (initial) {
-          this.queryParams.pageNum = 1;
-          this.getList();
-        } else {
-          this.handleQuery();
-        }
-      } else {
-        if (initial) this.getList();
-      }
+    initPage() {
+      this.queryParams.contractType = null;
+      this.queryParams.auditStatus = "0";
+      this.currentType = null;
+      this.getList();
     },
     mapViewToDict(view) {
       if (view === this.accountingType) return this.dictAccounting;

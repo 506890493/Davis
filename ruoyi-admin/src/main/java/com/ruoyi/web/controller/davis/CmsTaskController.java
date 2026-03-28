@@ -7,7 +7,9 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.CmsTask;
+import com.ruoyi.system.domain.CmsTaskLog;
 import com.ruoyi.system.service.ICmsTaskService;
+import com.ruoyi.system.service.ICmsTaskLogService;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +30,9 @@ public class CmsTaskController extends BaseController
 {
     @Autowired
     private ICmsTaskService cmsTaskService;
+    
+    @Autowired
+    private ICmsTaskLogService cmsTaskLogService;
 
     /**
      * 查询任务管理列表
@@ -200,5 +205,17 @@ public class CmsTaskController extends BaseController
     public AjaxResult confirmPayment(@RequestBody CmsTask task)
     {
         return toAjax(cmsTaskService.confirmPayment(task));
+    }
+    
+    /**
+     * 获取任务操作日志列表
+     */
+    @PreAuthorize("@ss.hasPermi('system:task:query')")
+    @GetMapping("/log")
+    public TableDataInfo logList(CmsTaskLog cmsTaskLog)
+    {
+        startPage();
+        List<CmsTaskLog> list = cmsTaskLogService.selectCmsTaskLogList(cmsTaskLog);
+        return getDataTable(list);
     }
 }

@@ -6,12 +6,12 @@
     <el-drawer title="通知中心" :visible.sync="showDrawer" direction="rtl" size="400px" append-to-body>
       <div class="notification-list">
         <el-empty v-if="notifications.length === 0" description="暂无通知"></el-empty>
-        <div v-for="item in notifications" :key="item.id" 
-             class="notification-item" 
+        <div v-for="item in notifications" :key="item.noticeId"
+             class="notification-item"
              :class="{ unread: item.readStatus === '0' }"
              @click="handleClick(item)">
-          <div class="notification-title">{{ item.title }}</div>
-          <div class="notification-content">{{ item.content }}</div>
+          <div class="notification-title">{{ item.noticeTitle }}</div>
+          <div class="notification-content">{{ item.noticeContent }}</div>
           <div class="notification-time">{{ parseTime(item.createTime) }}</div>
         </div>
       </div>
@@ -37,7 +37,6 @@ export default {
   },
   created() {
     this.fetchUnreadCount()
-    // Poll for unread count every 60 seconds
     this.timer = setInterval(() => {
       this.fetchUnreadCount()
     }, 60000)
@@ -67,27 +66,18 @@ export default {
     },
     handleClick(item) {
       if (item.readStatus === '0') {
-        markRead(item.id).then(() => {
-          item.readStatus = '1'
+        markRead(item.noticeId).then(() => {
+          this.$set(item, 'readStatus', '1')
           this.fetchUnreadCount()
         })
       }
-      
+
       this.showDrawer = false
-      
-      // Navigate based on related task/contract
-      if (item.relatedId && item.type) {
-        if (item.type === '1') {
-          this.$router.push('/system/task/detail/' + item.relatedId).catch(() => {})
-        } else if (item.type === '2') {
-          this.$router.push('/system/contract/detail/' + item.relatedId).catch(() => {})
-        }
-      }
     },
     handleMarkAllRead() {
       markAllRead().then(() => {
         this.notifications.forEach(item => {
-          item.readStatus = '1'
+          this.$set(item, 'readStatus', '1')
         })
         this.unreadCount = 0
         this.$message.success('已全部标为已读')

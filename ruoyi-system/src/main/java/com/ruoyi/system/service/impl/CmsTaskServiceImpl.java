@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.system.domain.CmsTaskLog;
+import com.ruoyi.system.service.ICmsTaskLogService;
 
 
 
@@ -47,6 +49,9 @@ public class CmsTaskServiceImpl implements ICmsTaskService
 
     @Autowired
     private ISysRoleService sysRoleService;
+
+    @Autowired
+    private ICmsTaskLogService cmsTaskLogService;
 
     /**
      * 查询任务管理
@@ -118,6 +123,10 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         notice.setStatus("0"); // 0-正常 1-关闭
         notice.setCreateBy(String.valueOf(cmsTask.getAssignedTo()));
         noticeService.insertNotice(notice);
+        
+        // 记录任务日志
+        recordTaskLog(cmsTask.getTaskId(), "0", null, cmsTask.getStatus(), "创建任务");
+        
         return cmsTaskMapper.insertCmsTask(cmsTask);
     }
 
@@ -131,11 +140,13 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     @Transactional
     public int updateCmsTask(CmsTask cmsTask)
     {
+        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(cmsTask.getTaskId());
+        String oldStatus = existingTask != null ? existingTask.getStatus() : null;
+        
         cmsTask.setUpdateTime(DateUtils.getNowDate());
         
         // 当任务状态更新为进行中(1)时，同步更新原合同的催收状态
         if ("1".equals(cmsTask.getStatus())) {
-             CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(cmsTask.getTaskId());
              if (existingTask != null) {
                  Long contractIdToUpdate = existingTask.getSourceContractId();
                  // If sourceContractId is null but it is a collection task, use contractId
@@ -153,7 +164,23 @@ public class CmsTaskServiceImpl implements ICmsTaskService
              }
         }
         
-        return cmsTaskMapper.updateCmsTask(cmsTask);
+        int result = cmsTaskMapper.updateCmsTask(cmsTask);
+        
+        // 记录状态变更日志
+        if (result > 0 && cmsTask.getStatus() != null && !cmsTask.getStatus().equals(oldStatus)) {
+            String newStatus = cmsTask.getStatus();
+            if ("1".equals(newStatus)) {
+                recordTaskLog(cmsTask.getTaskId(), "1", oldStatus, newStatus, "开始处理任务");
+            } else if ("3".equals(newStatus)) {
+                recordTaskLog(cmsTask.getTaskId(), "3", oldStatus, newStatus, "终止任务");
+            } else if ("4".equals(newStatus)) {
+                recordTaskLog(cmsTask.getTaskId(), "2", oldStatus, newStatus, "完成任务");
+            } else if ("5".equals(newStatus)) {
+                recordTaskLog(cmsTask.getTaskId(), "5", oldStatus, newStatus, "任务被拒绝");
+            }
+        }
+        
+        return result;
     }
 
     /**
@@ -190,8 +217,10 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     @Override
     public int completeCollectionTask(Long taskId, CmsContract newContract) {
         CmsTask task = cmsTaskMapper.selectCmsTaskByTaskId(taskId);
+        String oldStatus = task.getStatus();
         task.setStatus("4"); // 4 for completed
         cmsTaskMapper.updateCmsTask(task);
+        recordTaskLog(taskId, "2", oldStatus, "4", "完成续签任务");
 
         CmsContract sourceContract = cmsContractService.selectCmsContractByContractId(task.getSourceContractId());
 
@@ -276,13 +305,20 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     @Transactional
     public int returnToAdmin(CmsTask task)
     {
+        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
+        String oldStatus = existingTask != null ? existingTask.getStatus() : null;
+        
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
         updateTask.setStatus("3"); // 3已退回
         updateTask.setRemark(task.getRemark());
         updateTask.setCurrentAmount(task.getCurrentAmount());
         updateTask.setUpdateTime(DateUtils.getNowDate());
-        return cmsTaskMapper.updateCmsTask(updateTask);
+        int result = cmsTaskMapper.updateCmsTask(updateTask);
+        if (result > 0) {
+            recordTaskLog(task.getTaskId(), "3", oldStatus, "3", "任务退回: " + task.getRemark());
+        }
+        return result;
     }
 
     /**
@@ -295,6 +331,9 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     @Transactional
     public int redispatch(CmsTask task)
     {
+        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
+        String oldStatus = existingTask != null ? existingTask.getStatus() : null;
+        
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
         updateTask.setCurrentAmount(task.getCurrentAmount());
@@ -302,7 +341,11 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setDeadline(task.getDeadline());
         updateTask.setStatus("0"); // 0待处理
         updateTask.setUpdateTime(DateUtils.getNowDate());
-        return cmsTaskMapper.updateCmsTask(updateTask);
+        int result = cmsTaskMapper.updateCmsTask(updateTask);
+        if (result > 0) {
+            recordTaskLog(task.getTaskId(), "5", oldStatus, "0", "重新派发任务");
+        }
+        return result;
     }
 
     /**
@@ -315,13 +358,20 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     @Transactional
     public int requestTermination(CmsTask task)
     {
+        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
+        String oldStatus = existingTask != null ? existingTask.getStatus() : null;
+        
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
         updateTask.setStatus("2"); // 2待审批
         updateTask.setTaskType("3"); // 3终止
         updateTask.setRemark(task.getRemark());
         updateTask.setUpdateTime(DateUtils.getNowDate());
-        return cmsTaskMapper.updateCmsTask(updateTask);
+        int result = cmsTaskMapper.updateCmsTask(updateTask);
+        if (result > 0) {
+            recordTaskLog(task.getTaskId(), "3", oldStatus, "2", "发起终止合作请求: " + task.getRemark());
+        }
+        return result;
     }
 
     /**
@@ -339,6 +389,8 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         if (task == null) {
             throw new ServiceException("任务不存在");
         }
+        
+        String oldStatus = task.getStatus();
 
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(taskId);
@@ -364,7 +416,12 @@ public class CmsTaskServiceImpl implements ICmsTaskService
             updateTask.setStatus("3"); // 3已退回
         }
         
-        return cmsTaskMapper.updateCmsTask(updateTask);
+        int result = cmsTaskMapper.updateCmsTask(updateTask);
+        if (result > 0) {
+            String newStatus = approved ? "4" : "3";
+            recordTaskLog(taskId, "3", oldStatus, newStatus, approved ? "同意终止合作" : "拒绝终止合作");
+        }
+        return result;
     }
 
     /**
@@ -377,12 +434,19 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     @Transactional
     public int completeRenewal(CmsTask task)
     {
+        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
+        String oldStatus = existingTask != null ? existingTask.getStatus() : null;
+        
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
         updateTask.setStatus("4"); // 4已完成
         updateTask.setRemark(task.getRemark());
         updateTask.setUpdateTime(DateUtils.getNowDate());
-        return cmsTaskMapper.updateCmsTask(updateTask);
+        int result = cmsTaskMapper.updateCmsTask(updateTask);
+        if (result > 0) {
+            recordTaskLog(task.getTaskId(), "2", oldStatus, "4", "完成续签: " + task.getRemark());
+        }
+        return result;
     }
 
     /**
@@ -399,6 +463,8 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         if (existingTask == null) {
             throw new ServiceException("任务不存在");
         }
+        
+        String oldStatus = existingTask.getStatus();
 
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
@@ -424,6 +490,22 @@ public class CmsTaskServiceImpl implements ICmsTaskService
             }
         }
 
+        if (result > 0) {
+            recordTaskLog(task.getTaskId(), "2", oldStatus, "4", "确认收款: " + task.getActualAmount());
+        }
+        
         return result;
+    }
+    
+    private void recordTaskLog(Long taskId, String actionType, String beforeStatus, String afterStatus, String remark) {
+        CmsTaskLog log = new CmsTaskLog();
+        log.setTaskId(taskId);
+        log.setOperatorId(SecurityUtils.getUserId());
+        log.setOperatorName(SecurityUtils.getUsername());
+        log.setActionType(actionType);
+        log.setBeforeStatus(beforeStatus);
+        log.setAfterStatus(afterStatus);
+        log.setRemark(remark);
+        cmsTaskLogService.insertCmsTaskLog(log);
     }
 }

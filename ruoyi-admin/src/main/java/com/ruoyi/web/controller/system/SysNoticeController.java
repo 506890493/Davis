@@ -1,6 +1,8 @@
 package com.ruoyi.web.controller.system;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +19,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.SysNotice;
 import com.ruoyi.system.service.ISysNoticeService;
 
@@ -33,14 +36,47 @@ public class SysNoticeController extends BaseController
     private ISysNoticeService noticeService;
 
     /**
+     * 获取未读通知数量
+     */
+    @GetMapping("/unreadCount")
+    public AjaxResult unreadCount()
+    {
+        Long userId = SecurityUtils.getUserId();
+        int count = noticeService.countUnreadByUserId(userId);
+        Map<String, Object> data = new HashMap<>();
+        data.put("count", count);
+        return success(data);
+    }
+
+    /**
+     * 标记通知为已读
+     */
+    @PutMapping("/read/{noticeId}")
+    public AjaxResult markRead(@PathVariable Long noticeId)
+    {
+        Long userId = SecurityUtils.getUserId();
+        return toAjax(noticeService.markRead(noticeId, userId));
+    }
+
+    /**
+     * 标记所有通知为已读
+     */
+    @PutMapping("/readAll")
+    public AjaxResult markAllRead()
+    {
+        Long userId = SecurityUtils.getUserId();
+        return toAjax(noticeService.markAllRead(userId));
+    }
+
+    /**
      * 获取通知公告列表
      */
     @PreAuthorize("@ss.hasPermi('system:notice:list')")
     @GetMapping("/list")
     public TableDataInfo list(SysNotice notice)
     {
-        startPage();
-        List<SysNotice> list = noticeService.selectNoticeList(notice);
+        Long userId = SecurityUtils.getUserId();
+        List<SysNotice> list = noticeService.selectNoticeListForUser(userId);
         return getDataTable(list);
     }
 

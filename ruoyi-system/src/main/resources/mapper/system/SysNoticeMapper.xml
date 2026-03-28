@@ -80,10 +80,45 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
     
     <delete id="deleteNoticeByIds" parameterType="Long">
-        delete from sys_notice where notice_id in 
+        delete from sys_notice where notice_id in
         <foreach item="noticeId" collection="array" open="(" separator="," close=")">
             #{noticeId}
         </foreach>
     </delete>
-    
+
+    <select id="countUnreadByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_notice n
+        WHERE NOT EXISTS (
+            SELECT 1 FROM sys_notice_read nr
+            WHERE nr.notice_id = n.notice_id AND nr.user_id = #{userId}
+        )
+    </select>
+
+    <insert id="insertNoticeRead">
+        INSERT IGNORE INTO sys_notice_read (notice_id, user_id, read_time)
+        VALUES (#{param1}, #{param2}, NOW())
+    </insert>
+
+    <update id="markAllRead">
+        INSERT IGNORE INTO sys_notice_read (notice_id, user_id, read_time)
+        SELECT n.notice_id, #{userId}, NOW()
+        FROM sys_notice n
+        WHERE NOT EXISTS (
+            SELECT 1 FROM sys_notice_read nr
+            WHERE nr.notice_id = n.notice_id AND nr.user_id = #{userId}
+        )
+    </update>
+
+    <select id="selectNoticeListForUser" resultMap="SysNoticeResult">
+        SELECT n.notice_id, n.notice_title, n.notice_type,
+               cast(n.notice_content as char) as notice_content,
+               n.status, n.create_by, n.create_time, n.update_by, n.update_time, n.remark,
+               CASE WHEN nr.id IS NULL THEN '0' ELSE '1' END AS read_status
+        FROM sys_notice n
+        LEFT JOIN sys_notice_read nr ON n.notice_id = nr.notice_id AND nr.user_id = #{userId}
+        ORDER BY n.create_time DESC
+        LIMIT 50
+    </select>
+
 </mapper>

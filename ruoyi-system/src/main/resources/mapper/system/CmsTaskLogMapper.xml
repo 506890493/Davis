@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CmsTaskLogMapper">
+    
+    <resultMap type="CmsTaskLog" id="CmsTaskLogResult">
+        <result property="logId" column="log_id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="actionType" column="action_type"/>
+        <result property="beforeStatus" column="before_status"/>
+        <result property="afterStatus" column="after_status"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    
+    <sql id="selectCmsTaskLogVo">
+        select log_id, task_id, operator_id, operator_name, action_type, before_status, after_status, remark, create_time
+        from cms_task_log
+    </sql>
+    
+    <select id="selectCmsTaskLogList" parameterType="CmsTaskLog" resultMap="CmsTaskLogResult">
+        <include refid="selectCmsTaskLogVo"/>
+        <where>
+            <if test="taskId != null">and task_id = #{taskId}</if>
+            <if test="operatorId != null">and operator_id = #{operatorId}</if>
+            <if test="actionType != null and actionType != ''">and action_type = #{actionType}</if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectCmsTaskLogByLogId" parameterType="Long" resultMap="CmsTaskLogResult">
+        <include refid="selectCmsTaskLogVo"/>
+        where log_id = #{logId}
+    </select>
+    
+    <select id="selectCmsTaskLogByTaskId" parameterType="Long" resultMap="CmsTaskLogResult">
+        <include refid="selectCmsTaskLogVo"/>
+        where task_id = #{taskId}
+        order by create_time desc
+    </select>
+    
+    <insert id="insertCmsTaskLog" parameterType="CmsTaskLog" useGeneratedKeys="true" keyProperty="logId">
+        insert into cms_task_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">task_id,</if>
+            <if test="operatorId != null">operator_id,</if>
+            <if test="operatorName != null">operator_name,</if>
+            <if test="actionType != null">action_type,</if>
+            <if test="beforeStatus != null">before_status,</if>
+            <if test="afterStatus != null">after_status,</if>
+            <if test="remark != null">remark,</if>
+            create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">#{taskId},</if>
+            <if test="operatorId != null">#{operatorId},</if>
+            <if test="operatorName != null">#{operatorName},</if>
+            <if test="actionType != null">#{actionType},</if>
+            <if test="beforeStatus != null">#{beforeStatus},</if>
+            <if test="afterStatus != null">#{afterStatus},</if>
+            <if test="remark != null">#{remark},</if>
+            now(),
+        </trim>
+    </insert>
+    
+    <delete id="deleteCmsTaskLogByLogId" parameterType="Long">
+        delete from cms_task_log where log_id = #{logId}
+    </delete>
+</mapper>

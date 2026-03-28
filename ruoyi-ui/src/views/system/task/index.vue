@@ -264,10 +264,10 @@
           <el-button
             size="mini"
             type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:task:edit']"
-            >修改</el-button
+            icon="el-icon-time"
+            @click="handleViewHistory(scope.row)"
+            v-hasPermi="['system:task:query']"
+            >操作历史</el-button
           >
           <el-button
             size="mini"
@@ -277,14 +277,6 @@
             @click="handlePayment(scope.row)"
             v-hasPermi="['system:task:edit']"
             >确认收款</el-button
-          >
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:task:remove']"
-            >删除</el-button
           >
         </template>
       </el-table-column>
@@ -556,6 +548,35 @@
         <el-button @click="paymentDialogOpen = false">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 操作历史对话框 -->
+    <el-dialog title="操作历史" :visible.sync="historyOpen" width="700px" append-to-body>
+      <el-table :data="historyList" v-loading="loading">
+        <el-table-column label="操作时间" prop="createTime" width="160">
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作人" prop="operatorName" width="100"/>
+        <el-table-column label="操作类型" prop="actionType" width="100">
+          <template slot-scope="scope">
+            <span v-if="scope.row.actionType === '0'">创建</span>
+            <span v-else-if="scope.row.actionType === '1'">开始</span>
+            <span v-else-if="scope.row.actionType === '2'">完成</span>
+            <span v-else-if="scope.row.actionType === '3'">终止</span>
+            <span v-else-if="scope.row.actionType === '4'">分配</span>
+            <span v-else-if="scope.row.actionType === '5'">重新分配</span>
+            <span v-else>{{ scope.row.actionType }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态变更" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.beforeStatus || '-' }} → {{ scope.row.afterStatus || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" prop="remark" :show-overflow-tooltip="true"/>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -573,7 +594,8 @@ import {
   confirmTermination,
   completeRenewal,
   getAssignableUsers,
-  confirmPayment
+  confirmPayment,
+  historyTaskLog
 } from "@/api/system/task";
 import { getContract } from "@/api/system/contract";
 
@@ -646,6 +668,9 @@ export default {
       paymentRules: {
         actualAmount: [{ required: true, message: "请输入实际收款金额", trigger: "blur" }]
       },
+      // 操作历史
+      historyOpen: false,
+      historyList: [],
       rules: {
         contractName: [
           { required: true, message: "公司名称不能为空", trigger: "blur" },
@@ -670,10 +695,10 @@ export default {
   },
 computed: {
 isAdmin() {
-return this.$store.state.user.roles.includes('admin');
+return this.$store.getters.roles.includes('admin');
 },
 isAccountant() {
-return this.$store.state.user.roles.includes('accountant');
+return this.$store.getters.roles.includes('accountant');
     },
     showAmount() {
       const roles = this.$store.getters.roles || [];
@@ -691,7 +716,7 @@ return this.$store.state.user.roles.includes('accountant');
     getList() {
       this.loading = true;
       if (this.isAccountant && !this.isAdmin) {
-        this.queryParams.assignedTo = this.$store.state.user.id;
+        this.queryParams.assignedTo = this.$store.getters.id;
       }
       listTask(this.queryParams).then((response) => {
         this.taskList = response.rows;
@@ -896,6 +921,13 @@ return this.$store.state.user.roles.includes('accountant');
         receiveRemark: ''
       };
       this.paymentDialogOpen = true;
+    },
+    /** 查看操作历史 */
+    handleViewHistory(row) {
+      historyTaskLog({ taskId: row.taskId }).then(res => {
+        this.historyList = res.rows || [];
+        this.historyOpen = true;
+      });
     },
     submitPayment() {
       this.$refs.paymentForm.validate(valid => {

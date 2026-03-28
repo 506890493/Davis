@@ -18,6 +18,7 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.system.service.ICmsContractService;
 import com.ruoyi.system.service.ISysConfigService;
+import com.alibaba.fastjson2.JSON;
 
 /**
  * 合同管理Service业务层处理
@@ -102,6 +103,13 @@ public class CmsContractServiceImpl implements ICmsContractService {
     @Transactional
     @Override
     public int insertCmsContract(CmsContract cmsContract) {
+        if (cmsContract.getCustomerId() == null) {
+            throw new ServiceException("请选择关联客户");
+        }
+        CmsContract exist = cmsContractMapper.selectCmsContractByContractCode(cmsContract.getContractCode());
+        if (exist != null) {
+            throw new ServiceException("合同编号已存在：" + cmsContract.getContractCode());
+        }
         cmsContract.setCreateTime(DateUtils.getNowDate());
         int rows = cmsContractMapper.insertCmsContract(cmsContract);
         insertCmsFile(cmsContract);
@@ -117,6 +125,13 @@ public class CmsContractServiceImpl implements ICmsContractService {
     @Transactional
     @Override
     public int updateCmsContract(CmsContract cmsContract) {
+        if (cmsContract.getCustomerId() == null) {
+            throw new ServiceException("请选择关联客户");
+        }
+        CmsContract exist = cmsContractMapper.selectCmsContractByContractCode(cmsContract.getContractCode());
+        if (exist != null && !exist.getContractId().equals(cmsContract.getContractId())) {
+            throw new ServiceException("合同编号已存在：" + cmsContract.getContractCode());
+        }
         cmsContract.setUpdateTime(DateUtils.getNowDate());
         if (cmsContract.getCmsFileList() != null) {
             cmsContractMapper.deleteCmsFileByContractId(cmsContract.getContractId());
@@ -250,6 +265,9 @@ public class CmsContractServiceImpl implements ICmsContractService {
             approval.setApprovalMsg(cmsContract.getRemark());
             approval.setApprovalTime(DateUtils.getNowDate());
             approval.setApprovalType("3"); // 3=变更/审核
+            // 获取合同完整信息作为快照
+            String contentSnapshot = JSON.toJSONString(fullContract);
+            approval.setContentSnapshot(contentSnapshot);
             cmsApprovalService.insertCmsApproval(approval);
         }
         return rows;

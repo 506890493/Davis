@@ -30,6 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
         <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
 
         <result property="auditStatus"    column="audit_status"    />
         <result property="delFlag"    column="del_flag"    />
@@ -60,9 +61,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCmsContractVo">
-        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.actual_amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.customer_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
+        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.actual_amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.customer_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name, cu.customer_name
         from cms_contract c
         left join sys_user u on c.owner_id = u.user_id
+        left join cms_customer cu on c.customer_id = cu.customer_id
     </sql>
 
     <select id="selectCmsContractList" parameterType="CmsContract" resultMap="CmsContractResult">
@@ -98,9 +100,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectCmsContractByContractId" parameterType="Long" resultMap="CmsContractCmsFileResult">
-        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.actual_amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.customer_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
+        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.actual_amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.customer_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name, cu.customer_name
         from cms_contract c
         left join sys_user u on c.owner_id = u.user_id
+        left join cms_customer cu on c.customer_id = cu.customer_id
         where c.contract_id = #{contractId}
     </select>
 
