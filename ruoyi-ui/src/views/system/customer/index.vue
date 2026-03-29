@@ -193,6 +193,12 @@
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" />
         </el-form-item>
+        <el-form-item label="客户状态" prop="status">
+          <el-radio-group v-model="form.status">
+            <el-radio label="0">正常</el-radio>
+            <el-radio label="1">非正常</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -345,7 +351,8 @@ export default {
         contactPhone: null,
         contactEmail: null,
         address: null,
-        remark: null
+        remark: null,
+        status: '0'
       };
       this.resetForm("form");
     }
