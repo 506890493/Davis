@@ -20,13 +20,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="status"    column="status"    />
     </resultMap>
 
     <sql id="selectCmsCustomerVo">
         select c.customer_id, c.customer_name, c.customer_type, c.contact_person, 
                c.contact_phone, c.contact_email, c.address, c.remark, c.owner_id, 
                u.nick_name as owner_name, c.del_flag, c.create_by, c.create_time, 
-               c.update_by, c.update_time
+               c.update_by, c.update_time, c.status
         from cms_customer c
         left join sys_user u on c.owner_id = u.user_id
     </sql>
@@ -40,6 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="contactPhone != null and contactPhone != ''"> and c.contact_phone = #{contactPhone}</if>
             <if test="contactEmail != null and contactEmail != ''"> and c.contact_email like concat('%', #{contactEmail}, '%')</if>
             <if test="ownerId != null"> and c.owner_id = #{ownerId}</if>
+            <if test="status != null and status != ''"> and c.status = #{status}</if>
             and c.del_flag = '0'
         </where>
         order by c.create_time desc
@@ -61,6 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="address != null">address,</if>
             <if test="remark != null">remark,</if>
             <if test="ownerId != null">owner_id,</if>
+            <if test="status != null">status,</if>
             <if test="createBy != null and createBy != ''">create_by,</if>
             <if test="createTime != null">create_time,</if>
          </trim>
@@ -73,6 +76,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="address != null">#{address},</if>
             <if test="remark != null">#{remark},</if>
             <if test="ownerId != null">#{ownerId},</if>
+            <if test="status != null">#{status},</if>
             <if test="createBy != null and createBy != ''">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
          </trim>
@@ -89,6 +93,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="address != null">address = #{address},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="status != null">status = #{status},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
