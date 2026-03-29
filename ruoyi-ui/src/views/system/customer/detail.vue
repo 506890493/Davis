@@ -5,6 +5,9 @@
 
     <el-card class="mt20">
       <el-skeleton v-if="loading" :rows="6" animated />
+      <div v-else-if="!detail.customer">
+        <el-alert title="客户不存在" type="error" :closable="false" />
+      </div>
       <div v-else>
         <el-descriptions title="客户信息" :column="2" border>
           <el-descriptions-item label="客户名称">{{ detail.customer.customerName }}</el-descriptions-item>
@@ -28,7 +31,7 @@
     <el-card class="mt20">
       <el-tabs v-model="activeTab">
         <el-tab-pane label="代账合同" name="accounting">
-          <el-table v-loading="loading" :data="detail.accountingContracts" border>
+          <el-table v-loading="loading" :data="detail.accountingContracts || []" border>
             <el-table-column label="合同编号" align="center" prop="contractCode" width="150" />
             <el-table-column label="公司名称" align="center" prop="contractName" :show-overflow-tooltip="true" />
             <el-table-column label="金额" align="center" prop="amount" width="100" />
@@ -50,7 +53,7 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="地址合同" name="rental">
-          <el-table v-loading="loading" :data="detail.rentalContracts" border>
+          <el-table v-loading="loading" :data="detail.rentalContracts || []" border>
             <el-table-column label="合同编号" align="center" prop="contractCode" width="150" />
             <el-table-column label="公司名称" align="center" prop="contractName" :show-overflow-tooltip="true" />
             <el-table-column label="租金" align="center" prop="rentAmount" width="100" />
@@ -84,10 +87,10 @@ export default {
   name: "CustomerDetail",
   data() {
     return {
-      loading: true,
+      loading: false,
       activeTab: "accounting",
       detail: {
-        customer: {},
+        customer: null,
         accountingContracts: [],
         rentalContracts: []
       }
@@ -103,11 +106,9 @@ export default {
       getCustomerDetail(customerId).then(response => {
         this.detail = response.data;
         this.loading = false;
+      }).catch(() => {
+        this.loading = false;
       });
-    },
-    parseTime(time, pattern) {
-      if (!time) return '-';
-      return this.$moment(time).format(pattern || "yyyy-MM-dd");
     },
     getStatusText(status) {
       if (status === '0') return '进行中';
