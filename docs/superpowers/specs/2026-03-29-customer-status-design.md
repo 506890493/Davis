@@ -38,14 +38,20 @@ ALTER TABLE cms_customer ADD COLUMN `status` char(1) NOT NULL DEFAULT '0' COMMEN
 | cms_customer_status | 客户状态 | 0 | 正常 |
 | cms_customer_status | 客户状态 | 1 | 非正常 |
 
+> **业务含义**：状态由用户手动管理。"正常"表示客户正在合作中，"非正常"表示客户已停止合作（如流失、终止合作等）。具体判断标准由业务人员根据实际情况决定。
+
+### 3. 后端改动
+
 #### 3.1 字典数据 SQL
+
+> **注意**：dict_code 值需根据现有数据最大值+1确定，以下为示例值。执行前请先查询：`SELECT MAX(dict_code) FROM sys_dict_data`
 
 ```sql
 INSERT INTO sys_dict_data (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark)
-VALUES (120, 1, '正常', '0', 'cms_customer_status', '', 'primary', 'Y', '0', 'admin', NOW(), '客户状态-正常');
+VALUES ((SELECT IFNULL(MAX(dict_code), 0) + 1 FROM sys_dict_data LIMIT 1), 1, '正常', '0', 'cms_customer_status', '', 'primary', 'Y', '0', 'admin', NOW(), '客户状态-正常');
 
 INSERT INTO sys_dict_data (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark)
-VALUES (121, 2, '非正常', '1', 'cms_customer_status', '', 'danger', 'N', '0', 'admin', NOW(), '客户状态-非正常');
+VALUES ((SELECT IFNULL(MAX(dict_code), 0) + 2 FROM sys_dict_data LIMIT 1), 2, '非正常', '1', 'cms_customer_status', '', 'danger', 'N', '0', 'admin', NOW(), '客户状态-非正常');
 ```
 
 ### 3. 后端改动
