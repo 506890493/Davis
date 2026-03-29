@@ -53,7 +53,7 @@ public class CmsCustomer extends BaseEntity
     private String ownerName;
 
     /** 客户状态（0=正常, 1=非正常） */
-    @Excel(name = "客户状态", dictType = "cms_customer_status")
+    @Excel(name = "客户状态", dictType = "cms_customer_status", comboReadDict = true)
     private String status;
 
     /** 删除标志 */
