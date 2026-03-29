@@ -178,15 +178,22 @@ queryParams = {
 };
 ```
 
-- [ ] **Step 4: 在表格中添加状态列**
+- [ ] **Step 4: 在 data 中添加 dicts 声明**
+
+在 `data()` 的 return 中，添加:
+
+```javascript
+dicts: ['cms_customer_status'],
+```
+
+- [ ] **Step 5: 在表格中添加状态列**
 
 在 `ownerName` 列后添加:
 
 ```vue
 <el-table-column label="状态" align="center" key="status" prop="status" width="80">
   <template slot-scope="scope">
-    <el-tag v-if="scope.row.status === '0'" type="primary">正常</el-tag>
-    <el-tag v-else-if="scope.row.status === '1'" type="danger">非正常</el-tag>
+    <dict-tag :options="dict.type.cms_customer_status" :value="scope.row.status"/>
   </template>
 </el-table-column>
 ```
