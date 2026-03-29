@@ -1,6 +1,7 @@
 package com.ruoyi.web.controller.davis;
 
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -42,11 +43,11 @@ public class CmsCustomerController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:customer:export')")
     @Log(title = "客户管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public AjaxResult export(CmsCustomer cmsCustomer)
+    public void export(HttpServletResponse response, CmsCustomer cmsCustomer)
     {
         List<CmsCustomer> list = cmsCustomerService.selectCmsCustomerList(cmsCustomer);
         ExcelUtil<CmsCustomer> util = new ExcelUtil<CmsCustomer>(CmsCustomer.class);
-        return util.exportExcel(list, "客户数据");
+        util.exportExcel(response, list, "客户数据");
     }
 
     /**
