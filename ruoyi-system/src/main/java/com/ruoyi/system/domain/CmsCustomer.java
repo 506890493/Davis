@@ -52,6 +52,10 @@ public class CmsCustomer extends BaseEntity
     /** 归属销售名称 */
     private String ownerName;
 
+    /** 客户状态（0=正常, 1=非正常） */
+    @Excel(name = "客户状态", dictType = "cms_customer_status")
+    private String status;
+
     /** 删除标志 */
     private String delFlag;
 
@@ -160,6 +164,16 @@ public class CmsCustomer extends BaseEntity
         this.ownerName = ownerName;
     }
 
+    public String getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
     public String getDelFlag()
     {
         return delFlag;
@@ -193,6 +207,7 @@ public class CmsCustomer extends BaseEntity
                 ", address='" + address + '\'' +
                 ", remark='" + remark + '\'' +
                 ", ownerId=" + ownerId +
+                ", status='" + status + '\'' +
                 '}';
     }
 }
