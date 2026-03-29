@@ -38,6 +38,16 @@ ALTER TABLE cms_customer ADD COLUMN `status` char(1) NOT NULL DEFAULT '0' COMMEN
 | cms_customer_status | 客户状态 | 0 | 正常 |
 | cms_customer_status | 客户状态 | 1 | 非正常 |
 
+#### 3.1 字典数据 SQL
+
+```sql
+INSERT INTO sys_dict_data (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark)
+VALUES (120, 1, '正常', '0', 'cms_customer_status', '', 'primary', 'Y', '0', 'admin', NOW(), '客户状态-正常');
+
+INSERT INTO sys_dict_data (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark)
+VALUES (121, 2, '非正常', '1', 'cms_customer_status', '', 'danger', 'N', '0', 'admin', NOW(), '客户状态-非正常');
+```
+
 ### 3. 后端改动
 
 #### 3.1 Entity (CmsCustomer.java)
@@ -62,7 +72,9 @@ ALTER TABLE cms_customer ADD COLUMN `status` char(1) NOT NULL DEFAULT '0' COMMEN
 - 在导入/导出中包含状态字段
 
 #### 4.2 客户表单页 (customer/form.vue)
-- 在表单中增加"状态"下拉选择器（仅编辑时可见，新增时默认"正常"）
+- 在表单中增加"状态"下拉选择器
+- 新增时默认选中"正常"(0)
+- 编辑时可切换状态
 
 ## 实现步骤
 
