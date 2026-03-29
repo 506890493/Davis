@@ -135,8 +135,11 @@
           <div v-else class="empty-tip">暂无关联合同</div>
         </template>
       </el-table-column>
-      <el-table-column label="客户ID" align="center" key="customerId" prop="customerId" />
-      <el-table-column label="客户名称" align="center" key="customerName" prop="customerName" :show-overflow-tooltip="true" />
+      <el-table-column label="客户名称" align="center" key="customerName" prop="customerName" :show-overflow-tooltip="true">
+        <template slot-scope="scope">
+          <el-link type="primary" @click="handleDetail(scope.row)">{{ scope.row.customerName }}</el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="客户类型" align="center" key="customerType" prop="customerType">
         <template slot-scope="scope">
           <span>{{ scope.row.customerType || '-' }}</span>
@@ -304,6 +307,9 @@ export default {
         this.open = true;
         this.title = "修改客户";
       });
+    },
+    handleDetail(row) {
+      this.$router.push({ path: '/system/customer/detail/' + row.customerId });
     },
     handleDelete(row) {
       const customerIds = row.customerId || this.ids;
