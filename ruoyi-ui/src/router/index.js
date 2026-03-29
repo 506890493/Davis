@@ -114,6 +114,19 @@ export const constantRoutes = [
     ],
   },
   {
+    path: "/system/customer",
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: "detail/:customerId",
+        component: () => import("@/views/system/customer/detail"),
+        name: "CustomerDetail",
+        meta: { title: "客户详情", activeMenu: "/system/customer" },
+      },
+    ],
+  },
+  {
     path: "/contract",
     component: Layout,
     hidden: true,
