@@ -15,6 +15,13 @@ export function getCustomer(customerId) {
   })
 }
 
+export function getCustomerDetail(customerId) {
+  return request({
+    url: '/system/customer/detail/' + customerId,
+    method: 'get'
+  })
+}
+
 export function addCustomer(data) {
   return request({
     url: '/system/customer',
