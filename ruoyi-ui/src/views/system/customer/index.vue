@@ -148,7 +148,9 @@
       <el-table-column label="归属销售" align="center" key="ownerName" prop="ownerName" />
       <el-table-column label="状态" align="center" key="status" prop="status" width="80">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.cms_customer_status" :value="scope.row.status"/>
+          <el-tag v-if="scope.row.status === '0'" type="primary">正常</el-tag>
+          <el-tag v-else-if="scope.row.status === '1'" type="danger">非正常</el-tag>
+          <el-tag v-else type="info">-</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="160">
@@ -252,8 +254,8 @@ export default {
     getList() {
       this.loading = true;
       listCustomer(this.queryParams).then(response => {
-        this.customerList = response.rows;
-        this.total = response.total;
+        this.customerList = response.data.rows;
+        this.total = response.data.total;
         this.loading = false;
       });
     },
