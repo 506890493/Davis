@@ -1,6 +1,7 @@
 package com.ruoyi.web.controller.davis;
 
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,7 +11,9 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.system.domain.CmsContract;
 import com.ruoyi.system.domain.CmsCustomer;
+import com.ruoyi.system.service.ICmsContractService;
 import com.ruoyi.system.service.ICmsCustomerService;
 
 /**
@@ -24,6 +27,9 @@ public class CmsCustomerController extends BaseController
 {
     @Autowired
     private ICmsCustomerService cmsCustomerService;
+
+    @Autowired
+    private ICmsContractService cmsContractService;
 
     /**
      * 获取客户列表
@@ -58,6 +64,37 @@ public class CmsCustomerController extends BaseController
     public AjaxResult getInfo(@PathVariable("customerId") Long customerId)
     {
         return success(cmsCustomerService.selectCmsCustomerById(customerId));
+    }
+
+    /**
+     * 获取客户详情（含合同列表）
+     */
+    @PreAuthorize("@ss.hasPermi('system:customer:query')")
+    @GetMapping("/detail/{customerId}")
+    public AjaxResult getDetail(@PathVariable("customerId") Long customerId)
+    {
+        CmsCustomer customer = cmsCustomerService.selectCmsCustomerById(customerId);
+        
+        CmsContract contractQuery = new CmsContract();
+        contractQuery.setCustomerId(customerId);
+        List<CmsContract> allContracts = cmsContractService.selectCmsContractList(contractQuery);
+        
+        List<CmsContract> accountingContracts = new java.util.ArrayList<>();
+        List<CmsContract> rentalContracts = new java.util.ArrayList<>();
+        
+        for (CmsContract contract : allContracts) {
+            if ("1".equals(contract.getContractType())) {
+                accountingContracts.add(contract);
+            } else if ("2".equals(contract.getContractType())) {
+                rentalContracts.add(contract);
+            }
+        }
+        
+        java.util.HashMap<String, Object> result = new java.util.HashMap<>();
+        result.put("customer", customer);
+        result.put("accountingContracts", accountingContracts);
+        result.put("rentalContracts", rentalContracts);
+        return success(result);
     }
 
     /**
