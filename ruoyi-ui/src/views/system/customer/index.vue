@@ -318,7 +318,9 @@ export default {
       this.$modal.confirm("是否确认导出所有客户数据项？").then(() => {
         this.download('/system/customer/export', {
           ...this.queryParams
-        }, `customer_${new Date().getTime()}.xlsx`);
+        }, `customer_${new Date().getTime()}.xlsx`, {
+          method: 'get'
+        });
       }).catch(() => {});
     },
     submitForm() {
