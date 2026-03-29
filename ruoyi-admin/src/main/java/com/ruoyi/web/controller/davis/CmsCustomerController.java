@@ -41,7 +41,7 @@ public class CmsCustomerController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:customer:export')")
     @Log(title = "客户管理", businessType = BusinessType.EXPORT)
-    @GetMapping("/export")
+    @PostMapping("/export")
     public AjaxResult export(CmsCustomer cmsCustomer)
     {
         List<CmsCustomer> list = cmsCustomerService.selectCmsCustomerList(cmsCustomer);
