@@ -25,6 +25,12 @@
           <el-option label="企业" value="企业" />
         </el-select>
       </el-form-item>
+      <el-form-item label="客户状态" prop="status">
+        <el-select v-model="queryParams.status" placeholder="请选择" clearable size="small">
+          <el-option label="正常" value="0" />
+          <el-option label="非正常" value="1" />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -140,6 +146,11 @@
       <el-table-column label="联系电话" align="center" key="contactPhone" prop="contactPhone" width="120" />
       <el-table-column label="邮箱" align="center" key="contactEmail" prop="contactEmail" :show-overflow-tooltip="true" />
       <el-table-column label="归属销售" align="center" key="ownerName" prop="ownerName" />
+      <el-table-column label="状态" align="center" key="status" prop="status" width="80">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.cms_customer_status" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="160">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -211,12 +222,14 @@ export default {
       customerListSelections: [],
       expandedRowKeys: [],
       contractMap: {},
+      dicts: ['cms_customer_status'],
       queryParams: {
         pageNum: 1,
         pageSize: 10,
         customerName: null,
         contactPhone: null,
-        customerType: null
+        customerType: null,
+        status: null
       },
       form: {},
       rules: {
@@ -249,7 +262,8 @@ export default {
         pageSize: 10,
         customerName: null,
         contactPhone: null,
-        customerType: null
+        customerType: null,
+        status: null
       };
       this.handleQuery();
     },
