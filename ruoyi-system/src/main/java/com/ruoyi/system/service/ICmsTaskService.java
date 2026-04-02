@@ -93,6 +93,14 @@ public interface ICmsTaskService
     public int redispatch(CmsTask task);
 
     /**
+     * 拒绝协商价格
+     *
+     * @param task 任务信息
+     * @return 结果
+     */
+    public int rejectPrice(CmsTask task);
+
+    /**
      * 会计发起终止合作请求
      *
      * @param task 任务信息

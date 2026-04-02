@@ -45,7 +45,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="priority != null  and priority != ''"> and t.priority = #{priority}</if>
             <if test="assignedTo != null "> and t.assigned_to = #{assignedTo}</if>
             <if test="assignedToName != null and assignedToName != ''"> and u.nick_name like concat('%', #{assignedToName}, '%')</if>
-            <if test="status != null  and status != ''"> and t.status = #{status}</if>
+            <if test="status != null and status != '' and status.indexOf(',') > -1">
+                and t.status in
+                <foreach collection="status.split(',')" item="s" open="(" separator="," close=")">
+                  #{s}
+                </foreach>
+            </if>
+            <if test="status != null and status != '' and status.indexOf(',') == -1">
+                and t.status = #{status}
+            </if>
         </where>
     </select>
 

@@ -13,11 +13,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="beforeStatus" column="before_status"/>
         <result property="afterStatus" column="after_status"/>
         <result property="remark" column="remark"/>
+        <result property="amountBefore" column="amount_before"/>
+        <result property="amountAfter" column="amount_after"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
     
     <sql id="selectCmsTaskLogVo">
-        select log_id, task_id, operator_id, operator_name, action_type, before_status, after_status, remark, create_time
+        select log_id, task_id, operator_id, operator_name, action_type, before_status, after_status, remark, amount_before, amount_after, create_time
         from cms_task_log
     </sql>
     
@@ -52,6 +54,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="beforeStatus != null">before_status,</if>
             <if test="afterStatus != null">after_status,</if>
             <if test="remark != null">remark,</if>
+            <if test="amountBefore != null">amount_before,</if>
+            <if test="amountAfter != null">amount_after,</if>
             create_time,
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -62,6 +66,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="beforeStatus != null">#{beforeStatus},</if>
             <if test="afterStatus != null">#{afterStatus},</if>
             <if test="remark != null">#{remark},</if>
+            <if test="amountBefore != null">#{amountBefore},</if>
+            <if test="amountAfter != null">#{amountAfter},</if>
             now(),
         </trim>
     </insert>

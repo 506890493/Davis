@@ -15,6 +15,8 @@ public class CmsTaskLog extends BaseEntity {
     private String beforeStatus;
     private String afterStatus;
     private String remark;
+    private java.math.BigDecimal amountBefore;
+    private java.math.BigDecimal amountAfter;
     
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
@@ -35,6 +37,10 @@ public class CmsTaskLog extends BaseEntity {
     public void setAfterStatus(String afterStatus) { this.afterStatus = afterStatus; }
     public String getRemark() { return remark; }
     public void setRemark(String remark) { this.remark = remark; }
+    public java.math.BigDecimal getAmountBefore() { return amountBefore; }
+    public void setAmountBefore(java.math.BigDecimal amountBefore) { this.amountBefore = amountBefore; }
+    public java.math.BigDecimal getAmountAfter() { return amountAfter; }
+    public void setAmountAfter(java.math.BigDecimal amountAfter) { this.amountAfter = amountAfter; }
     public Date getCreateTime() { return createTime; }
     public void setCreateTime(Date createTime) { this.createTime = createTime; }
 }

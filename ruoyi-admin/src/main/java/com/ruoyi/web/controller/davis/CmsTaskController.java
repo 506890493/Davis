@@ -103,13 +103,18 @@ public class CmsTaskController extends BaseController
     }
 
     /**
-    /**
      * 获取可分配的会计用户列表
+     * 仅管理员和经理可调用
      */
-    @PreAuthorize("@ss.hasPermi('cms:task:dispatch')")
     @GetMapping("/assignableUsers")
     public AjaxResult getAssignableUsers()
     {
+        Long userId = com.ruoyi.common.utils.SecurityUtils.getUserId();
+        if (!com.ruoyi.common.utils.SecurityUtils.isAdmin(userId) && !com.ruoyi.common.utils.SecurityUtils.hasRole("manager"))
+        {
+//            return error("无权限调用此接口");
+            return success();
+        }
         List<SysUser> users = cmsTaskService.getAssignableUsers();
         return success(users);
     }
@@ -145,6 +150,20 @@ public class CmsTaskController extends BaseController
     public AjaxResult redispatch(@RequestBody CmsTask task)
     {
         return toAjax(cmsTaskService.redispatch(task));
+    }
+
+    /**
+     * 拒绝协商价格
+     * POST /system/task/rejectPrice
+     * @param task 任务信息
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:audit')")
+    @Log(title = "任务管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/rejectPrice")
+    public AjaxResult rejectPrice(@RequestBody CmsTask task)
+    {
+        return toAjax(cmsTaskService.rejectPrice(task));
     }
 
     /**
@@ -216,6 +235,19 @@ public class CmsTaskController extends BaseController
     {
         startPage();
         List<CmsTaskLog> list = cmsTaskLogService.selectCmsTaskLogList(cmsTaskLog);
+        return getDataTable(list);
+    }
+
+    /**
+     * 获取待审批任务列表
+     */
+    @PreAuthorize("@ss.hasPermi('system:task:list')")
+    @GetMapping("/pendingList")
+    public TableDataInfo pendingList(CmsTask cmsTask)
+    {
+        cmsTask.setStatus("2");
+        startPage();
+        List<CmsTask> list = cmsTaskService.selectCmsTaskList(cmsTask);
         return getDataTable(list);
     }
 }

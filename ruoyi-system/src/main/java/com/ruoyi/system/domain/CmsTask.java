@@ -53,6 +53,17 @@ public class CmsTask extends BaseEntity
     @Excel(name = "当前协商金额")
     private BigDecimal currentAmount;
 
+    /** 调整金额 */
+    @Excel(name = "调整金额")
+    private BigDecimal adjustAmount;
+
+    /** 调整后价格 */
+    @Excel(name = "调整后价格")
+    private BigDecimal afterAmount;
+
+    /** 附件 */
+    private String attachment;
+
     /** 执行人ID (关联sys_user) */
     @Excel(name = "执行人ID (关联sys_user)")
     private Long assignedTo;
@@ -160,6 +171,33 @@ public class CmsTask extends BaseEntity
     {
         return currentAmount;
     }
+    public void setAdjustAmount(BigDecimal adjustAmount) 
+    {
+        this.adjustAmount = adjustAmount;
+    }
+
+    public BigDecimal getAdjustAmount() 
+    {
+        return adjustAmount;
+    }
+    public void setAfterAmount(BigDecimal afterAmount) 
+    {
+        this.afterAmount = afterAmount;
+    }
+
+    public BigDecimal getAfterAmount() 
+    {
+        return afterAmount;
+    }
+    public void setAttachment(String attachment) 
+    {
+        this.attachment = attachment;
+    }
+
+    public String getAttachment() 
+    {
+        return attachment;
+    }
     public void setAssignedTo(Long assignedTo) 
     {
         this.assignedTo = assignedTo;
@@ -239,6 +277,9 @@ public class CmsTask extends BaseEntity
             .append("priority", getPriority())
             .append("originalAmount", getOriginalAmount())
             .append("currentAmount", getCurrentAmount())
+            .append("adjustAmount", getAdjustAmount())
+            .append("afterAmount", getAfterAmount())
+            .append("attachment", getAttachment())
             .append("assignedTo", getAssignedTo())
             .append("assignedToName", getAssignedToName())
             .append("deadline", getDeadline())

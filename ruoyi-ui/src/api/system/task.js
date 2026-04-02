@@ -67,29 +67,34 @@ export function getAssignableUsers() {
     method: 'get'
   })
 }
-// 退回(讲价)
+// 退回(讲价)/提交协商价格
 export function returnToAdmin(data) {
-  return request({ url: '/cms/task/returnToAdmin', method: 'post', data: data })
+  return request({ url: '/system/task/returnToAdmin', method: 'post', data: data })
 }
 
-// 重新派发
+// 重新派发/同意协商价格
 export function redispatch(data) {
-  return request({ url: '/cms/task/redispatch', method: 'post', data: data })
+  return request({ url: '/system/task/redispatch', method: 'post', data: data })
+}
+
+// 拒绝协商价格
+export function rejectPrice(data) {
+  return request({ url: '/system/task/rejectPrice', method: 'post', data: data })
 }
 
 // 申请终止
 export function requestTermination(data) {
-  return request({ url: '/cms/task/requestTermination', method: 'post', data: data })
+  return request({ url: '/system/task/requestTermination', method: 'post', data: data })
 }
 
 // 确认终止
-export function confirmTermination(params) {
-  return request({ url: '/cms/task/confirmTermination', method: 'post', params: params })
+export function confirmTermination(data) {
+  return request({ url: '/system/task/confirmTermination', method: 'post', data: data })
 }
 
 // 完成续签
 export function completeRenewal(data) {
-  return request({ url: '/cms/task/completeRenewal', method: 'post', data: data })
+  return request({ url: '/system/task/completeRenewal', method: 'post', data: data })
 }
 
 // 确认收款
@@ -101,6 +106,15 @@ export function confirmPayment(data) {
 export function historyTaskLog(query) {
   return request({
     url: '/system/task/log',
+    method: 'get',
+    params: query
+  })
+}
+
+// 获取待审批任务列表
+export function listPendingTask(query) {
+  return request({
+    url: '/system/task/pendingList',
     method: 'get',
     params: query
   })

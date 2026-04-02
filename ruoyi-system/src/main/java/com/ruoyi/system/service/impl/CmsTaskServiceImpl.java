@@ -310,13 +310,29 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
-        updateTask.setStatus("3"); // 3已退回
+        updateTask.setStatus("2"); // 2待审批
         updateTask.setRemark(task.getRemark());
         updateTask.setCurrentAmount(task.getCurrentAmount());
+        updateTask.setAdjustAmount(task.getAdjustAmount());
+        updateTask.setAfterAmount(task.getAfterAmount());
+        updateTask.setAttachment(task.getAttachment());
         updateTask.setUpdateTime(DateUtils.getNowDate());
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
-            recordTaskLog(task.getTaskId(), "3", oldStatus, "3", "任务退回: " + task.getRemark());
+            recordTaskLog(task.getTaskId(), "PRICE_SUBMIT", oldStatus, "2", 
+                "提交协商价格: 原金额" + existingTask.getOriginalAmount() + "→新金额" + task.getCurrentAmount() + ", 备注: " + task.getRemark(),
+                existingTask.getOriginalAmount(), task.getCurrentAmount());
+            
+            // 通知经理
+            if (existingTask.getCreateBy() != null) {
+                try {
+                    Long managerId = Long.parseLong(existingTask.getCreateBy());
+                    sendNotification(managerId, "协商价格待审批", 
+                        "您有新的协商价格待审批：任务【" + existingTask.getTaskTitle() + "】，原金额" + existingTask.getOriginalAmount() + "→新金额" + task.getCurrentAmount());
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
         }
         return result;
     }
@@ -343,7 +359,45 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setUpdateTime(DateUtils.getNowDate());
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
-            recordTaskLog(task.getTaskId(), "5", oldStatus, "0", "重新派发任务");
+            recordTaskLog(task.getTaskId(), "PRICE_APPROVE", oldStatus, "0", 
+                "同意协商价格: 新金额" + task.getCurrentAmount() + ", 备注: " + (task.getRemark() != null ? task.getRemark() : ""),
+                existingTask.getCurrentAmount(), task.getCurrentAmount());
+            
+            // 通知会计
+            if (existingTask.getAssignedTo() != null) {
+                sendNotification(existingTask.getAssignedTo(), "协商价格已通过", 
+                    "您的协商价格已通过：新金额【" + task.getCurrentAmount() + "】");
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 拒绝协商价格
+     */
+    @Override
+    @Transactional
+    public int rejectPrice(CmsTask task)
+    {
+        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
+        String oldStatus = existingTask != null ? existingTask.getStatus() : null;
+        
+        CmsTask updateTask = new CmsTask();
+        updateTask.setTaskId(task.getTaskId());
+        updateTask.setStatus("0"); // 退回给会计，可重新协商
+        updateTask.setRemark(task.getRemark());
+        updateTask.setUpdateTime(DateUtils.getNowDate());
+        
+        int result = cmsTaskMapper.updateCmsTask(updateTask);
+        if (result > 0) {
+            recordTaskLog(task.getTaskId(), "PRICE_REJECT", oldStatus, "0", 
+                "拒绝协商价格, 原因: " + task.getRemark());
+            
+            // 通知会计
+            if (existingTask.getAssignedTo() != null) {
+                sendNotification(existingTask.getAssignedTo(), "协商价格已拒绝", 
+                    "您的协商价格已拒绝，原因：" + task.getRemark());
+            }
         }
         return result;
     }
@@ -498,6 +552,10 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     }
     
     private void recordTaskLog(Long taskId, String actionType, String beforeStatus, String afterStatus, String remark) {
+        recordTaskLog(taskId, actionType, beforeStatus, afterStatus, remark, null, null);
+    }
+    
+    private void recordTaskLog(Long taskId, String actionType, String beforeStatus, String afterStatus, String remark, java.math.BigDecimal amountBefore, java.math.BigDecimal amountAfter) {
         CmsTaskLog log = new CmsTaskLog();
         log.setTaskId(taskId);
         log.setOperatorId(SecurityUtils.getUserId());
@@ -506,6 +564,23 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         log.setBeforeStatus(beforeStatus);
         log.setAfterStatus(afterStatus);
         log.setRemark(remark);
+        log.setAmountBefore(amountBefore);
+        log.setAmountAfter(amountAfter);
+        log.setCreateTime(DateUtils.getNowDate());
         cmsTaskLogService.insertCmsTaskLog(log);
+    }
+    
+    /**
+     * 发送站内通知
+     */
+    private void sendNotification(Long receiverId, String title, String content) {
+        if (receiverId == null) return;
+        SysNotice notice = new SysNotice();
+        notice.setNoticeTitle(title);
+        notice.setNoticeType("2");
+        notice.setNoticeContent(content);
+        notice.setStatus("0");
+        notice.setCreateBy(String.valueOf(receiverId));
+        noticeService.insertNotice(notice);
     }
 }

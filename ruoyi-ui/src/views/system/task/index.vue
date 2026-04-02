@@ -139,7 +139,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="任务ID" align="center" prop="taskId" />
+<!--      <el-table-column label="任务ID" align="center" prop="taskId" />-->
       <el-table-column label="任务标题" align="center" prop="taskTitle" />
       <el-table-column label="合同编号" align="center" prop="contractId" />
       <el-table-column label="任务类型" align="center" prop="taskType">
@@ -312,10 +312,14 @@
           />
         </el-form-item>
         <el-form-item label="执行人ID (关联sys_user)" prop="assignedTo">
-          <el-input
-            v-model="form.assignedTo"
-            placeholder="请输入执行人ID (关联sys_user)"
-          />
+          <el-select v-model="form.assignedTo" placeholder="请选择执行会计" filterable @focus="loadAccountants" style="width: 100%">
+            <el-option
+              v-for="user in accountantList"
+              :key="user.userId"
+              :label="user.nickName"
+              :value="user.userId"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="截止时间" prop="deadline">
           <el-date-picker
@@ -416,16 +420,34 @@
       </div>
     </el-dialog>
     <!-- 退回(讲价)对话框 -->
-    <el-dialog title="退回(讲价)" :visible.sync="returnOpen" width="500px" append-to-body>
+    <el-dialog title="退回(讲价)" :visible.sync="returnOpen" width="600px" append-to-body>
       <el-form ref="returnForm" :model="returnForm" label-width="120px">
-        <el-form-item label="原金额" v-if="showAmount">
+        <el-form-item label="原金额" v-if="showReturnAmount">
           <el-input v-model="returnForm.originalAmount" disabled />
         </el-form-item>
-        <el-form-item label="客户期望金额" prop="currentAmount" v-if="showAmount">
-          <el-input-number v-model="returnForm.currentAmount" :min="0" :precision="2" :step="100" />
+        <el-form-item label="现价" prop="currentAmount" v-if="showReturnAmount">
+          <el-input-number v-model="returnForm.currentAmount" :min="0" :precision="2" :step="100" @change="calcAdjustment" />
+        </el-form-item>
+        <el-form-item label="调整金额" prop="adjustAmount" v-if="showReturnAmount">
+          <el-input-number v-model="returnForm.adjustAmount" :min="-999999" :precision="2" :step="100" @change="calcAfterAmount" />
+        </el-form-item>
+        <el-form-item label="调整后价格" v-if="showReturnAmount">
+          <el-input v-model="returnForm.afterAmount" disabled />
         </el-form-item>
         <el-form-item label="退回原因" prop="remark">
           <el-input v-model="returnForm.remark" type="textarea" placeholder="请输入退回原因" />
+        </el-form-item>
+        <el-form-item label="附件上传">
+          <el-upload
+            ref="returnUpload"
+            :action="upload.url"
+            :headers="upload.headers"
+            :file-list="returnFileList"
+            :auto-upload="false"
+            :on-change="handleReturnFileChange"
+          >
+            <el-button size="small" type="primary" icon="el-icon-upload2">选择文件</el-button>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -571,7 +593,11 @@
         </el-table-column>
         <el-table-column label="状态变更" width="120">
           <template slot-scope="scope">
-            {{ scope.row.beforeStatus || '-' }} → {{ scope.row.afterStatus || '-' }}
+            <span v-if="scope.row.beforeStatus">{{ getStatusLabel(scope.row.beforeStatus) }}</span>
+            <span v-else>-</span>
+            <span> → </span>
+            <span v-if="scope.row.afterStatus">{{ getStatusLabel(scope.row.afterStatus) }}</span>
+            <span v-else>-</span>
           </template>
         </el-table-column>
         <el-table-column label="备注" prop="remark" :show-overflow-tooltip="true"/>
@@ -598,6 +624,7 @@ import {
   historyTaskLog
 } from "@/api/system/task";
 import { getContract } from "@/api/system/contract";
+import { getToken } from "@/utils/auth";
 
 export default {
   name: "Task",
@@ -634,34 +661,36 @@ export default {
         currentAmount: null,
         assignedToName: null,
         deadline: null,
-        status: null,
+        status: '0,1,3,4',
       },
       // 表单参数
       form: {},
       renewOpen: false,
       renewForm: {},
-      
+
       // 退回(讲价)
       returnOpen: false,
       returnForm: {},
-      
+      returnFileList: [],
+
       // 重新派发
       redispatchOpen: false,
       redispatchForm: {},
       assignableUsers: [],
-      
+      accountantList: [],
+
       // 申请终止
       requestTermOpen: false,
       requestTermForm: {},
-      
+
       // 确认终止
       confirmTermOpen: false,
       confirmTermForm: {},
-      
+
       // 完成续签
       completeRenewalOpen: false,
       completeRenewalForm: {},
-      
+
       // 确认收款
       paymentDialogOpen: false,
       paymentForm: {},
@@ -686,6 +715,8 @@ export default {
         ],
       },
       upload: {
+        headers: { Authorization: "Bearer " + getToken() },
+        url: process.env.VUE_APP_BASE_API + "/common/upload",
         fileList: [],
       },
     };
@@ -697,8 +728,14 @@ computed: {
 isAdmin() {
 return this.$store.getters.roles.includes('admin');
 },
+isManager() {
+return this.$store.getters.roles.includes('manager');
+},
 isAccountant() {
 return this.$store.getters.roles.includes('accountant');
+    },
+    canAssignTask() {
+      return this.isAdmin || this.isManager;
     },
     showAmount() {
       const roles = this.$store.getters.roles || [];
@@ -709,8 +746,11 @@ return this.$store.getters.roles.includes('accountant');
         return false;
       }
       return true;
+    },
+    showReturnAmount() {
+      return true;
     }
-},
+  },
   methods: {
     /** 查询任务管理列表 */
     getList() {
@@ -819,11 +859,41 @@ return this.$store.getters.roles.includes('accountant');
         taskId: row.taskId,
         originalAmount: row.originalAmount,
         currentAmount: row.currentAmount || row.originalAmount,
+        adjustAmount: 0,
+        afterAmount: row.currentAmount || row.originalAmount,
         remark: null
       };
+      this.returnFileList = [];
       this.returnOpen = true;
     },
-    submitReturn() {
+    calcAdjustment(value) {
+      if (this.returnForm.originalAmount !== undefined) {
+        this.returnForm.adjustAmount = (this.returnForm.currentAmount || 0) - this.returnForm.originalAmount;
+        this.returnForm.afterAmount = this.returnForm.currentAmount;
+      }
+    },
+    calcAfterAmount(value) {
+      this.returnForm.afterAmount = (this.returnForm.currentAmount || 0) + (this.returnForm.adjustAmount || 0);
+    },
+    handleReturnFileChange(file, fileList) {
+      this.returnFileList = fileList.slice(-1);
+    },
+    async submitReturn() {
+      if (this.returnFileList.length > 0 && this.returnFileList[0].raw) {
+        const formData = new FormData()
+        formData.append('file', this.returnFileList[0].raw)
+        try {
+          const res = await this.$http.post(this.upload.url, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+          if (res.code === 200) {
+            this.returnForm.attachment = res.url || res.fileName
+          }
+        } catch (e) {
+          this.$modal.msgError('附件上传失败')
+          return
+        }
+      }
       returnToAdmin(this.returnForm).then(response => {
         this.$modal.msgSuccess("退回成功");
         this.returnOpen = false;
@@ -845,6 +915,8 @@ return this.$store.getters.roles.includes('accountant');
       getAssignableUsers().then(response => {
         this.assignableUsers = response.data;
         this.redispatchOpen = true;
+      }).catch(() => {
+        this.assignableUsers = [];
       });
     },
     submitRedispatch() {
@@ -853,6 +925,16 @@ return this.$store.getters.roles.includes('accountant');
         this.redispatchOpen = false;
         this.getList();
       });
+    },
+    loadAccountants() {
+      if (!this.canAssignTask) return;
+      if (this.accountantList.length === 0) {
+        getAssignableUsers().then(response => {
+          this.accountantList = response.data || [];
+        }).catch(() => {
+          this.accountantList = [];
+        });
+      }
     },
 
     /** 申请终止按钮操作 */
@@ -1001,6 +1083,11 @@ return this.$store.getters.roles.includes('accountant');
         },
         `task_${new Date().getTime()}.xlsx`
       );
+    },
+    getStatusLabel(status) {
+      const dict = this.dict.type.cms_task_status || [];
+      const item = dict.find(d => d.value === status);
+      return item ? item.label : status;
     },
   },
 };
