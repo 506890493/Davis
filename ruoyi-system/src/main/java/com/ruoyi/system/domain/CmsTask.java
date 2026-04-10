@@ -53,6 +53,17 @@ public class CmsTask extends BaseEntity
     @Excel(name = "当前协商金额")
     private BigDecimal currentAmount;
 
+    /** 调整金额 */
+    @Excel(name = "调整金额")
+    private BigDecimal adjustAmount;
+
+    /** 调整后价格 */
+    @Excel(name = "调整后价格")
+    private BigDecimal afterAmount;
+
+    /** 附件 */
+    private String attachment;
+
     /** 执行人ID (关联sys_user) */
     @Excel(name = "执行人ID (关联sys_user)")
     private Long assignedTo;
@@ -68,6 +79,14 @@ public class CmsTask extends BaseEntity
 
     /** 删除标志 */
     private String delFlag;
+
+    /** 实际收款金额 */
+    @Excel(name = "实际收款金额")
+    private BigDecimal actualAmount;
+
+    /** 收款备注 */
+    @Excel(name = "收款备注")
+    private String receiveRemark;
 
     /** 执行人名称 */
     private String assignedToName;
@@ -152,6 +171,33 @@ public class CmsTask extends BaseEntity
     {
         return currentAmount;
     }
+    public void setAdjustAmount(BigDecimal adjustAmount) 
+    {
+        this.adjustAmount = adjustAmount;
+    }
+
+    public BigDecimal getAdjustAmount() 
+    {
+        return adjustAmount;
+    }
+    public void setAfterAmount(BigDecimal afterAmount) 
+    {
+        this.afterAmount = afterAmount;
+    }
+
+    public BigDecimal getAfterAmount() 
+    {
+        return afterAmount;
+    }
+    public void setAttachment(String attachment) 
+    {
+        this.attachment = attachment;
+    }
+
+    public String getAttachment() 
+    {
+        return attachment;
+    }
     public void setAssignedTo(Long assignedTo) 
     {
         this.assignedTo = assignedTo;
@@ -189,6 +235,26 @@ public class CmsTask extends BaseEntity
         return delFlag;
     }
 
+    public void setActualAmount(BigDecimal actualAmount)
+    {
+        this.actualAmount = actualAmount;
+    }
+
+    public BigDecimal getActualAmount()
+    {
+        return actualAmount;
+    }
+
+    public void setReceiveRemark(String receiveRemark)
+    {
+        this.receiveRemark = receiveRemark;
+    }
+
+    public String getReceiveRemark()
+    {
+        return receiveRemark;
+    }
+
     public void setAssignedToName(String assignedToName)
     {
         this.assignedToName = assignedToName;
@@ -211,11 +277,16 @@ public class CmsTask extends BaseEntity
             .append("priority", getPriority())
             .append("originalAmount", getOriginalAmount())
             .append("currentAmount", getCurrentAmount())
+            .append("adjustAmount", getAdjustAmount())
+            .append("afterAmount", getAfterAmount())
+            .append("attachment", getAttachment())
             .append("assignedTo", getAssignedTo())
             .append("assignedToName", getAssignedToName())
             .append("deadline", getDeadline())
             .append("status", getStatus())
             .append("delFlag", getDelFlag())
+            .append("actualAmount", getActualAmount())
+            .append("receiveRemark", getReceiveRemark())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

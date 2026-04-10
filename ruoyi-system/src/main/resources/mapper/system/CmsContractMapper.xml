@@ -14,6 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="contactPhone"    column="contact_phone"    />
         <result property="contactEmail"    column="contact_email"    />
         <result property="amount"    column="amount"    />
+        <result property="actualAmount"    column="actual_amount"    />
         <result property="paymentCycle"    column="payment_cycle"    />
         <result property="paymentDate"    column="payment_date"    />
         <result property="paymentMethod"    column="payment_method"    />
@@ -28,6 +29,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="ownerName"  column="owner_name"  />
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
 
         <result property="auditStatus"    column="audit_status"    />
         <result property="delFlag"    column="del_flag"    />
@@ -58,9 +61,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCmsContractVo">
-        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
+        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.actual_amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.customer_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name, cu.customer_name
         from cms_contract c
         left join sys_user u on c.owner_id = u.user_id
+        left join cms_customer cu on c.customer_id = cu.customer_id
     </sql>
 
     <select id="selectCmsContractList" parameterType="CmsContract" resultMap="CmsContractResult">
@@ -87,6 +91,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ownerId != null "> and c.owner_id = #{ownerId}</if>
             <if test="deptId != null "> and c.dept_id = #{deptId}</if>
             <if test="parentId != null "> and c.parent_id = #{parentId}</if>
+            <if test="customerId != null "> and c.customer_id = #{customerId}</if>
 
             <if test="auditStatus != null  and auditStatus != ''"> and c.audit_status = #{auditStatus}</if>
             <if test="reminderStatus != null  and reminderStatus != ''"> and c.reminder_status = #{reminderStatus}</if>
@@ -95,9 +100,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectCmsContractByContractId" parameterType="Long" resultMap="CmsContractCmsFileResult">
-        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name
+        select c.contract_id, c.contract_code, c.contract_name, c.contract_type, c.legal_person, c.contact_person, c.contact_phone, c.contact_email, c.amount, c.actual_amount, c.payment_cycle, c.payment_date, c.payment_method, c.start_date, c.end_date, c.tax_type, c.establishment_date, c.rental_address, c.is_rented, c.profit, c.owner_id, c.dept_id, c.parent_id, c.customer_id, c.audit_status, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.reminder_status, c.annex, u.nick_name as owner_name, cu.customer_name
         from cms_contract c
         left join sys_user u on c.owner_id = u.user_id
+        left join cms_customer cu on c.customer_id = cu.customer_id
         where c.contract_id = #{contractId}
     </select>
 
@@ -123,6 +129,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="contactPhone != null and contactPhone != ''">contact_phone,</if>
             <if test="contactEmail != null">contact_email,</if>
             <if test="amount != null">amount,</if>
+            <if test="actualAmount != null">actual_amount,</if>
             <if test="paymentCycle != null">payment_cycle,</if>
             <if test="paymentDate != null">payment_date,</if>
             <if test="paymentMethod != null">payment_method,</if>
@@ -136,6 +143,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ownerId != null">owner_id,</if>
             <if test="deptId != null">dept_id,</if>
             <if test="parentId != null">parent_id,</if>
+            <if test="customerId != null">customer_id,</if>
 
             <if test="auditStatus != null">audit_status,</if>
             <if test="delFlag != null">del_flag,</if>
@@ -156,6 +164,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="contactPhone != null and contactPhone != ''">#{contactPhone},</if>
             <if test="contactEmail != null">#{contactEmail},</if>
             <if test="amount != null">#{amount},</if>
+            <if test="actualAmount != null">#{actualAmount},</if>
             <if test="paymentCycle != null">#{paymentCycle},</if>
             <if test="paymentDate != null">#{paymentDate},</if>
             <if test="paymentMethod != null">#{paymentMethod},</if>
@@ -169,6 +178,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ownerId != null">#{ownerId},</if>
             <if test="deptId != null">#{deptId},</if>
             <if test="parentId != null">#{parentId},</if>
+            <if test="customerId != null">#{customerId},</if>
 
             <if test="auditStatus != null">#{auditStatus},</if>
             <if test="delFlag != null">#{delFlag},</if>
@@ -193,6 +203,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="contactPhone != null and contactPhone != ''">contact_phone = #{contactPhone},</if>
             <if test="contactEmail != null">contact_email = #{contactEmail},</if>
             <if test="amount != null">amount = #{amount},</if>
+            <if test="actualAmount != null">actual_amount = #{actualAmount},</if>
             <if test="paymentCycle != null">payment_cycle = #{paymentCycle},</if>
             <if test="paymentDate != null">payment_date = #{paymentDate},</if>
             <if test="paymentMethod != null">payment_method = #{paymentMethod},</if>
@@ -206,6 +217,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ownerId != null">owner_id = #{ownerId},</if>
             <if test="deptId != null">dept_id = #{deptId},</if>
             <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
 
             <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
@@ -308,6 +320,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="ownerId != null">
             and owner_id = #{ownerId}
         </if>
+    </select>
+
+    <!-- 统计合同总数 -->
+    <select id="countAllContracts" resultType="Long">
+        select count(*) from cms_contract
+        where del_flag = '0'
     </select>
 
     <!-- 查询用户的客户列表 -->

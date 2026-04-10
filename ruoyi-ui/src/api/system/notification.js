@@ -8,8 +8,8 @@ export function getNotificationList() {
   return request({ url: '/system/notification/list', method: 'get' })
 }
 
-export function markRead(notificationId) {
-  return request({ url: '/system/notification/read/' + notificationId, method: 'put' })
+export function markRead(noticeId) {
+  return request({ url: '/system/notification/read/' + noticeId, method: 'put' })
 }
 
 export function markAllRead() {

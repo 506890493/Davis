@@ -139,7 +139,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="任务ID" align="center" prop="taskId" />
+<!--      <el-table-column label="任务ID" align="center" prop="taskId" />-->
       <el-table-column label="任务标题" align="center" prop="taskTitle" />
       <el-table-column label="合同编号" align="center" prop="contractId" />
       <el-table-column label="任务类型" align="center" prop="taskType">
@@ -158,6 +158,17 @@
         align="center"
         prop="currentAmount"
         v-if="showAmount"
+      />
+      <el-table-column
+        label="实际收款金额"
+        align="center"
+        prop="actualAmount"
+        v-if="showAmount"
+      />
+      <el-table-column
+        label="收款备注"
+        align="center"
+        prop="receiveRemark"
       />
       <el-table-column
         label="执行人"
@@ -253,27 +264,19 @@
           <el-button
             size="mini"
             type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:task:edit']"
-            >修改</el-button
+            icon="el-icon-time"
+            @click="handleViewHistory(scope.row)"
+            v-hasPermi="['system:task:query']"
+            >操作历史</el-button
           >
           <el-button
             size="mini"
             type="text"
             icon="el-icon-check"
             v-if="scope.row.status === '1' && scope.row.taskType === '1'"
-            @click="handleComplete(scope.row)"
+            @click="handlePayment(scope.row)"
             v-hasPermi="['system:task:edit']"
-            >完成</el-button
-          >
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:task:remove']"
-            >删除</el-button
+            >确认收款</el-button
           >
         </template>
       </el-table-column>
@@ -309,10 +312,14 @@
           />
         </el-form-item>
         <el-form-item label="执行人ID (关联sys_user)" prop="assignedTo">
-          <el-input
-            v-model="form.assignedTo"
-            placeholder="请输入执行人ID (关联sys_user)"
-          />
+          <el-select v-model="form.assignedTo" placeholder="请选择执行会计" filterable @focus="loadAccountants" style="width: 100%">
+            <el-option
+              v-for="user in accountantList"
+              :key="user.userId"
+              :label="user.nickName"
+              :value="user.userId"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="截止时间" prop="deadline">
           <el-date-picker
@@ -413,16 +420,31 @@
       </div>
     </el-dialog>
     <!-- 退回(讲价)对话框 -->
-    <el-dialog title="退回(讲价)" :visible.sync="returnOpen" width="500px" append-to-body>
+    <el-dialog title="退回(讲价)" :visible.sync="returnOpen" width="600px" append-to-body>
       <el-form ref="returnForm" :model="returnForm" label-width="120px">
-        <el-form-item label="原金额" v-if="showAmount">
+        <el-form-item label="原金额" v-if="showReturnAmount">
           <el-input v-model="returnForm.originalAmount" disabled />
         </el-form-item>
-        <el-form-item label="客户期望金额" prop="currentAmount" v-if="showAmount">
-          <el-input-number v-model="returnForm.currentAmount" :min="0" :precision="2" :step="100" />
+        <el-form-item label="调整金额" prop="adjustAmount" v-if="showReturnAmount">
+          <el-input-number v-model="returnForm.adjustAmount" :min="-999999" :precision="2" :step="100" @change="calcAfterAmount" />
+        </el-form-item>
+        <el-form-item label="调整后价格" v-if="showReturnAmount">
+          <el-input v-model="returnForm.afterAmount" disabled />
         </el-form-item>
         <el-form-item label="退回原因" prop="remark">
           <el-input v-model="returnForm.remark" type="textarea" placeholder="请输入退回原因" />
+        </el-form-item>
+        <el-form-item label="附件上传">
+          <el-upload
+            ref="returnUpload"
+            :action="upload.url"
+            :headers="upload.headers"
+            :file-list="returnFileList"
+            :auto-upload="false"
+            :on-change="handleReturnFileChange"
+          >
+            <el-button size="small" type="primary" icon="el-icon-upload2">选择文件</el-button>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -520,6 +542,64 @@
         <el-button @click="completeRenewalOpen = false">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 确认收款对话框 -->
+    <el-dialog title="确认收款" :visible.sync="paymentDialogOpen" width="500px" append-to-body>
+      <el-form ref="paymentForm" :model="paymentForm" :rules="paymentRules" label-width="100px">
+        <el-form-item label="合同名称">
+          <el-input v-model="paymentForm.contractName" disabled />
+        </el-form-item>
+        <el-form-item label="原金额" v-if="showAmount">
+          <el-input v-model="paymentForm.originalAmount" disabled />
+        </el-form-item>
+        <el-form-item label="协商金额" v-if="showAmount">
+          <el-input v-model="paymentForm.currentAmount" disabled />
+        </el-form-item>
+        <el-form-item label="实际收款" prop="actualAmount" v-if="showAmount">
+          <el-input-number v-model="paymentForm.actualAmount" :min="0" :precision="2" :step="100" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="收款备注" prop="receiveRemark">
+          <el-input v-model="paymentForm.receiveRemark" type="textarea" placeholder="请输入收款备注" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitPayment">确 定</el-button>
+        <el-button @click="paymentDialogOpen = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 操作历史对话框 -->
+    <el-dialog title="操作历史" :visible.sync="historyOpen" width="700px" append-to-body>
+      <el-table :data="historyList" v-loading="loading">
+        <el-table-column label="操作时间" prop="createTime" width="160">
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作人" prop="operatorName" width="100"/>
+        <el-table-column label="操作类型" prop="actionType" width="100">
+          <template slot-scope="scope">
+            <span v-if="scope.row.actionType === '0'">创建</span>
+            <span v-else-if="scope.row.actionType === '1'">开始</span>
+            <span v-else-if="scope.row.actionType === '2'">完成</span>
+            <span v-else-if="scope.row.actionType === '3'">终止</span>
+            <span v-else-if="scope.row.actionType === '4'">分配</span>
+            <span v-else-if="scope.row.actionType === '5'">重新分配</span>
+            <span v-else>{{ scope.row.actionType }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态变更" width="120">
+          <template slot-scope="scope">
+            <span v-if="scope.row.beforeStatus">{{ getStatusLabel(scope.row.beforeStatus) }}</span>
+            <span v-else>-</span>
+            <span> → </span>
+            <span v-if="scope.row.afterStatus">{{ getStatusLabel(scope.row.afterStatus) }}</span>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" prop="remark" :show-overflow-tooltip="true"/>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -536,9 +616,13 @@ import {
   requestTermination,
   confirmTermination,
   completeRenewal,
-  getAssignableUsers
+  getAssignableUsers,
+  confirmPayment,
+  historyTaskLog
 } from "@/api/system/task";
 import { getContract } from "@/api/system/contract";
+import { getToken } from "@/utils/auth";
+import axios from "axios";
 
 export default {
   name: "Task",
@@ -575,33 +659,45 @@ export default {
         currentAmount: null,
         assignedToName: null,
         deadline: null,
-        status: null,
+        status: '0,1,3,4',
       },
       // 表单参数
       form: {},
       renewOpen: false,
       renewForm: {},
-      
+
       // 退回(讲价)
       returnOpen: false,
       returnForm: {},
-      
+      returnFileList: [],
+
       // 重新派发
       redispatchOpen: false,
       redispatchForm: {},
       assignableUsers: [],
-      
+      accountantList: [],
+
       // 申请终止
       requestTermOpen: false,
       requestTermForm: {},
-      
+
       // 确认终止
       confirmTermOpen: false,
       confirmTermForm: {},
-      
+
       // 完成续签
       completeRenewalOpen: false,
       completeRenewalForm: {},
+
+      // 确认收款
+      paymentDialogOpen: false,
+      paymentForm: {},
+      paymentRules: {
+        actualAmount: [{ required: true, message: "请输入实际收款金额", trigger: "blur" }]
+      },
+      // 操作历史
+      historyOpen: false,
+      historyList: [],
       rules: {
         contractName: [
           { required: true, message: "公司名称不能为空", trigger: "blur" },
@@ -617,6 +713,8 @@ export default {
         ],
       },
       upload: {
+        headers: { Authorization: "Bearer " + getToken() },
+        url: process.env.VUE_APP_BASE_API + "/common/uploads",
         fileList: [],
       },
     };
@@ -626,10 +724,16 @@ export default {
   },
 computed: {
 isAdmin() {
-return this.$store.state.user.roles.includes('admin');
+return this.$store.getters.roles.includes('admin');
+},
+isManager() {
+return this.$store.getters.roles.includes('manager');
 },
 isAccountant() {
-return this.$store.state.user.roles.includes('accountant');
+return this.$store.getters.roles.includes('accountant');
+    },
+    canAssignTask() {
+      return this.isAdmin || this.isManager;
     },
     showAmount() {
       const roles = this.$store.getters.roles || [];
@@ -640,14 +744,17 @@ return this.$store.state.user.roles.includes('accountant');
         return false;
       }
       return true;
+    },
+    showReturnAmount() {
+      return true;
     }
-},
+  },
   methods: {
     /** 查询任务管理列表 */
     getList() {
       this.loading = true;
       if (this.isAccountant && !this.isAdmin) {
-        this.queryParams.assignedTo = this.$store.state.user.id;
+        this.queryParams.assignedTo = this.$store.getters.id;
       }
       listTask(this.queryParams).then((response) => {
         this.taskList = response.rows;
@@ -749,13 +856,51 @@ return this.$store.state.user.roles.includes('accountant');
       this.returnForm = {
         taskId: row.taskId,
         originalAmount: row.originalAmount,
-        currentAmount: row.currentAmount || row.originalAmount,
+        adjustAmount: 0,
+        afterAmount: row.originalAmount,
         remark: null
       };
+      this.returnFileList = [];
       this.returnOpen = true;
     },
-    submitReturn() {
+    calcAfterAmount() {
+      this.returnForm.afterAmount = (this.returnForm.originalAmount || 0) + (this.returnForm.adjustAmount || 0);
+    },
+    handleReturnFileChange(file, fileList) {
+      this.returnFileList = fileList.slice(-1);
+    },
+    async submitReturn() {
+      if (this.returnFileList.length > 0 && this.returnFileList[0].raw) {
+        const formData = new FormData()
+        formData.append('files', this.returnFileList[0].raw)
+        try {
+          const response = await axios({
+            method: 'post',
+            url: this.upload.url,
+            headers: {
+              ...this.upload.headers,
+              'Content-Type': 'multipart/form-data'
+            },
+            data: formData
+          })
+          const res = response.data
+          if (res.code === 200) {
+            const fileNames = res.fileNames || res.fileName || ''
+            this.returnForm.attachment = fileNames.split(',')[0]
+            this.$modal.msgSuccess('附件上传成功')
+          } else {
+            this.$modal.msgError(res.msg || '附件上传失败')
+            return
+          }
+        } catch (e) {
+          console.error('Upload error:', e)
+          this.$modal.msgError('附件上传失败: ' + (e.message || '未知错误'))
+          return
+        }
+      }
       returnToAdmin(this.returnForm).then(response => {
+        console.log('returnToAdmin response:', response)
+        console.log('returnForm.attachment:', this.returnForm.attachment)
         this.$modal.msgSuccess("退回成功");
         this.returnOpen = false;
         this.getList();
@@ -776,6 +921,8 @@ return this.$store.state.user.roles.includes('accountant');
       getAssignableUsers().then(response => {
         this.assignableUsers = response.data;
         this.redispatchOpen = true;
+      }).catch(() => {
+        this.assignableUsers = [];
       });
     },
     submitRedispatch() {
@@ -784,6 +931,16 @@ return this.$store.state.user.roles.includes('accountant');
         this.redispatchOpen = false;
         this.getList();
       });
+    },
+    loadAccountants() {
+      if (!this.canAssignTask) return;
+      if (this.accountantList.length === 0) {
+        getAssignableUsers().then(response => {
+          this.accountantList = response.data || [];
+        }).catch(() => {
+          this.accountantList = [];
+        });
+      }
     },
 
     /** 申请终止按钮操作 */
@@ -838,6 +995,42 @@ return this.$store.state.user.roles.includes('accountant');
         this.$modal.msgSuccess("完成续签成功");
         this.completeRenewalOpen = false;
         this.getList();
+      });
+    },
+
+    /** 确认收款按钮操作 */
+    handlePayment(row) {
+      this.paymentForm = {
+        taskId: row.taskId,
+        contractName: row.taskTitle.replace('催收任务: ', ''),
+        originalAmount: row.originalAmount,
+        currentAmount: row.currentAmount || row.originalAmount,
+        actualAmount: row.currentAmount || row.originalAmount,
+        receiveRemark: ''
+      };
+      this.paymentDialogOpen = true;
+    },
+    /** 查看操作历史 */
+    handleViewHistory(row) {
+      historyTaskLog({ taskId: row.taskId }).then(res => {
+        this.historyList = res.rows || [];
+        this.historyOpen = true;
+      });
+    },
+    submitPayment() {
+      this.$refs.paymentForm.validate(valid => {
+        if (valid) {
+          const data = {
+            taskId: this.paymentForm.taskId,
+            actualAmount: this.paymentForm.actualAmount,
+            receiveRemark: this.paymentForm.receiveRemark
+          };
+          confirmPayment(data).then(response => {
+            this.$modal.msgSuccess("收款确认成功");
+            this.paymentDialogOpen = false;
+            this.getList();
+          });
+        }
       });
     },
 
@@ -896,6 +1089,11 @@ return this.$store.state.user.roles.includes('accountant');
         },
         `task_${new Date().getTime()}.xlsx`
       );
+    },
+    getStatusLabel(status) {
+      const dict = this.dict.type.cms_task_status || [];
+      const item = dict.find(d => d.value === status);
+      return item ? item.label : status;
     },
   },
 };

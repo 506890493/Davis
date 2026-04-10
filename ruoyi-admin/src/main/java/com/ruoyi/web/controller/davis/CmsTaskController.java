@@ -7,7 +7,9 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.CmsTask;
+import com.ruoyi.system.domain.CmsTaskLog;
 import com.ruoyi.system.service.ICmsTaskService;
+import com.ruoyi.system.service.ICmsTaskLogService;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +30,9 @@ public class CmsTaskController extends BaseController
 {
     @Autowired
     private ICmsTaskService cmsTaskService;
+    
+    @Autowired
+    private ICmsTaskLogService cmsTaskLogService;
 
     /**
      * 查询任务管理列表
@@ -98,13 +103,18 @@ public class CmsTaskController extends BaseController
     }
 
     /**
-    /**
      * 获取可分配的会计用户列表
+     * 仅管理员和经理可调用
      */
-    @PreAuthorize("@ss.hasPermi('cms:task:dispatch')")
     @GetMapping("/assignableUsers")
     public AjaxResult getAssignableUsers()
     {
+        Long userId = com.ruoyi.common.utils.SecurityUtils.getUserId();
+        if (!com.ruoyi.common.utils.SecurityUtils.isAdmin(userId) && !com.ruoyi.common.utils.SecurityUtils.hasRole("manager"))
+        {
+//            return error("无权限调用此接口");
+            return success();
+        }
         List<SysUser> users = cmsTaskService.getAssignableUsers();
         return success(users);
     }
@@ -140,6 +150,20 @@ public class CmsTaskController extends BaseController
     public AjaxResult redispatch(@RequestBody CmsTask task)
     {
         return toAjax(cmsTaskService.redispatch(task));
+    }
+
+    /**
+     * 拒绝协商价格
+     * POST /system/task/rejectPrice
+     * @param task 任务信息
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:audit')")
+    @Log(title = "任务管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/rejectPrice")
+    public AjaxResult rejectPrice(@RequestBody CmsTask task)
+    {
+        return toAjax(cmsTaskService.rejectPrice(task));
     }
 
     /**
@@ -186,5 +210,44 @@ public class CmsTaskController extends BaseController
     public AjaxResult completeRenewal(@RequestBody CmsTask task)
     {
         return toAjax(cmsTaskService.completeRenewal(task));
+    }
+
+    /**
+     * 确认收款（催收任务完成）
+     * POST /system/task/confirmPayment
+     * @param task 任务信息（包含taskId, actualAmount, receiveRemark）
+     * @return AjaxResult
+     */
+    @PreAuthorize("@ss.hasPermi('cms:task:edit')")
+    @Log(title = "确认收款", businessType = BusinessType.UPDATE)
+    @PostMapping("/confirmPayment")
+    public AjaxResult confirmPayment(@RequestBody CmsTask task)
+    {
+        return toAjax(cmsTaskService.confirmPayment(task));
+    }
+    
+    /**
+     * 获取任务操作日志列表
+     */
+    @PreAuthorize("@ss.hasPermi('system:task:query')")
+    @GetMapping("/log")
+    public TableDataInfo logList(CmsTaskLog cmsTaskLog)
+    {
+        startPage();
+        List<CmsTaskLog> list = cmsTaskLogService.selectCmsTaskLogList(cmsTaskLog);
+        return getDataTable(list);
+    }
+
+    /**
+     * 获取待审批任务列表
+     */
+    @PreAuthorize("@ss.hasPermi('system:task:list')")
+    @GetMapping("/pendingList")
+    public TableDataInfo pendingList(CmsTask cmsTask)
+    {
+        cmsTask.setStatus("2");
+        startPage();
+        List<CmsTask> list = cmsTaskService.selectCmsTaskList(cmsTask);
+        return getDataTable(list);
     }
 }

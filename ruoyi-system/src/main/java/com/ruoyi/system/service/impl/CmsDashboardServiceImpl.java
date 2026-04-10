@@ -15,6 +15,7 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.CmsContract;
 import com.ruoyi.system.domain.vo.DashboardStatsVo;
 import com.ruoyi.system.mapper.CmsContractMapper;
+import com.ruoyi.system.mapper.CmsCustomerMapper;
 import com.ruoyi.system.mapper.CmsTaskMapper;
 import com.ruoyi.system.service.ICmsDashboardService;
 import com.ruoyi.system.service.ICmsNotificationService;
@@ -33,6 +34,9 @@ public class CmsDashboardServiceImpl implements ICmsDashboardService
 
     @Autowired
     private CmsTaskMapper cmsTaskMapper;
+
+    @Autowired
+    private CmsCustomerMapper cmsCustomerMapper;
 
     @Autowired
     private ICmsNotificationService notificationService;
@@ -96,6 +100,10 @@ public class CmsDashboardServiceImpl implements ICmsDashboardService
      */
     private void buildAdminStats(DashboardStatsVo stats, Date startDate, Date endDate)
     {
+        // 合同总数
+        Long totalCount = cmsContractMapper.countAllContracts();
+        stats.setTotalContracts(totalCount);
+        
         // 本月到期合同数量
         Long expiringCount = cmsContractMapper.countExpiringContracts(startDate, endDate, null);
         stats.setExpiringContractCount(expiringCount);
@@ -111,6 +119,16 @@ public class CmsDashboardServiceImpl implements ICmsDashboardService
         // 本月实际完成金额（已完成任务的金额）
         BigDecimal actualAmount = cmsTaskMapper.sumCompletedTaskAmount(startDate, endDate, null);
         stats.setMonthActualAmount(actualAmount);
+        
+        // 客户统计
+        Long totalCustomers = cmsCustomerMapper.countCustomer();
+        stats.setTotalCustomers(totalCustomers);
+        
+        Long accountingCustomers = cmsCustomerMapper.countCustomerByType("1");
+        stats.setAccountingCustomerCount(accountingCustomers);
+        
+        Long rentalCustomers = cmsCustomerMapper.countCustomerByType("2");
+        stats.setRentalCustomerCount(rentalCustomers);
     }
 
     /**

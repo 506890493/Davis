@@ -57,4 +57,24 @@ public interface ISysNoticeService
      * @return 结果
      */
     public int deleteNoticeByIds(Long[] noticeIds);
+
+    /**
+     * 获取用户未读通知数量
+     */
+    public int countUnreadByUserId(Long userId);
+
+    /**
+     * 标记通知为已读
+     */
+    public int markRead(Long noticeId, Long userId);
+
+    /**
+     * 标记所有通知为已读
+     */
+    public int markAllRead(Long userId);
+
+    /**
+     * 获取用户通知列表（包含已读状态）
+     */
+    public List<SysNotice> selectNoticeListForUser(Long userId);
 }

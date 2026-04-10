@@ -114,6 +114,19 @@ export const constantRoutes = [
     ],
   },
   {
+    path: "/system/customer",
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: "detail/:customerId",
+        component: () => import("@/views/system/customer/detail"),
+        name: "CustomerDetail",
+        meta: { title: "客户详情", activeMenu: "/system/customer" },
+      },
+    ],
+  },
+  {
     path: "/contract",
     component: Layout,
     hidden: true,
@@ -129,6 +142,18 @@ export const constantRoutes = [
         component: () => import("@/views/system/contract/index"),
         name: "Rent",
         meta: { title: "地址出售", activeMenu: "/system/contract" },
+      },
+      {
+        path: "pending",
+        component: () => import("@/views/system/contract/pending"),
+        name: "Pending",
+        meta: { title: "待审批合同", activeMenu: "/system/contract" },
+      },
+      {
+        path: "rejected",
+        component: () => import("@/views/system/contract/rejected"),
+        name: "Rejected",
+        meta: { title: "已拒绝合同", activeMenu: "/system/contract" },
       },
     ],
   },

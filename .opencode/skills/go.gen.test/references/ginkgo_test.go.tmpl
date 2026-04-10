@@ -1,0 +1,38 @@
+// ginkgo_test.go.tmpl
+// Suite initialization file — one per package only
+// Copy this file to your test package and rename to ginkgo_test.go
+//
+// IMPORTANT: Each package can only have ONE ginkgo_test.go file.
+// If the target package already has this file, place your new tests
+// in a separate file (e.g., xxx_ginkgo_test.go) with only Describe/It blocks.
+
+package mypkg
+
+import (
+	"testing"
+
+	"github.com/joho/godotenv"
+	"github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"source.golabs.io/fleet/fleet-backend/client/gormclient"
+	"source.golabs.io/fleet/fleet-backend/config"
+	"source.golabs.io/fleet/fleet-backend/migrations"
+)
+
+// repoRoot returns the absolute path to the repository root directory.
+// Uses the unified migrations.RepoRoot() function to ensure consistency
+// across all test packages and environments (local/CI).
+func repoRoot() string {
+	return migrations.RepoRoot()
+}
+
+var _ = ginkgo.BeforeSuite(func() {
+	_ = godotenv.Load(repoRoot() + "/.env.local")
+	config.InitConfig("")
+	gormclient.InitGormClientWithMigration(nil)
+})
+
+func TestSuite(t *testing.T) {
+	RegisterFailHandler(ginkgo.Fail)
+	ginkgo.RunSpecs(t, "MyPkg Suite")
+}

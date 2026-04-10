@@ -54,6 +54,10 @@ public class CmsContract extends BaseEntity {
     @Excel(name = "收费标准")
     private BigDecimal amount;
 
+    /** 实际收款金额 */
+    @Excel(name = "实际收款金额")
+    private BigDecimal actualAmount;
+
     /** 付款周期（字典：cms_pay_cycle） */
     @Excel(name = "付款周期", dictType = "cms_pay_cycle", comboReadDict = true)
     private String paymentCycle;
@@ -112,6 +116,14 @@ public class CmsContract extends BaseEntity {
     /** 用于记录该合同是续签自哪个旧合同 */
     @Excel(name = "父合同ID")
     private Long parentId;
+
+    /** 客户ID（关联cms_customer） */
+    @Excel(name = "客户ID")
+    private Long customerId;
+
+    /** 客户名称 */
+    @Excel(name = "客户名称")
+    private String customerName;
 
     /**
      * 合同状态（动态计算，不再物理存储）
@@ -218,6 +230,14 @@ public class CmsContract extends BaseEntity {
 
     public BigDecimal getAmount() {
         return amount;
+    }
+
+    public void setActualAmount(BigDecimal actualAmount) {
+        this.actualAmount = actualAmount;
+    }
+
+    public BigDecimal getActualAmount() {
+        return actualAmount;
     }
 
     public void setPaymentCycle(String paymentCycle) {
@@ -332,6 +352,22 @@ public class CmsContract extends BaseEntity {
         return parentId;
     }
 
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
     public void setAuditStatus(String auditStatus) {
         this.auditStatus = auditStatus;
     }
@@ -419,6 +455,7 @@ public class CmsContract extends BaseEntity {
                 .append("contractCode", getContractCode())
                 .append("contractName", getContractName())
                 .append("contractType", getContractType())
+                .append("actualAmount", getActualAmount())
                 .append("legalPerson", getLegalPerson())
                 .append("contactPerson", getContactPerson())
                 .append("contactPhone", getContactPhone())
@@ -438,6 +475,7 @@ public class CmsContract extends BaseEntity {
                 .append("ownerName", getOwnerName())
                 .append("deptId", getDeptId())
                 .append("parentId", getParentId())
+                .append("customerId", getCustomerId())
                 .append("status(computed)", getStatus())
                 .append("auditStatus", getAuditStatus())
                 .append("delFlag", getDelFlag())

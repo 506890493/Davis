@@ -77,11 +77,6 @@
       </el-form-item>
     </el-form>
 
-    <el-tabs v-model="viewMode" @tab-click="handleTabClick">
-      <el-tab-pane label="所有合同" name="all"></el-tab-pane>
-      <el-tab-pane label="待审批合同" name="pending"></el-tab-pane>
-    </el-tabs>
-
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
@@ -127,6 +122,17 @@
           @click="handleExport"
           v-hasPermi="['system:contract:export']"
           >导出</el-button
+        >
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="info"
+          plain
+          icon="el-icon-view"
+          size="mini"
+          @click="goToDetail"
+          v-hasPermi="['system:contract:query']"
+          >详情</el-button
         >
       </el-col>
       <el-col :span="1.5">
@@ -197,8 +203,13 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="合同编号" align="center" prop="contractCode" />
+      <el-table-column label="合同编号" align="center" prop="contractCode">
+        <template slot-scope="scope">
+          <a @click="handleDetail(scope.row)" class="contract-link">{{ scope.row.contractCode }}</a>
+        </template>
+      </el-table-column>
       <el-table-column label="公司名称" align="center" prop="contractName" />
+      <el-table-column label="客户名称" align="center" prop="customerName" />
       <el-table-column
         label="开始日期"
         align="center"
@@ -281,8 +292,9 @@
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.auditStatus === '0'" type="warning">待审批</el-tag>
+          <el-tag v-else-if="scope.row.auditStatus === '2'" type="danger">已拒绝</el-tag>
           <dict-tag
-            v-else
+            v-else-if="scope.row.auditStatus === '1'"
             :options="dict.type.cms_contract_status"
             :value="scope.row.status"
           />
@@ -296,48 +308,30 @@
           />
         </template>
       </el-table-column>
-      <el-table-column
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-        :width="viewMode === 'pending' ? '200' : '150'"
-      >
+      
+      <!-- 待审批页面显示操作按钮 -->
+      <el-table-column v-if="isPendingPage" label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button
             size="mini"
             type="text"
             icon="el-icon-view"
             @click="handleDetail(scope.row)"
-            v-hasPermi="['system:contract:query']"
-            >详情</el-button
-          >
+          >详情</el-button>
           <el-button
-            v-if="viewMode !== 'pending' && isAdmin"
+            v-if="scope.row.auditStatus === '0' && isManager"
             size="mini"
             type="text"
-            icon="el-icon-s-promotion"
-            @click="handleDispatch(scope.row)"
-            v-hasPermi="['cms:task:dispatch']"
-            >派发任务</el-button
-          >
-          <template v-if="viewMode === 'pending'">
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-check"
-              @click="handleApprove(scope.row)"
-              v-hasPermi="['cms:contract:audit']"
-              >通过</el-button
-            >
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-close"
-              @click="handleReject(scope.row)"
-              v-hasPermi="['cms:contract:audit']"
-              >驳回</el-button
-            >
-          </template>
+            icon="el-icon-check"
+            @click="handleApprove(scope.row)"
+          >通过</el-button>
+          <el-button
+            v-if="scope.row.auditStatus === '0' && isManager"
+            size="mini"
+            type="text"
+            icon="el-icon-close"
+            @click="handleReject(scope.row)"
+          >不通过</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -507,6 +501,18 @@ export default {
     };
   },
   computed: {
+    isAdmin() {
+      const roles = this.$store.getters.roles || [];
+      return roles.includes("admin");
+    },
+    isManager() {
+      const roles = this.$store.getters.roles || [];
+      return roles.includes("admin") || roles.includes("manager");
+    },
+    isPendingPage() {
+      const path = this.$route.path;
+      return path.includes("/pending");
+    },
     showAmount() {
       const roles = this.$store.getters.roles || [];
       if (roles.includes("admin")) {
@@ -581,6 +587,27 @@ export default {
       if (!id) return;
       this.$router.push({ path: `/system/contract/detail/${id}` });
     },
+    handleApprove(row) {
+      this.$modal.confirm('确认通过该合同审批？').then(() => {
+        return auditContract({ contractId: row.contractId, auditStatus: '1' });
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("审批通过");
+      }).catch(() => {});
+    },
+    handleReject(row) {
+      this.$prompt('请输入驳回原因', '驳回合同', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /.+/,
+        inputErrorMessage: '请输入驳回原因'
+      }).then(({ value }) => {
+        return auditContract({ contractId: row.contractId, auditStatus: '2', remark: value });
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("已驳回");
+      }).catch(() => {});
+    },
     handleDelete(row) {
       const contractIds = row.contractId || this.ids;
       this.$modal
@@ -603,6 +630,13 @@ export default {
         `contract_${new Date().getTime()}.xlsx`
       );
     },
+    goToDetail() {
+      if (this.ids.length !== 1) {
+        this.$modal.msgError("请先选择一条记录");
+        return;
+      }
+      this.$router.push({ path: `/system/contract/detail/${this.ids[0]}` });
+    },
     handleTypeChange(val) {
       this.currentType = val;
       this.handleQuery();
@@ -612,9 +646,31 @@ export default {
     },
     syncTypeFromRoute(initial = false) {
       const name = this.$route.name;
+      const path = this.$route.path;
       if (name === this.accountingType || name === this.rentType) {
         this.currentType = name;
         this.queryParams.contractType = this.mapViewToDict(name);
+        this.queryParams.auditStatus = '1';
+        if (initial) {
+          this.queryParams.pageNum = 1;
+          this.getList();
+        } else {
+          this.handleQuery();
+        }
+      } else if (name === "Ledger" || path.includes("/pending") || path.includes("/ledger")) {
+        this.currentType = null;
+        this.queryParams.contractType = null;
+        this.queryParams.auditStatus = "0";
+        if (initial) {
+          this.queryParams.pageNum = 1;
+          this.getList();
+        } else {
+          this.handleQuery();
+        }
+      } else if (name === "Rejected" || path.includes("/rejected")) {
+        this.currentType = null;
+        this.queryParams.contractType = null;
+        this.queryParams.auditStatus = "2";
         if (initial) {
           this.queryParams.pageNum = 1;
           this.getList();
@@ -712,40 +768,19 @@ export default {
         }
       });
     },
-    handleTabClick(tab) {
-      this.viewMode = tab.name;
-      this.queryParams.auditStatus = this.viewMode === "pending" ? "0" : null;
-      this.handleQuery();
-    },
-    handleApprove(row) {
-      this.$modal
-        .confirm('是否确认通过合同"' + row.contractName + '"的审批？')
-        .then(() => {
-          return auditContract({
-            contractId: row.contractId,
-            auditStatus: "1",
-          });
-        })
-        .then(() => {
-          this.getList();
-          this.$modal.msgSuccess("审批通过");
-        })
-        .catch(() => {});
-    },
-    handleReject(row) {
-      this.rejectForm = {
-        contractId: row.contractId,
-        reason: "",
-      };
-      this.rejectDialogOpen = true;
-    },
-    submitReject() {
-      auditContract({ contractId: this.rejectForm.contractId, auditStatus: '2', remark: this.rejectForm.reason }).then(() => {
-        this.getList();
-        this.rejectDialogOpen = false;
-        this.$modal.msgSuccess("审批驳回");
-      });
-    },
   },
 };
 </script>
+
+<style scoped>
+.contract-link {
+  color: #409eff;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+}
+.contract-link:hover {
+  color: #66b1ff;
+  text-decoration: underline;
+}
+</style>
