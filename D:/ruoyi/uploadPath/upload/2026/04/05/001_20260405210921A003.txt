@@ -1,0 +1,260 @@
+查询历史状态错误
+
+<!doctype html><html lang="zh"><head><title>HTTP状态 500 - 内部服务器错误</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP状态 500 - 内部服务器错误</h1><hr class="line" /><p><b>类型</b> 异常报告</p><p><b>消息</b> Request processing failed; nested exception is java.lang.RuntimeException: java.sql.SQLSyntaxErrorException: ORA-00933: SQL 命令未正确结束</p><p><b>描述</b> 服务器遇到一个意外的情况，阻止它完成请求。</p><p><b>例外情况</b></p><pre>org.springframework.web.util.NestedServletException: Request processing failed; nested exception is java.lang.RuntimeException: java.sql.SQLSyntaxErrorException: ORA-00933: SQL 命令未正确结束
+
+    org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:982)
+    org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:872)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:652)
+    org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:846)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:733)
+    org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+    org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:197)
+    org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+    com.zznode.itms.common.listener.HttpOnlyFilter.doFilter(HttpOnlyFilter.java:31)
+    com.zznode.itms.common.interceptor.HttpServletFilter.doFilter(HttpServletFilter.java:36)
+    org.apache.catalina.filters.CorsFilter.handleNonCORS(CorsFilter.java:364)
+    org.apache.catalina.filters.CorsFilter.doFilter(CorsFilter.java:170)
+</pre><p><b>根本原因。</b></p><pre>java.lang.RuntimeException: java.sql.SQLSyntaxErrorException: ORA-00933: SQL 命令未正确结束
+
+    cn.ffcs.memory.Memory.query(Memory.java:97)
+    cn.ffcs.memory.Memory.query(Memory.java:76)
+    cn.ffcs.memory.Memory.query(Memory.java:67)
+    com.zznode.itms.business.iNetManage.dao.impl.INetRemoteOperationServiceDaoImpl.getHttpDownloadTestingInfo(INetRemoteOperationServiceDaoImpl.java:223)
+    com.zznode.itms.business.iNetManage.service.impl.INetRemoteOperationServiceImpl.getHttpDownloadTestingInfo(INetRemoteOperationServiceImpl.java:188)
+    com.zznode.itms.business.iNetManage.controller.INetRemoteOperationController.getHttpDownloadTestingInfo(INetRemoteOperationController.java:137)
+    sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    java.lang.reflect.Method.invoke(Method.java:498)
+    org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)
+    org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:133)
+    org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:97)
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:849)
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:760)
+    org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85)
+    org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:967)
+    org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:901)
+    org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:970)
+    org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:872)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:652)
+    org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:846)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:733)
+    org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+    org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:197)
+    org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+    com.zznode.itms.common.listener.HttpOnlyFilter.doFilter(HttpOnlyFilter.java:31)
+    com.zznode.itms.common.interceptor.HttpServletFilter.doFilter(HttpServletFilter.java:36)
+    org.apache.catalina.filters.CorsFilter.handleNonCORS(CorsFilter.java:364)
+    org.apache.catalina.filters.CorsFilter.doFilter(CorsFilter.java:170)
+</pre><p><b>根本原因。</b></p><pre>java.sql.SQLSyntaxErrorException: ORA-00933: SQL 命令未正确结束
+
+    oracle.jdbc.driver.SQLStateMapping.newSQLException(SQLStateMapping.java:91)
+    oracle.jdbc.driver.DatabaseError.newSQLException(DatabaseError.java:133)
+    oracle.jdbc.driver.DatabaseError.throwSqlException(DatabaseError.java:206)
+    oracle.jdbc.driver.T4CTTIoer.processError(T4CTTIoer.java:455)
+    oracle.jdbc.driver.T4CTTIoer.processError(T4CTTIoer.java:413)
+    oracle.jdbc.driver.T4C8Oall.receive(T4C8Oall.java:1034)
+    oracle.jdbc.driver.T4CPreparedStatement.doOall8(T4CPreparedStatement.java:194)
+    oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe(T4CPreparedStatement.java:791)
+    oracle.jdbc.driver.T4CPreparedStatement.executeMaybeDescribe(T4CPreparedStatement.java:866)
+    oracle.jdbc.driver.OracleStatement.doExecuteWithTimeout(OracleStatement.java:1186)
+    oracle.jdbc.driver.OraclePreparedStatement.executeInternal(OraclePreparedStatement.java:3387)
+    oracle.jdbc.driver.OraclePreparedStatement.executeQuery(OraclePreparedStatement.java:3431)
+    oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery(OraclePreparedStatementWrapper.java:1491)
+    com.alibaba.druid.filter.FilterChainImpl.preparedStatement_executeQuery(FilterChainImpl.java:2714)
+    com.alibaba.druid.filter.FilterEventAdapter.preparedStatement_executeQuery(FilterEventAdapter.java:465)
+    com.alibaba.druid.filter.FilterChainImpl.preparedStatement_executeQuery(FilterChainImpl.java:2711)
+    com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl.executeQuery(PreparedStatementProxyImpl.java:145)
+    com.alibaba.druid.pool.DruidPooledPreparedStatement.executeQuery(DruidPooledPreparedStatement.java:227)
+    cn.ffcs.memory.Memory.query(Memory.java:93)
+    cn.ffcs.memory.Memory.query(Memory.java:76)
+    cn.ffcs.memory.Memory.query(Memory.java:67)
+    com.zznode.itms.business.iNetManage.dao.impl.INetRemoteOperationServiceDaoImpl.getHttpDownloadTestingInfo(INetRemoteOperationServiceDaoImpl.java:223)
+    com.zznode.itms.business.iNetManage.service.impl.INetRemoteOperationServiceImpl.getHttpDownloadTestingInfo(INetRemoteOperationServiceImpl.java:188)
+    com.zznode.itms.business.iNetManage.controller.INetRemoteOperationController.getHttpDownloadTestingInfo(INetRemoteOperationController.java:137)
+    sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    java.lang.reflect.Method.invoke(Method.java:498)
+    org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)
+    org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:133)
+    org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:97)
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:849)
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:760)
+    org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85)
+    org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:967)
+    org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:901)
+    org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:970)
+    org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:872)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:652)
+    org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:846)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:733)
+    org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+    org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:197)
+    org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+    com.zznode.itms.common.listener.HttpOnlyFilter.doFilter(HttpOnlyFilter.java:31)
+    com.zznode.itms.common.interceptor.HttpServletFilter.doFilter(HttpServletFilter.java:36)
+    org.apache.catalina.filters.CorsFilter.handleNonCORS(CorsFilter.java:364)
+    org.apache.catalina.filters.CorsFilter.doFilter(CorsFilter.java:170)
+</pre><p><b>):注意</b> 主要问题的全部 stack 信息可以在 server logs 里查看</p><hr class="line" /><h3>Apache Tomcat/8.5.57</h3></body></html>
+-----------------------
+
+app.78af3f8a.js:1 TypeError: Cannot read property 'validate' of undefined
+    at a.queryApConfigInfo (chunk-487364f6.4479929c.js:1)
+    at ne (chunk-libs.77ba0be6.js:18)
+    at a.n (chunk-libs.77ba0be6.js:18)
+    at ne (chunk-libs.77ba0be6.js:18)
+    at a.t.$emit (chunk-libs.77ba0be6.js:18)
+    at a.handleClick (chunk-elementUI.02256baa.js:1)
+    at ne (chunk-libs.77ba0be6.js:18)
+    at HTMLButtonElement.n (chunk-libs.77ba0be6.js:18)
+    at HTMLButtonElement.Zi.o._wrapper (chunk-libs.77ba0be6.js:18) "v-on handler"
+
+
+--------------------智能组网终端远程操作WIFI参数同步  点击radio-----------------
+app.78af3f8a.js:1 ReferenceError: apConfigInfoJsonArr is not defined
+    at addTab_001 (chunk-487364f6.4479929c.js:1)
+    at click (chunk-487364f6.4479929c.js:1)
+    at ne (chunk-libs.77ba0be6.js:18)
+    at a.n (chunk-libs.77ba0be6.js:18)
+    at ne (chunk-libs.77ba0be6.js:18)
+    at a.t.$emit (chunk-libs.77ba0be6.js:18)
+    at a.handleClick (chunk-elementUI.02256baa.js:1)
+    at ne (chunk-libs.77ba0be6.js:18)
+    at HTMLButtonElement.n (chunk-libs.77ba0be6.js:18)
+    at HTMLButtonElement.Zi.o._wrapper (chunk-libs.77ba0be6.js:18) "v-on handler"
+(anonymous) @ app.78af3f8a.js:1
+(anonymous) @ chunk-libs.77ba0be6.js:18
+ue @ chunk-libs.77ba0be6.js:18
+Promise.then (async)
+oe @ chunk-libs.77ba0be6.js:18
+de @ chunk-libs.77ba0be6.js:18
+tr @ chunk-libs.77ba0be6.js:18
+nr.update @ chunk-libs.77ba0be6.js:18
+vt.notify @ chunk-libs.77ba0be6.js:18
+(anonymous) @ chunk-libs.77ba0be6.js:18
+addTab_001 @ chunk-487364f6.4479929c.js:1
+click @ chunk-487364f6.4479929c.js:1
+ne @ chunk-libs.77ba0be6.js:18
+n @ chunk-libs.77ba0be6.js:18
+ne @ chunk-libs.77ba0be6.js:18
+t.$emit @ chunk-libs.77ba0be6.js:18
+handleClick @ chunk-elementUI.02256baa.js:1
+ne @ chunk-libs.77ba0be6.js:18
+n @ chunk-libs.77ba0be6.js:18
+Zi.o._wrapper @ chunk-libs.77ba0be6.js:18
+app.78af3f8a.js:1 TypeError: Cannot read property 'Radio' of undefined
+    at chunk-487364f6.4479929c.js:1
+    at a.Ne [as _l] (chunk-libs.77ba0be6.js:18)
+    at a.Y (chunk-487364f6.4479929c.js:1)
+    at a.t._render (chunk-libs.77ba0be6.js:18)
+    at a.r (chunk-libs.77ba0be6.js:18)
+    at nr.get (chunk-libs.77ba0be6.js:18)
+    at nr.run (chunk-libs.77ba0be6.js:18)
+    at Yn (chunk-libs.77ba0be6.js:18)
+    at Array.<anonymous> (chunk-libs.77ba0be6.js:18)
+    at ue (chunk-libs.77ba0be6.js:18) "render"
+
+
+---------WiFi参数同步  WIFI开关配置 智能组网终端远程操作设备信息周期上报配置 工作模式配置 回显有问题---------
+------------------FTTR----------------
+chunk-1e8f914e.31c7b804.js:1 Uncaught (in promise) ReferenceError: hasGlobalOptimizationSupport is not defined
+    at chunk-1e8f914e.31c7b804.js:1
+--------------------http download testing------
+<!doctype html><html lang="zh"><head><title>HTTP状态 500 - 内部服务器错误</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP状态 500 - 内部服务器错误</h1><hr class="line" /><p><b>类型</b> 异常报告</p><p><b>消息</b> Request processing failed; nested exception is java.lang.RuntimeException: java.sql.SQLException: 无效的列索引</p><p><b>描述</b> 服务器遇到一个意外的情况，阻止它完成请求。</p><p><b>例外情况</b></p><pre>org.springframework.web.util.NestedServletException: Request processing failed; nested exception is java.lang.RuntimeException: java.sql.SQLException: 无效的列索引
+    org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:982)
+    org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:872)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:652)
+    org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:846)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:733)
+    org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+    org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:197)
+    org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+    com.zznode.itms.common.listener.HttpOnlyFilter.doFilter(HttpOnlyFilter.java:31)
+    com.zznode.itms.common.interceptor.HttpServletFilter.doFilter(HttpServletFilter.java:36)
+    org.apache.catalina.filters.CorsFilter.handleNonCORS(CorsFilter.java:364)
+    org.apache.catalina.filters.CorsFilter.doFilter(CorsFilter.java:170)
+</pre><p><b>根本原因。</b></p><pre>java.lang.RuntimeException: java.sql.SQLException: 无效的列索引
+    cn.ffcs.memory.Memory.fillStatement(Memory.java:520)
+    cn.ffcs.memory.Memory.update(Memory.java:123)
+    cn.ffcs.memory.Memory.update(Memory.java:109)
+    com.zznode.itms.business.iNetManage.common.OperationUtil.afterProc(OperationUtil.java:319)
+    com.zznode.itms.business.iNetManage.common.OperationUtil.doOperation(OperationUtil.java:254)
+    com.zznode.itms.business.iNetManage.service.impl.INetRemoteOperationServiceImpl.submitOperation(INetRemoteOperationServiceImpl.java:69)
+    com.zznode.itms.business.iNetManage.controller.INetRemoteOperationController.submitOperation(INetRemoteOperationController.java:82)
+    sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    java.lang.reflect.Method.invoke(Method.java:498)
+    org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)
+    org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:133)
+    org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:97)
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:849)
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:760)
+    org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85)
+    org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:967)
+    org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:901)
+    org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:970)
+    org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:872)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:652)
+    org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:846)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:733)
+    org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+    org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:197)
+    org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+    com.zznode.itms.common.listener.HttpOnlyFilter.doFilter(HttpOnlyFilter.java:31)
+    com.zznode.itms.common.interceptor.HttpServletFilter.doFilter(HttpServletFilter.java:36)
+    org.apache.catalina.filters.CorsFilter.handleNonCORS(CorsFilter.java:364)
+    org.apache.catalina.filters.CorsFilter.doFilter(CorsFilter.java:170)
+</pre><p><b>根本原因。</b></p><pre>java.sql.SQLException: 无效的列索引
+    oracle.jdbc.driver.SQLStateMapping.newSQLException(SQLStateMapping.java:70)
+    oracle.jdbc.driver.DatabaseError.newSQLException(DatabaseError.java:133)
+    oracle.jdbc.driver.DatabaseError.throwSqlException(DatabaseError.java:199)
+    oracle.jdbc.driver.DatabaseError.throwSqlException(DatabaseError.java:263)
+    oracle.jdbc.driver.DatabaseError.throwSqlException(DatabaseError.java:271)
+    oracle.jdbc.driver.DatabaseError.throwSqlException(DatabaseError.java:445)
+    oracle.jdbc.driver.OraclePreparedStatement.setStringInternal(OraclePreparedStatement.java:5013)
+    oracle.jdbc.driver.OraclePreparedStatement.setObjectCritical(OraclePreparedStatement.java:7577)
+    oracle.jdbc.driver.OraclePreparedStatement.setObjectInternal(OraclePreparedStatement.java:7517)
+    oracle.jdbc.driver.OraclePreparedStatement.setObjectInternal(OraclePreparedStatement.java:8174)
+    oracle.jdbc.driver.OraclePreparedStatement.setObject(OraclePreparedStatement.java:8155)
+    oracle.jdbc.driver.OraclePreparedStatementWrapper.setObject(OraclePreparedStatementWrapper.java:230)
+    com.alibaba.druid.filter.FilterChainImpl.preparedStatement_setObject(FilterChainImpl.java:2923)
+    com.alibaba.druid.filter.FilterAdapter.preparedStatement_setObject(FilterAdapter.java:1298)
+    com.alibaba.druid.filter.FilterChainImpl.preparedStatement_setObject(FilterChainImpl.java:2920)
+    com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl.setObject(PreparedStatementProxyImpl.java:411)
+    com.alibaba.druid.pool.DruidPooledPreparedStatement.setObject(DruidPooledPreparedStatement.java:476)
+    cn.ffcs.memory.Memory.fillStatement(Memory.java:516)
+    cn.ffcs.memory.Memory.update(Memory.java:123)
+    cn.ffcs.memory.Memory.update(Memory.java:109)
+    com.zznode.itms.business.iNetManage.common.OperationUtil.afterProc(OperationUtil.java:319)
+    com.zznode.itms.business.iNetManage.common.OperationUtil.doOperation(OperationUtil.java:254)
+    com.zznode.itms.business.iNetManage.service.impl.INetRemoteOperationServiceImpl.submitOperation(INetRemoteOperationServiceImpl.java:69)
+    com.zznode.itms.business.iNetManage.controller.INetRemoteOperationController.submitOperation(INetRemoteOperationController.java:82)
+    sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    java.lang.reflect.Method.invoke(Method.java:498)
+    org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)
+    org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:133)
+    org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:97)
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:849)
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:760)
+    org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85)
+    org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:967)
+    org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:901)
+    org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:970)
+    org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:872)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:652)
+    org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:846)
+    javax.servlet.http.HttpServlet.service(HttpServlet.java:733)
+    org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+    org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:197)
+    org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+    com.zznode.itms.common.listener.HttpOnlyFilter.doFilter(HttpOnlyFilter.java:31)
+    com.zznode.itms.common.interceptor.HttpServletFilter.doFilter(HttpServletFilter.java:36)
+    org.apache.catalina.filters.CorsFilter.handleNonCORS(CorsFilter.java:364)
+    org.apache.catalina.filters.CorsFilter.doFilter(CorsFilter.java:170)
+</pre><p><b>):注意</b> 主要问题的全部 stack 信息可以在 server logs 里查看</p><hr class="line" /><h3>Apache Tomcat/8.5.57</h3></body></html>
+-----------智能组网终端远程操作设备信息周期上报配置查询---------
+查询成功，但弹出错误框
