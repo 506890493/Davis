@@ -107,6 +107,8 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         }
 
         cmsTask.setCreateTime(DateUtils.getNowDate());
+        cmsTask.setCreateBy(SecurityUtils.getUsername());
+        cmsTask.setUpdateBy(SecurityUtils.getUsername());
         
         // 更新合同状态为催收中
         CmsContract contract = cmsContractService.selectCmsContractByContractId(cmsTask.getContractId());
@@ -144,6 +146,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         String oldStatus = existingTask != null ? existingTask.getStatus() : null;
         
         cmsTask.setUpdateTime(DateUtils.getNowDate());
+        cmsTask.setUpdateBy(SecurityUtils.getUsername());
         
         // 当任务状态更新为进行中(1)时，同步更新原合同的催收状态
         if ("1".equals(cmsTask.getStatus())) {
@@ -317,6 +320,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setAfterAmount(task.getAfterAmount());
         updateTask.setAttachment(task.getAttachment());
         updateTask.setUpdateTime(DateUtils.getNowDate());
+        updateTask.setUpdateBy(SecurityUtils.getUsername());
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
             recordTaskLog(task.getTaskId(), "PRICE_SUBMIT", oldStatus, "2", 
@@ -357,6 +361,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setDeadline(task.getDeadline());
         updateTask.setStatus("0"); // 0待处理
         updateTask.setUpdateTime(DateUtils.getNowDate());
+        updateTask.setUpdateBy(SecurityUtils.getUsername());
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
             recordTaskLog(task.getTaskId(), "PRICE_APPROVE", oldStatus, "0", 
@@ -387,6 +392,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setStatus("0"); // 退回给会计，可重新协商
         updateTask.setRemark(task.getRemark());
         updateTask.setUpdateTime(DateUtils.getNowDate());
+        updateTask.setUpdateBy(SecurityUtils.getUsername());
         
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
@@ -421,6 +427,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setTaskType("3"); // 3终止
         updateTask.setRemark(task.getRemark());
         updateTask.setUpdateTime(DateUtils.getNowDate());
+        updateTask.setUpdateBy(SecurityUtils.getUsername());
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
             recordTaskLog(task.getTaskId(), "3", oldStatus, "2", "发起终止合作请求: " + task.getRemark());
@@ -449,6 +456,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(taskId);
         updateTask.setUpdateTime(DateUtils.getNowDate());
+        updateTask.setUpdateBy(SecurityUtils.getUsername());
 
         if (approved) {
             updateTask.setStatus("4"); // 4已完成
@@ -496,6 +504,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setStatus("4"); // 4已完成
         updateTask.setRemark(task.getRemark());
         updateTask.setUpdateTime(DateUtils.getNowDate());
+        updateTask.setUpdateBy(SecurityUtils.getUsername());
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
             recordTaskLog(task.getTaskId(), "2", oldStatus, "4", "完成续签: " + task.getRemark());
@@ -526,6 +535,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setReceiveRemark(task.getReceiveRemark());
         updateTask.setStatus("4"); // 4已完成
         updateTask.setUpdateTime(DateUtils.getNowDate());
+        updateTask.setUpdateBy(SecurityUtils.getUsername());
         
         int result = cmsTaskMapper.updateCmsTask(updateTask);
 

@@ -425,9 +425,6 @@
         <el-form-item label="原金额" v-if="showReturnAmount">
           <el-input v-model="returnForm.originalAmount" disabled />
         </el-form-item>
-        <el-form-item label="现价" prop="currentAmount" v-if="showReturnAmount">
-          <el-input-number v-model="returnForm.currentAmount" :min="0" :precision="2" :step="100" @change="calcAdjustment" />
-        </el-form-item>
         <el-form-item label="调整金额" prop="adjustAmount" v-if="showReturnAmount">
           <el-input-number v-model="returnForm.adjustAmount" :min="-999999" :precision="2" :step="100" @change="calcAfterAmount" />
         </el-form-item>
@@ -625,6 +622,7 @@ import {
 } from "@/api/system/task";
 import { getContract } from "@/api/system/contract";
 import { getToken } from "@/utils/auth";
+import axios from "axios";
 
 export default {
   name: "Task",
@@ -716,7 +714,7 @@ export default {
       },
       upload: {
         headers: { Authorization: "Bearer " + getToken() },
-        url: process.env.VUE_APP_BASE_API + "/common/upload",
+        url: process.env.VUE_APP_BASE_API + "/common/uploads",
         fileList: [],
       },
     };
@@ -858,22 +856,15 @@ return this.$store.getters.roles.includes('accountant');
       this.returnForm = {
         taskId: row.taskId,
         originalAmount: row.originalAmount,
-        currentAmount: row.currentAmount || row.originalAmount,
         adjustAmount: 0,
-        afterAmount: row.currentAmount || row.originalAmount,
+        afterAmount: row.originalAmount,
         remark: null
       };
       this.returnFileList = [];
       this.returnOpen = true;
     },
-    calcAdjustment(value) {
-      if (this.returnForm.originalAmount !== undefined) {
-        this.returnForm.adjustAmount = (this.returnForm.currentAmount || 0) - this.returnForm.originalAmount;
-        this.returnForm.afterAmount = this.returnForm.currentAmount;
-      }
-    },
-    calcAfterAmount(value) {
-      this.returnForm.afterAmount = (this.returnForm.currentAmount || 0) + (this.returnForm.adjustAmount || 0);
+    calcAfterAmount() {
+      this.returnForm.afterAmount = (this.returnForm.originalAmount || 0) + (this.returnForm.adjustAmount || 0);
     },
     handleReturnFileChange(file, fileList) {
       this.returnFileList = fileList.slice(-1);
@@ -881,20 +872,35 @@ return this.$store.getters.roles.includes('accountant');
     async submitReturn() {
       if (this.returnFileList.length > 0 && this.returnFileList[0].raw) {
         const formData = new FormData()
-        formData.append('file', this.returnFileList[0].raw)
+        formData.append('files', this.returnFileList[0].raw)
         try {
-          const res = await this.$http.post(this.upload.url, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+          const response = await axios({
+            method: 'post',
+            url: this.upload.url,
+            headers: {
+              ...this.upload.headers,
+              'Content-Type': 'multipart/form-data'
+            },
+            data: formData
           })
+          const res = response.data
           if (res.code === 200) {
-            this.returnForm.attachment = res.url || res.fileName
+            const fileNames = res.fileNames || res.fileName || ''
+            this.returnForm.attachment = fileNames.split(',')[0]
+            this.$modal.msgSuccess('附件上传成功')
+          } else {
+            this.$modal.msgError(res.msg || '附件上传失败')
+            return
           }
         } catch (e) {
-          this.$modal.msgError('附件上传失败')
+          console.error('Upload error:', e)
+          this.$modal.msgError('附件上传失败: ' + (e.message || '未知错误'))
           return
         }
       }
       returnToAdmin(this.returnForm).then(response => {
+        console.log('returnToAdmin response:', response)
+        console.log('returnForm.attachment:', this.returnForm.attachment)
         this.$modal.msgSuccess("退回成功");
         this.returnOpen = false;
         this.getList();

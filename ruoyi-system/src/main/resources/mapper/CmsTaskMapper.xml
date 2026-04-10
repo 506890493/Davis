@@ -14,6 +14,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="priority"    column="priority"    />
         <result property="originalAmount"    column="original_amount"    />
         <result property="currentAmount"    column="current_amount"    />
+        <result property="adjustAmount"    column="adjust_amount"    />
+        <result property="afterAmount"    column="after_amount"    />
+        <result property="attachment"    column="attachment"    />
         <result property="actualAmount"    column="actual_amount"    />
         <result property="receiveRemark"    column="receive_remark"    />
         <result property="assignedTo"    column="assigned_to"    />
@@ -29,7 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCmsTaskVo">
-        select t.task_id, t.task_title, t.contract_id, t.source_contract_id, t.target_contract_id, t.task_type, t.priority, t.original_amount, t.current_amount, t.actual_amount, t.receive_remark, t.assigned_to, t.deadline, t.status, t.del_flag, t.create_by, t.create_time, t.update_by, t.update_time, t.remark, u.nick_name as assigned_to_name
+        select t.task_id, t.task_title, t.contract_id, t.source_contract_id, t.target_contract_id, t.task_type, t.priority, t.original_amount, t.current_amount, t.adjust_amount, t.after_amount, t.attachment, t.actual_amount, t.receive_remark, t.assigned_to, t.deadline, t.status, t.del_flag, t.create_by, t.create_time, t.update_by, t.update_time, t.remark, u.nick_name as assigned_to_name
         from cms_task t
         left join sys_user u on t.assigned_to = u.user_id
     </sql>
@@ -117,6 +120,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="priority != null and priority != ''">priority = #{priority},</if>
             <if test="originalAmount != null">original_amount = #{originalAmount},</if>
             <if test="currentAmount != null">current_amount = #{currentAmount},</if>
+            <if test="adjustAmount != null">adjust_amount = #{adjustAmount},</if>
+            <if test="afterAmount != null">after_amount = #{afterAmount},</if>
+            <if test="attachment != null">attachment = #{attachment},</if>
             <if test="actualAmount != null">actual_amount = #{actualAmount},</if>
             <if test="receiveRemark != null">receive_remark = #{receiveRemark},</if>
             <if test="assignedTo != null">assigned_to = #{assignedTo},</if>

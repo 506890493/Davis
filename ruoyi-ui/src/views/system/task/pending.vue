@@ -78,13 +78,17 @@
     <el-dialog title="任务详情" :visible.sync="detailDialogVisible" width="600px" append-to-body>
       <el-form :model="detailData" label-width="120px">
         <el-form-item label="任务标题">{{ detailData.taskTitle }}</el-form-item>
-        <el-form-item label="任务类型">{{ detailData.taskType }}</el-form-item>
+        <el-form-item label="任务类型">{{ detailData.taskType === '1' ? '催收' : detailData.taskType === '3' ? '终止' : detailData.taskType }}</el-form-item>
         <el-form-item label="原金额">{{ detailData.originalAmount }}</el-form-item>
-        <el-form-item label="协商金额">{{ detailData.currentAmount || '-' }}</el-form-item>
+        <el-form-item label="调整金额" v-if="detailData.adjustAmount">{{ detailData.adjustAmount }}</el-form-item>
+        <el-form-item label="调整后价格" v-if="detailData.afterAmount">{{ detailData.afterAmount }}</el-form-item>
         <el-form-item label="执行人">{{ detailData.assignedToName }}</el-form-item>
         <el-form-item label="截止时间">{{ detailData.deadline }}</el-form-item>
-        <el-form-item label="任务状态">{{ detailData.status }}</el-form-item>
-        <el-form-item label="备注">{{ detailData.remark }}</el-form-item>
+        <el-form-item label="任务状态">{{ detailData.status === '0' ? '待处理' : detailData.status === '1' ? '进行中' : detailData.status === '2' ? '待审批' : detailData.status === '3' ? '已退回' : detailData.status === '4' ? '已完成' : detailData.status }}</el-form-item>
+        <el-form-item label="退回原因" v-if="detailData.remark">{{ detailData.remark }}</el-form-item>
+        <el-form-item label="附件" v-if="detailData.attachment">
+          <a :href="getAttachmentUrl(detailData.attachment)" target="_blank" class="attachment-link">查看附件</a>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="detailDialogVisible = false">关 闭</el-button>
@@ -204,6 +208,14 @@ export default {
     cancelReject() {
       this.rejectDialogVisible = false;
       this.rejectForm = { taskId: undefined, taskType: undefined, reason: '' };
+    },
+    getAttachmentUrl(url) {
+      if (!url) return '';
+      if (url.startsWith('http')) return url;
+      if (url.startsWith('/profile/')) {
+        return 'http://localhost:8080' + url;
+      }
+      return process.env.VUE_APP_BASE_API + url;
     }
   }
 };
