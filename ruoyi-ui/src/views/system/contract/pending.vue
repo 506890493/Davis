@@ -41,9 +41,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="会计" prop="ownerId">
+      <el-form-item label="会计" prop="ownerName">
         <el-input
-          v-model="queryParams.ownerId"
+          v-model="queryParams.ownerName"
           placeholder="请输入会计"
           clearable
           @keyup.enter.native="handleQuery"
@@ -468,7 +468,7 @@ export default {
         contractType: null,
         contactPerson: null,
         contactPhone: null,
-        ownerId: null,
+        ownerName: null,
         reminderStatus: null,
         auditStatus: null,
       },
@@ -498,6 +498,7 @@ export default {
       rejectForm: {
         reason: "",
       },
+      currentRejectRow: null,
     };
   },
   computed: {
@@ -587,17 +588,9 @@ export default {
       }).catch(() => {});
     },
     handleReject(row) {
-      this.$prompt('请输入驳回原因', '驳回合同', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /.+/,
-        inputErrorMessage: '请输入驳回原因'
-      }).then(({ value }) => {
-        return auditContract({ contractId: row.contractId, auditStatus: '2', remark: value });
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("已驳回");
-      }).catch(() => {});
+      this.currentRejectRow = row;
+      this.rejectForm.reason = "";
+      this.rejectDialogOpen = true;
     },
     handleDelete(row) {
       const contractIds = row.contractId || this.ids;
@@ -726,6 +719,24 @@ export default {
             this.dispatchOpen = false;
           });
         }
+      });
+    },
+    submitReject() {
+      if (!this.rejectForm.reason) {
+        this.$modal.msgError("请输入驳回原因");
+        return;
+      }
+      const contractId = this.currentRejectRow?.contractId;
+      if (!contractId) {
+        this.$modal.msgError("无效的合同");
+        return;
+      }
+      auditContract({ contractId: contractId, auditStatus: '2', remark: this.rejectForm.reason }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("已驳回");
+        this.rejectDialogOpen = false;
+        this.rejectForm.reason = "";
+        this.currentRejectRow = null;
       });
     },
   },

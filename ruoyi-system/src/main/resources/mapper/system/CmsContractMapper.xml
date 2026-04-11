@@ -89,6 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="isRented != null  and isRented != ''"> and c.is_rented = #{isRented}</if>
             <if test="profit != null "> and c.profit = #{profit}</if>
             <if test="ownerId != null "> and c.owner_id = #{ownerId}</if>
+            <if test="ownerName != null and ownerName != ''"> and u.nick_name like concat('%', #{ownerName}, '%')</if>
             <if test="deptId != null "> and c.dept_id = #{deptId}</if>
             <if test="parentId != null "> and c.parent_id = #{parentId}</if>
             <if test="customerId != null "> and c.customer_id = #{customerId}</if>

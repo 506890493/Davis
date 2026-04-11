@@ -100,6 +100,25 @@ services:
       redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.20.0.16 --cluster-announce-port 6379 --cluster-announce-bus-port 16379
 
 
+  # 启动一个MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: davis-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: davis-backend
+      MYSQL_USER: davis
+      MYSQL_PASSWORD: davis123
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.20
+
+
 #services:
   dbhub:
     image: bytebase/dbhub:latest
@@ -125,5 +144,8 @@ services:
 #    environment:
 #      POSTGRES_PASSWORD: password
 #      POSTGRES_DB: dbname
+
+#初始化redis 集群
+#  docker exec -it redis-1 redis-cli --cluster create 172.20.0.11:6379 172.20.0.12:6379 172.20.0.13:6379 172.20.0.14:6379 172.20.0.15:6379 172.20.0.16:6379 --cluster-replicas 1
 
 

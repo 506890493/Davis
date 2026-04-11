@@ -6,12 +6,12 @@
     <el-drawer title="通知中心" :visible.sync="showDrawer" direction="rtl" size="400px" append-to-body>
       <div class="notification-list">
         <el-empty v-if="notifications.length === 0" description="暂无通知"></el-empty>
-        <div v-for="item in notifications" :key="item.noticeId"
-             class="notification-item"
-             :class="{ unread: item.readStatus === '0' }"
-             @click="handleClick(item)">
-          <div class="notification-title">{{ item.noticeTitle }}</div>
-          <div class="notification-content">{{ item.noticeContent }}</div>
+<div v-for="item in notifications" :key="item.notificationId"
+              class="notification-item"
+              :class="{ unread: item.isRead === '0' }"
+              @click="handleClick(item)">
+          <div class="notification-title">{{ item.title }}</div>
+          <div class="notification-content">{{ item.content }}</div>
           <div class="notification-time">{{ parseTime(item.createTime) }}</div>
         </div>
       </div>
@@ -65,9 +65,9 @@ export default {
       })
     },
     handleClick(item) {
-      if (item.readStatus === '0') {
-        markRead(item.noticeId).then(() => {
-          this.$set(item, 'readStatus', '1')
+      if (item.isRead === '0') {
+        markRead(item.notificationId).then(() => {
+          this.$set(item, 'isRead', '1')
           this.fetchUnreadCount()
         })
       }
@@ -77,7 +77,7 @@ export default {
     handleMarkAllRead() {
       markAllRead().then(() => {
         this.notifications.forEach(item => {
-          this.$set(item, 'readStatus', '1')
+          this.$set(item, 'isRead', '1')
         })
         this.unreadCount = 0
         this.$message.success('已全部标为已读')

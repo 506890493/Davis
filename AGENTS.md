@@ -3,16 +3,16 @@
 This document provides guidance for AI coding agents working in this codebase.
 
 ## Project Overview
-**Davis** - a RuoYi-Vue fork for accounting/rental contract management.
-- **Backend**: Java 8, Spring Boot 2.5.15, Spring Security 5.7, MyBatis, Redis, JWT
-- **Frontend**: Vue.js 2.6.12, Element UI 2.15, Vuex 3.6, Axios, Sass
+**Davis** - a RuoYi-Vue fork for accounting/rental contract management (Chinese: 达维斯管理系统).
+- **Backend**: Java 1.8, Spring Boot 2.5.15, Spring Security 5.7, MyBatis, Redis, JWT
+- **Frontend**: Vue.js 2.6.12, Element UI 2.15.14, Vuex 3.6, Axios 0.28
 - **Database**: MySQL with Druid connection pool
 
 ## Build & Run Commands
 
 ### Backend (Maven)
 ```bash
-# Full build (skip tests - no test suite configured)
+# Full build (skip tests - no test framework configured)
 mvn clean package -Dmaven.test.skip=true
 
 # Build specific module with dependencies
@@ -20,16 +20,26 @@ mvn clean package -Dmaven.test.skip=true -pl ruoyi-admin -am
 
 # Run application
 java -jar ruoyi-admin/target/ruoyi-admin.jar
+
+# Or run directly from IDE
+# Run class: com.ruoyi.RuoYiApplication in ruoyi-admin
 ```
 
 ### Frontend (ruoyi-ui)
 ```bash
 cd ruoyi-ui
 npm install
-npm run dev          # Dev server (port 80, proxies to localhost:8080)
-npm run build:prod   # Production build
-npm run build:stage  # Staging build
+npm run dev          # Dev server: http://localhost:80, proxies to localhost:8080
+npm run build:prod  # Production build to dist/
+npm run build:stage # Staging build
 ```
+
+### Environment Variables
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `port` or `npm_config_port` | Dev server port | 80 |
+| `VUE_APP_TITLE` | Browser tab title | 达维斯管理系统 |
+| `VUE_APP_BASE_API` | API prefix | `/dev-api` |
 
 ### Testing
 **No test framework configured.** No JUnit, Mockito, Jest, or other testing dependencies exist.
@@ -37,13 +47,14 @@ npm run build:stage  # Staging build
 ## Project Structure
 ```
 ruoyi-admin/       # Main entry point, controllers, configuration
-ruoyi-system/      # Core business logic, entities, services, mappers
+ruoyi-system/      # Core business logic, entities, services, mappers (CMS logic here)
 ruoyi-framework/   # Framework config (Security, Web, MyBatis)
 ruoyi-common/      # Shared utilities, annotations, exceptions
-ruoyi-quartz/      # Scheduled tasks module
+ruoyi-quartz/       # Scheduled tasks module
 ruoyi-generator/   # Code generator module
 ruoyi-ui/          # Vue.js 2 frontend
 ```
+- **SQL Scripts**: `sql/` (davis.sql for CMS schema, ruoyi.sql for base schema)
 
 ## Backend Java Code Style
 
@@ -88,12 +99,6 @@ public class [Entity]Controller extends BaseController {
 | Insert | `insert[Entity]` |
 | Update | `update[Entity]` |
 
-### Import Organization (in order)
-1. `static` imports
-2. `org.apache.*` / `org.springframework.*`
-3. `com.ruoyi.*`
-4. `javax.*` / `java.*`
-
 ### Javadoc Required
 ```java
 /**
@@ -134,7 +139,7 @@ export default {
 ```
 
 ### Formatting
-- **Indentation**: 2 spaces (Vue uses 2-space indentation, not 4)
+- **Indentation**: 2 spaces
 - **Quotes**: single quotes for JS strings
 - **Line endings**: LF
 - **Encoding**: UTF-8

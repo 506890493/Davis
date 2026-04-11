@@ -41,9 +41,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="会计" prop="ownerId">
+      <el-form-item label="会计" prop="ownerName">
         <el-input
-          v-model="queryParams.ownerId"
+          v-model="queryParams.ownerName"
           placeholder="请输入会计"
           clearable
           @keyup.enter.native="handleQuery"
@@ -468,7 +468,7 @@ export default {
         contractType: null,
         contactPerson: null,
         contactPhone: null,
-        ownerId: null,
+        ownerName: null,
         reminderStatus: null,
         auditStatus: null,
       },
