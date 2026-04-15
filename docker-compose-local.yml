@@ -1,0 +1,151 @@
+version: '3.8'
+
+networks:
+  redis-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+services:
+  redis-1:
+    image: redis:7.0
+    container_name: redis-1
+    restart: always
+    ports:
+      - "7001:6379"
+      - "17001:16379"
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.11
+    volumes:
+      - ./data/7001:/data
+    # 关键修改：cluster-announce-ip 必须是节点在网络中能被其他节点访问的 IP
+    command: >
+      redis-server  --cluster-enabled yes  --cluster-config-file nodes.conf  --cluster-node-timeout 5000  --appendonly yes  --cluster-announce-ip 172.20.0.11 --cluster-announce-port 6379 --cluster-announce-bus-port 16379
+
+  redis-2:
+    image: redis:7.0
+    container_name: redis-2
+    restart: always
+    ports:
+      - "7002:6379"
+      - "17002:16379"
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.12
+    volumes:
+      - ./data/7002:/data
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.20.0.12 --cluster-announce-port 6379 --cluster-announce-bus-port 16379
+
+  redis-3:
+    image: redis:7.0
+    container_name: redis-3
+    restart: always
+    ports:
+      - "7003:6379"
+      - "17003:16379"
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.13
+    volumes:
+      - ./data/7003:/data
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.20.0.13 --cluster-announce-port 6379 --cluster-announce-bus-port 16379
+
+  redis-4:
+    image: redis:7.0
+    container_name: redis-4
+    restart: always
+    ports:
+      - "7004:6379"
+      - "17004:16379"
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.14
+    volumes:
+      - ./data/7004:/data
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.20.0.14 --cluster-announce-port 6379 --cluster-announce-bus-port 16379
+
+  redis-5:
+    image: redis:7.0
+    container_name: redis-5
+    restart: always
+    ports:
+      - "7005:6379"
+      - "17005:16379"
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.15
+    volumes:
+      - ./data/7005:/data
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.20.0.15 --cluster-announce-port 6379 --cluster-announce-bus-port 16379
+
+  redis-6:
+    image: redis:7.0
+    container_name: redis-6
+    restart: always
+    ports:
+      - "7006:6379"
+      - "17006:16379"
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.16
+    volumes:
+      - ./data/7006:/data
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.20.0.16 --cluster-announce-port 6379 --cluster-announce-bus-port 16379
+
+
+  # 启动一个MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: davis-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: davis-backend
+      MYSQL_USER: davis
+      MYSQL_PASSWORD: davis123
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.20
+
+
+#services:
+  dbhub:
+    image: bytebase/dbhub:latest
+    container_name: dbhub
+    ports:
+      - "8090:8090"
+    environment:
+      - DBHUB_LOG_LEVEL=info
+    command:
+      - --transport
+      - http
+      - --port
+      - "8090"
+      - --dsn
+#      - "postgres://user:password@database:5432/davis-backend"  #这里是数据库连接， 按自己的数据库配置
+      - 'mysql://root:123456@host.docker.internal:3306/davis-backend'  #这里是配置连接到宿主机3306的mysql示例
+#    depends_on:
+#      - database
+
+  #这里是启动一个数据库，如果已经有数据库，这里就不要了
+#  database:
+#    image: postgres:15-alpine
+#    environment:
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_DB: dbname
+
+#初始化redis 集群
+#  docker exec -it redis-1 redis-cli --cluster create 172.20.0.11:6379 172.20.0.12:6379 172.20.0.13:6379 172.20.0.14:6379 172.20.0.15:6379 172.20.0.16:6379 --cluster-replicas 1
+
+

@@ -1,0 +1,13 @@
+id: generate-pending-contract-after-task-complete
+title: 会计完成任务后生成待审批合同
+status: ready
+artifacts:
+  - id: proposal
+    path: proposal.md
+    status: ready
+  - id: design
+    path: design.md
+    status: ready
+  - id: tasks
+    path: tasks.md
+    status: ready
