@@ -1,7 +1,7 @@
 # ==========================================
 # 阶段 1：构建阶段 (在 GitHub 云端执行)
 # ==========================================
-FROM maven:3.8.5-openjdk-8 AS builder
+FROM maven:3.8-eclipse-temurin-8 AS builder
 WORKDIR /build
 
 # RuoYi 是多模块项目，直接将整个项目源码复制进来
@@ -14,7 +14,7 @@ RUN mvn clean package -DskipTests
 # 阶段 2：运行阶段 (部署到你腾讯云的极简镜像)
 # ==========================================
 # 使用 slim 版本而不是 alpine，避免 RuoYi 图形验证码因缺少字体库而报错
-FROM openjdk:8-jre-slim
+FROM eclipse-temurin:8-jre
 WORKDIR /app
 
 # 从构建阶段提取最终的可执行 Jar 包
