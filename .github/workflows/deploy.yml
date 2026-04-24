@@ -2,8 +2,9 @@ name: Build and Deploy Spring Boot
 
 # 触发条件：当代码推送到 main 分支时执行
 on:
-  push:
-    branches: [ "main" ] # 如果你的主分支叫 master，请改成 master
+#  push:
+#    branches: [ "main" ] # 如果你的主分支叫 master，请改成 master
+  workflow_dispatch
 
 env:
   REGISTRY: ghcr.io

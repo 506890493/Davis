@@ -46,11 +46,11 @@ services:
   # 预留你的后端应用服务位置 (配合你的 GitHub Actions CI/CD)
   web:
     # 你的专属镜像地址（已全部小写）
-    image: ghcr.io/506890493/davis:latest
+    image: davis-backend:latest
     container_name: davis-backend-api
     restart: always
     ports:
-      - "80:8080"  # 假设你的代码应用跑在 8080 端口，对外网暴露 80 端口
+      - "8080:8080"  # 假设你的代码应用跑在 8080 端口，对外网暴露 80 端口
     depends_on:
       - mysql
       - redis
