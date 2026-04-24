@@ -91,7 +91,7 @@ spring:
     port: 6379
     database: 0
     # 读取你 docker-compose 里设置的密码，本地没有密码则为空
-    password: ${REDIS_PASSWORD:}
+    password: ${REDIS_PASSWORD:Davis_Redis_Str0ngPass!2026}
     timeout: 10s
     lettuce:
       pool:
