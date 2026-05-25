@@ -55,6 +55,10 @@
       </el-form-item>
     </el-form>
     <!--  底部  -->
+    <div class="el-login-footer">
+      杭州拓荒牛企业服务有限公司 版权所有
+      <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备2026028306号</a> |  <a href="https://beian.mps.gov.cn/" target="_blank">浙公网安备33011002019466号</a>
+    </div>
   </div>
 </template>
 
@@ -70,8 +74,8 @@ export default {
       title: process.env.VUE_APP_TITLE,
       codeUrl: "",
       loginForm: {
-        username: "admin",
-        password: "admin123",
+        username: "",
+        password: "",
         rememberMe: false,
         code: "",
         uuid: ""
@@ -203,14 +207,22 @@ export default {
 .el-login-footer {
   height: 40px;
   line-height: 40px;
-  position: fixed;
+  position: absolute;
   bottom: 0;
   width: 100%;
   text-align: center;
-  color: #fff;
+  color: #999;
   font-family: Arial;
   font-size: 12px;
   letter-spacing: 1px;
+}
+.el-login-footer a {
+  color: #999;
+  text-decoration: none;
+  margin-left: 10px;
+}
+.el-login-footer a:hover {
+  color: #409eff;
 }
 .login-code-img {
   height: 38px;

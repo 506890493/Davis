@@ -98,6 +98,14 @@ public interface CmsContractMapper
     public CmsContract selectCmsContractByContractCode(String contractCode);
 
     /**
+     * 查询指定前缀的最大合同编号
+     *
+     * @param prefix 编号前缀（如 yyyyMMdd）
+     * @return 最大合同编号
+     */
+    public String selectMaxContractCodeByPrefix(@Param("prefix") String prefix);
+
+    /**
      * 查询本月到期的合同列表
      *
      * @param startDate 开始日期

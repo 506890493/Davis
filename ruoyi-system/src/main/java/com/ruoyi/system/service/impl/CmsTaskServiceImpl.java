@@ -92,17 +92,16 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     @Transactional
     public int insertCmsTask(CmsTask cmsTask)
     {
-        // 幂等性检查：检查是否存在未完成的同类型任务分配给同一个人
+        // 幂等性检查：检查是否存在未完成的同类型任务
         CmsTask queryTask = new CmsTask();
         queryTask.setContractId(cmsTask.getContractId());
-        queryTask.setAssignedTo(cmsTask.getAssignedTo());
         queryTask.setTaskType(cmsTask.getTaskType());
-        
+
         List<CmsTask> existingTasks = cmsTaskMapper.selectCmsTaskList(queryTask);
         for (CmsTask task : existingTasks) {
             // 状态 0待处理 1进行中 2待审批
             if ("0".equals(task.getStatus()) || "1".equals(task.getStatus()) || "2".equals(task.getStatus())) {
-                throw new ServiceException("该合同已分配给此人催收，且任务未完成");
+                throw new ServiceException("该合同已有进行中的同类型任务，请勿重复派发");
             }
         }
 
@@ -211,10 +210,10 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     }
 
     /**
-     * 完成催收任务
+     * 完成催收任务并生成新合同
      *
      * @param taskId 任务ID
-     * @param newContract 新合同信息
+     * @param newContract 新合同信息（含新金额、新期限等覆盖值）
      * @return 结果
      */
     @Override
@@ -223,23 +222,22 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         String oldStatus = task.getStatus();
         task.setStatus("4"); // 4 for completed
         cmsTaskMapper.updateCmsTask(task);
-        recordTaskLog(taskId, "2", oldStatus, "4", "完成续签任务");
+        recordTaskLog(taskId, "2", oldStatus, "4", "完成催收任务并生成新合同");
 
-        CmsContract sourceContract = cmsContractService.selectCmsContractByContractId(task.getSourceContractId());
+        // sourceContractId 空值保护：催收任务可能只有 contractId
+        Long sourceContractId = task.getSourceContractId();
+        if (sourceContractId == null) {
+            sourceContractId = task.getContractId();
+        }
 
-        CmsContract targetContract = new CmsContract();
-        // copy customer info
-        targetContract.setContractName(sourceContract.getContractName());
-        targetContract.setContactPerson(sourceContract.getContactPerson());
-        targetContract.setContactPhone(sourceContract.getContactPhone());
-        // set parent id and audit status
-        targetContract.setParentId(sourceContract.getContractId());
-        targetContract.setAuditStatus("0"); // 0 for pending approval
+        CmsContract sourceContract = cmsContractService.selectCmsContractByContractId(sourceContractId);
+        if (sourceContract == null) {
+            throw new ServiceException("原合同不存在，无法生成新合同");
+        }
 
-        // save new contract
+        CmsContract targetContract = buildNewContractFromSource(task, sourceContract, newContract);
         cmsContractService.insertCmsContract(targetContract);
 
-        // update task with new contract id
         task.setTargetContractId(targetContract.getContractId());
         return cmsTaskMapper.updateCmsTask(task);
     }
@@ -327,15 +325,11 @@ public class CmsTaskServiceImpl implements ICmsTaskService
                 "提交协商价格: 原金额" + existingTask.getOriginalAmount() + "→新金额" + task.getCurrentAmount() + ", 备注: " + task.getRemark(),
                 existingTask.getOriginalAmount(), task.getCurrentAmount());
             
-            // 通知经理
-            if (existingTask.getCreateBy() != null) {
-                try {
-                    Long managerId = Long.parseLong(existingTask.getCreateBy());
-                    sendNotification(managerId, "协商价格待审批", 
-                        "您有新的协商价格待审批：任务【" + existingTask.getTaskTitle() + "】，原金额" + existingTask.getOriginalAmount() + "→新金额" + task.getCurrentAmount());
-                } catch (NumberFormatException e) {
-                    // ignore
-                }
+            // 通知所有管理员/经理
+            List<SysUser> admins = findUsersByRoleKey("admin");
+            for (SysUser admin : admins) {
+                sendNotification(admin.getUserId(), "协商价格待审批",
+                    "您有新的协商价格待审批：任务【" + existingTask.getTaskTitle() + "】，原金额" + existingTask.getOriginalAmount() + "→新金额" + task.getCurrentAmount());
             }
         }
         return result;
@@ -420,7 +414,8 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     {
         CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
         String oldStatus = existingTask != null ? existingTask.getStatus() : null;
-        
+        String originalTaskType = existingTask != null ? existingTask.getTaskType() : null;
+
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
         updateTask.setStatus("2"); // 2待审批
@@ -430,7 +425,14 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         updateTask.setUpdateBy(SecurityUtils.getUsername());
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
-            recordTaskLog(task.getTaskId(), "3", oldStatus, "2", "发起终止合作请求: " + task.getRemark());
+            recordTaskLog(task.getTaskId(), "3", oldStatus, "2", "发起终止合作请求|原始任务类型:" + originalTaskType + "|" + task.getRemark());
+
+            // 通知所有管理员/经理
+            List<SysUser> admins = findUsersByRoleKey("admin");
+            for (SysUser admin : admins) {
+                sendNotification(admin.getUserId(), "终止合作待审批",
+                    "您有新的终止合作待审批：任务【" + existingTask.getTaskTitle() + "】，原因：" + task.getRemark());
+            }
         }
         return result;
     }
@@ -476,6 +478,11 @@ public class CmsTaskServiceImpl implements ICmsTaskService
             }
         } else {
             updateTask.setStatus("3"); // 3已退回
+            // 从任务日志中恢复原始任务类型
+            String originalTaskType = getOriginalTaskTypeFromLog(taskId);
+            if (originalTaskType != null) {
+                updateTask.setTaskType(originalTaskType);
+            }
         }
         
         int result = cmsTaskMapper.updateCmsTask(updateTask);
@@ -494,20 +501,38 @@ public class CmsTaskServiceImpl implements ICmsTaskService
      */
     @Override
     @Transactional
-    public int completeRenewal(CmsTask task)
+    public int completeRenewal(Long taskId, CmsContract newContract, boolean generateContract)
     {
-        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
+        CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(taskId);
         String oldStatus = existingTask != null ? existingTask.getStatus() : null;
-        
+
         CmsTask updateTask = new CmsTask();
-        updateTask.setTaskId(task.getTaskId());
+        updateTask.setTaskId(taskId);
         updateTask.setStatus("4"); // 4已完成
-        updateTask.setRemark(task.getRemark());
         updateTask.setUpdateTime(DateUtils.getNowDate());
         updateTask.setUpdateBy(SecurityUtils.getUsername());
         int result = cmsTaskMapper.updateCmsTask(updateTask);
         if (result > 0) {
-            recordTaskLog(task.getTaskId(), "2", oldStatus, "4", "完成续签: " + task.getRemark());
+            recordTaskLog(taskId, "2", oldStatus, "4", "完成续签");
+
+            if (generateContract && newContract != null) {
+                // sourceContractId 空值保护
+                Long sourceContractId = existingTask.getSourceContractId();
+                if (sourceContractId == null) {
+                    sourceContractId = existingTask.getContractId();
+                }
+
+                CmsContract sourceContract = cmsContractService.selectCmsContractByContractId(sourceContractId);
+                if (sourceContract == null) {
+                    throw new ServiceException("原合同不存在，无法生成新合同");
+                }
+
+                CmsContract targetContract = buildNewContractFromSource(existingTask, sourceContract, newContract);
+                cmsContractService.insertCmsContract(targetContract);
+
+                updateTask.setTargetContractId(targetContract.getContractId());
+                cmsTaskMapper.updateCmsTask(updateTask);
+            }
         }
         return result;
     }
@@ -580,6 +605,90 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         cmsTaskLogService.insertCmsTaskLog(log);
     }
     
+    /**
+     * 从原合同构建新合同，应用 newContract 中的覆盖值
+     */
+    private CmsContract buildNewContractFromSource(CmsTask task, CmsContract sourceContract, CmsContract newContract) {
+        CmsContract target = new CmsContract();
+        target.setCustomerId(sourceContract.getCustomerId());
+        target.setCustomerName(sourceContract.getCustomerName());
+        target.setContractName(sourceContract.getContractName());
+        target.setContractType(sourceContract.getContractType());
+        target.setLegalPerson(sourceContract.getLegalPerson());
+        target.setContactPerson(sourceContract.getContactPerson());
+        target.setContactPhone(sourceContract.getContactPhone());
+        target.setContactEmail(sourceContract.getContactEmail());
+        target.setPaymentCycle(sourceContract.getPaymentCycle());
+        target.setPaymentMethod(sourceContract.getPaymentMethod());
+        target.setTaxType(sourceContract.getTaxType());
+        target.setRentalAddress(sourceContract.getRentalAddress());
+        target.setOwnerId(sourceContract.getOwnerId());
+        target.setDeptId(sourceContract.getDeptId());
+
+        // 应用 newContract 覆盖值
+        if (newContract != null) {
+            if (newContract.getAmount() != null) {
+                target.setAmount(newContract.getAmount());
+            } else {
+                target.setAmount(sourceContract.getAmount());
+            }
+            if (newContract.getStartDate() != null) {
+                target.setStartDate(newContract.getStartDate());
+            }
+            if (newContract.getEndDate() != null) {
+                target.setEndDate(newContract.getEndDate());
+            }
+            if (newContract.getContractName() != null) {
+                target.setContractName(newContract.getContractName());
+            }
+        }
+
+        target.setParentId(sourceContract.getContractId());
+        target.setAuditStatus("0"); // 待审批
+        return target;
+    }
+
+    /**
+     * 按角色标识查找用户列表
+     */
+    private List<SysUser> findUsersByRoleKey(String roleKey) {
+        SysRole queryRole = new SysRole();
+        List<SysRole> allRoles = sysRoleService.selectRoleList(queryRole);
+        Long roleId = null;
+        for (SysRole role : allRoles) {
+            if (roleKey.equals(role.getRoleKey())) {
+                roleId = role.getRoleId();
+                break;
+            }
+        }
+        if (roleId == null) {
+            return new ArrayList<>();
+        }
+        SysUser queryUser = new SysUser();
+        queryUser.setRoleId(roleId);
+        return sysUserService.selectAllocatedList(queryUser);
+    }
+
+    /**
+     * 从任务日志中解析原始任务类型（用于终止拒绝后恢复）
+     */
+    private String getOriginalTaskTypeFromLog(Long taskId) {
+        CmsTaskLog queryLog = new CmsTaskLog();
+        queryLog.setTaskId(taskId);
+        List<CmsTaskLog> logs = cmsTaskLogService.selectCmsTaskLogList(queryLog);
+        for (CmsTaskLog log : logs) {
+            if ("3".equals(log.getActionType()) && log.getRemark() != null && log.getRemark().contains("原始任务类型:")) {
+                String[] parts = log.getRemark().split("\\|");
+                for (String part : parts) {
+                    if (part.startsWith("原始任务类型:")) {
+                        return part.substring("原始任务类型:".length());
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * 发送站内通知
      */

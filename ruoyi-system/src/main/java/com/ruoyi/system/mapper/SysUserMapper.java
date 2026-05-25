@@ -144,4 +144,12 @@ public interface SysUserMapper
      * @return 结果
      */
     public SysUser checkEmailUnique(String email);
+
+    /**
+     * 根据角色Key列表查询用户（去重）
+     *
+     * @param roleKeys 角色Key列表
+     * @return 用户列表（含角色信息）
+     */
+    public List<SysUser> selectUserByRoleKeys(@Param("roleKeys") List<String> roleKeys);
 }

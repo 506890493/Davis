@@ -120,10 +120,12 @@ public interface ICmsTaskService
     /**
      * 会计完成续签
      *
-     * @param task 任务信息
+     * @param taskId 任务ID
+     * @param newContract 新合同信息（含新金额、新期限等覆盖值）
+     * @param generateContract 是否生成新合同
      * @return 结果
      */
-    public int completeRenewal(CmsTask task);
+    public int completeRenewal(Long taskId, CmsContract newContract, boolean generateContract);
 
     /**
      * 确认收款（催收任务完成）

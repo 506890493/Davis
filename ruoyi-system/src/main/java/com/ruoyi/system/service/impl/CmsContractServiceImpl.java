@@ -2,6 +2,8 @@ package com.ruoyi.system.service.impl;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.exception.ServiceException;
@@ -13,9 +15,12 @@ import com.ruoyi.system.domain.CmsContract;
 import com.ruoyi.system.domain.CmsApproval;
 import com.ruoyi.system.mapper.CmsContractMapper;
 import com.ruoyi.system.service.ICmsApprovalService;
+import com.ruoyi.system.service.ICmsNotificationService;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.system.service.ICmsContractService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.alibaba.fastjson2.JSON;
@@ -35,6 +40,10 @@ public class CmsContractServiceImpl implements ICmsContractService {
     private ICmsApprovalService cmsApprovalService;
     @Autowired
     private ISysConfigService configService;
+    @Autowired
+    private ICmsNotificationService notificationService;
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
 
     /**
@@ -106,13 +115,47 @@ public class CmsContractServiceImpl implements ICmsContractService {
         if (cmsContract.getCustomerId() == null) {
             throw new ServiceException("请选择关联客户");
         }
-        CmsContract exist = cmsContractMapper.selectCmsContractByContractCode(cmsContract.getContractCode());
-        if (exist != null) {
-            throw new ServiceException("合同编号已存在：" + cmsContract.getContractCode());
+        // 合同编号：前端不传则自动生成（yyyyMMdd + 3位序号）
+        if (StringUtils.isEmpty(cmsContract.getContractCode())) {
+            String todayPrefix = DateUtils.dateTime();
+            String maxCode = cmsContractMapper.selectMaxContractCodeByPrefix(todayPrefix);
+            int seq = 1;
+            if (StringUtils.isNotEmpty(maxCode)) {
+                String seqPart = maxCode.substring(todayPrefix.length());
+                try {
+                    seq = Integer.parseInt(seqPart) + 1;
+                } catch (NumberFormatException e) {
+                    // 如果后三位无法解析，默认从1开始
+                }
+            }
+            cmsContract.setContractCode(todayPrefix + String.format("%03d", seq));
+        } else {
+            CmsContract exist = cmsContractMapper.selectCmsContractByContractCode(cmsContract.getContractCode());
+            if (exist != null) {
+                throw new ServiceException("合同编号已存在：" + cmsContract.getContractCode());
+            }
         }
         cmsContract.setCreateTime(DateUtils.getNowDate());
         int rows = cmsContractMapper.insertCmsContract(cmsContract);
         insertCmsFile(cmsContract);
+        // 通知admin和manager用户审批
+        List<String> roleKeys = Arrays.asList("admin", "manager");
+        List<SysUser> approvers = sysUserMapper.selectUserByRoleKeys(roleKeys);
+        if (approvers != null && !approvers.isEmpty()) {
+            // 按userId去重（同一用户拥有多个角色时避免重复通知）
+            Set<Long> notifiedUserIds = new java.util.HashSet<>();
+            for (SysUser user : approvers) {
+                if (notifiedUserIds.add(user.getUserId())) {
+                    notificationService.createNotification(
+                        user.getUserId(),
+                        "新合同待审批: " + cmsContract.getContractName(),
+                        "合同 " + cmsContract.getContractCode() + " - " + cmsContract.getContractName() + " 已提交，请及时审批",
+                        "3",
+                        cmsContract.getContractId()
+                    );
+                }
+            }
+        }
         return rows;
     }
 

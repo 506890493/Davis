@@ -47,10 +47,10 @@ module.exports = {
   /**
    * 是否显示底部版权
    */
-  footerVisible: false,
+  footerVisible: true,
 
   /**
    * 底部版权文本内容
    */
-  footerContent: 'Copyright © 2018-2025 RuoYi. All Rights Reserved.'
+  footerContent: '杭州拓荒牛企业服务有限公司 版权所有    <a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备2026028306号</a>'
 }

@@ -1,6 +1,5 @@
 <template>
-  <footer v-if="visible" class="copyright">
-    <span>{{ content }}</span>
+  <footer v-if="visible" class="copyright" v-html="content">
   </footer>
 </template>
 
@@ -31,5 +30,13 @@ export default {
   font-size: 14px;
   border-top: 1px solid #e7e7e7;
   z-index: 999;
+}
+.copyright a {
+  color: #666;
+  text-decoration: none;
+  margin-left: 10px;
+}
+.copyright a:hover {
+  color: #409eff;
 }
 </style>

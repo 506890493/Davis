@@ -113,6 +113,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where contract_code = #{contractCode}
     </select>
 
+    <select id="selectMaxContractCodeByPrefix" resultType="String">
+        select max(contract_code) from cms_contract where contract_code like concat(#{prefix}, '%')
+    </select>
+
     <select id="selectCmsFileList" resultMap="CmsFileResult">
         select file_id, contract_id, file_name, file_path, file_url, file_suffix, file_size, file_category, create_by, create_time
         from cms_file

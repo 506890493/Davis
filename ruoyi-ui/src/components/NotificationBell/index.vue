@@ -37,13 +37,24 @@ export default {
   },
   created() {
     this.fetchUnreadCount()
+    // 每15秒轮询未读数量
     this.timer = setInterval(() => {
       this.fetchUnreadCount()
-    }, 60000)
+    }, 15000)
+    // 页面恢复可见时立即拉取
+    this.visibilityHandler = () => {
+      if (!document.hidden) {
+        this.fetchUnreadCount()
+      }
+    }
+    document.addEventListener('visibilitychange', this.visibilityHandler)
   },
   beforeDestroy() {
     if (this.timer) {
       clearInterval(this.timer)
+    }
+    if (this.visibilityHandler) {
+      document.removeEventListener('visibilitychange', this.visibilityHandler)
     }
   },
   watch: {

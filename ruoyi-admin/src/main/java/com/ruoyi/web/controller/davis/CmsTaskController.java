@@ -1,11 +1,14 @@
 package com.ruoyi.web.controller.davis;
 
+import com.alibaba.fastjson2.JSON;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.system.domain.CmsContract;
 import com.ruoyi.system.domain.CmsTask;
 import com.ruoyi.system.domain.CmsTaskLog;
 import com.ruoyi.system.service.ICmsTaskService;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 任务管理Controller
@@ -109,8 +113,8 @@ public class CmsTaskController extends BaseController
     @GetMapping("/assignableUsers")
     public AjaxResult getAssignableUsers()
     {
-        Long userId = com.ruoyi.common.utils.SecurityUtils.getUserId();
-        if (!com.ruoyi.common.utils.SecurityUtils.isAdmin(userId) && !com.ruoyi.common.utils.SecurityUtils.hasRole("manager"))
+        Long userId = SecurityUtils.getUserId();
+        if (!SecurityUtils.isAdmin(userId) && !SecurityUtils.hasRole("manager"))
         {
 //            return error("无权限调用此接口");
             return success();
@@ -122,9 +126,6 @@ public class CmsTaskController extends BaseController
     /**
      * 会计将任务退回管理员(讲价)
      * POST /system/task/returnToAdmin
-     * @param taskId 任务ID
-     * @param remark 退回原因
-     * @param currentAmount 客户期望价格
      * @return AjaxResult
      */
     @PreAuthorize("@ss.hasPermi('cms:task:edit')")
@@ -138,10 +139,6 @@ public class CmsTaskController extends BaseController
     /**
      * 管理员修改协商金额后重新派发
      * POST /system/task/redispatch
-     * @param taskId 任务ID
-     * @param currentAmount 修改后的金额
-     * @param assigneeId 新分配的会计ID
-     * @param deadline 截止日期
      * @return AjaxResult
      */
     @PreAuthorize("@ss.hasPermi('cms:task:dispatch')")
@@ -169,8 +166,6 @@ public class CmsTaskController extends BaseController
     /**
      * 会计发起终止合作请求
      * POST /system/task/requestTermination
-     * @param taskId 任务ID
-     * @param remark 终止原因
      * @return AjaxResult
      */
     @PreAuthorize("@ss.hasPermi('cms:task:edit')")
@@ -184,14 +179,12 @@ public class CmsTaskController extends BaseController
     /**
      * 管理员确认终止合作
      * POST /system/task/confirmTermination
-     * @param taskId 任务ID
-     * @param approved 是否同意终止
      * @return AjaxResult
      */
     @PreAuthorize("@ss.hasPermi('cms:task:audit')")
     @Log(title = "任务管理", businessType = BusinessType.UPDATE)
     @PostMapping("/confirmTermination")
-    public AjaxResult confirmTermination(@RequestBody java.util.Map<String, Object> params)
+    public AjaxResult confirmTermination(@RequestBody Map<String, Object> params)
     {
         Long taskId = Long.valueOf(params.get("taskId").toString());
         boolean approved = Boolean.parseBoolean(params.get("approved").toString());
@@ -201,15 +194,23 @@ public class CmsTaskController extends BaseController
     /**
      * 会计完成续签
      * POST /system/task/completeRenewal
-     * @param taskId 任务ID
+     * @param params 包含 taskId、newContract、generateContract
      * @return AjaxResult
      */
     @PreAuthorize("@ss.hasPermi('cms:task:edit')")
     @Log(title = "任务管理", businessType = BusinessType.UPDATE)
     @PostMapping("/completeRenewal")
-    public AjaxResult completeRenewal(@RequestBody CmsTask task)
+    public AjaxResult completeRenewal(@RequestBody Map<String, Object> params)
     {
-        return toAjax(cmsTaskService.completeRenewal(task));
+        Long taskId = Long.valueOf(params.get("taskId").toString());
+        boolean generateContract = Boolean.parseBoolean(params.get("generateContract").toString());
+        CmsContract newContract = null;
+        if (generateContract && params.get("newContract") != null) {
+            newContract = JSON.parseObject(
+                JSON.toJSONString(params.get("newContract")),
+                CmsContract.class);
+        }
+        return toAjax(cmsTaskService.completeRenewal(taskId, newContract, generateContract));
     }
 
     /**
