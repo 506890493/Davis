@@ -24,13 +24,15 @@
               :value="detail.contractType"
             />
           </el-descriptions-item>
-          <el-descriptions-item label="状态">
+          <el-descriptions-item label="审核状态">
             <el-tag v-if="detail.auditStatus === '0'" type="warning">待审批</el-tag>
-            <dict-tag
-              v-else
-              :options="dict.type.cms_contract_status"
-              :value="detail.status"
-            />
+            <el-tag v-else-if="detail.auditStatus === '2'" type="danger">已拒绝</el-tag>
+            <el-tag v-else-if="detail.auditStatus === '1'" type="success">已通过</el-tag>
+            <span v-else>-</span>
+          </el-descriptions-item>
+          <el-descriptions-item label="合同状态">
+            <dict-tag v-if="detail.auditStatus === '1'" :options="dict.type.cms_contract_status" :value="detail.status" />
+            <span v-else>-</span>
           </el-descriptions-item>
           <el-descriptions-item label="开始日期">{{
             parseTime(detail.startDate, "{y}-{m}-{d}")
@@ -178,7 +180,7 @@
         <el-table-column label="审批状态" align="center" prop="status">
           <template slot-scope="scope">
             <dict-tag
-              :options="dict.type.cms_contract_status"
+              :options="dict.type.cms_audit_status"
               :value="scope.row.status"
             />
           </template>
@@ -215,6 +217,7 @@ export default {
     "cms_pay_method",
     "cms_reminder_status",
     "cms_contract_status",
+    "cms_audit_status",
   ],
   data() {
     return {

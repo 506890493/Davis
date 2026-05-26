@@ -334,6 +334,24 @@
           >不通过</el-button>
         </template>
       </el-table-column>
+      <!-- 主列表（已通过合同）操作按钮 -->
+      <el-table-column v-else label="操作" align="center" width="150">
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-view"
+            @click="handleDetail(scope.row)"
+          >详情</el-button>
+          <el-button
+            v-if="scope.row.auditStatus === '1'"
+            size="mini"
+            type="text"
+            icon="el-icon-s-promotion"
+            @click="handleDispatch(scope.row)"
+          >催收</el-button>
+        </template>
+      </el-table-column>
     </el-table>
 
     <pagination

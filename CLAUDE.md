@@ -113,6 +113,10 @@ Routes are dynamically loaded from backend `/getRouters` API at login. The backe
 
 GitHub Actions (`.github/workflows/deploy.yml`): manual trigger only (`workflow_dispatch`). Builds Docker image → pushes to `ghcr.io` → SSHs to server → `docker compose up -d --no-deps web`.
 
+## Code Change Rules
+
+**所有代码修改必须先写计划文件到 `docs/davis/plan/` 目录，用户确认后方可执行。** 计划文件应包含：问题根因、修复方案、影响范围、验证方法。
+
 ## No Tests
 
 This project has no test framework configured. Do not run `mvn test` or write test files unless the user explicitly asks to set up a test framework.
