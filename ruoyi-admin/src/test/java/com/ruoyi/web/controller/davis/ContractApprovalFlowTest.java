@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
+import org.springframework.http.HttpMethod;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,17 +27,17 @@ public class ContractApprovalFlowTest extends BaseControllerTest {
         Long contractId = createContract(customerId, "代账服务合同-001");
 
         // manager 查看待审批合同列表
-        assertThat(getResponseJson(asManager("GET", "/system/contract/list", null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/list", null)))
             .contains("代账服务合同-001");
 
         // manager 审批通过
         Map<String, Object> auditPass = new LinkedHashMap<>();
         auditPass.put("contractId", contractId);
         auditPass.put("auditStatus", "1");
-        assertSuccess(asManager("POST", "/system/contract/audit", auditPass));
+        assertSuccess(asManager(HttpMethod.POST, "/system/contract/audit", auditPass));
 
         // 验证合同状态为通过
-        assertThat(getResponseJson(asManager("GET", "/system/contract/" + contractId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + contractId, null)))
             .contains("\"auditStatus\":\"1\"");
     }
 
@@ -51,10 +52,10 @@ public class ContractApprovalFlowTest extends BaseControllerTest {
         Map<String, Object> auditReject = new LinkedHashMap<>();
         auditReject.put("contractId", contractId);
         auditReject.put("auditStatus", "2");
-        assertSuccess(asManager("POST", "/system/contract/audit", auditReject));
+        assertSuccess(asManager(HttpMethod.POST, "/system/contract/audit", auditReject));
 
         // 验证状态为驳回
-        assertThat(getResponseJson(asManager("GET", "/system/contract/" + contractId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + contractId, null)))
             .contains("\"auditStatus\":\"2\"");
 
         // sales 修改重新提交
@@ -69,16 +70,16 @@ public class ContractApprovalFlowTest extends BaseControllerTest {
         update.put("startDate", "2026-06-01");
         update.put("endDate", "2027-05-31");
         update.put("auditStatus", "0");
-        assertSuccess(asSales("PUT", "/system/contract", update));
+        assertSuccess(asSales(HttpMethod.PUT, "/system/contract", update));
 
         // manager 再次审批通过
         Map<String, Object> auditPass = new LinkedHashMap<>();
         auditPass.put("contractId", contractId);
         auditPass.put("auditStatus", "1");
-        assertSuccess(asManager("POST", "/system/contract/audit", auditPass));
+        assertSuccess(asManager(HttpMethod.POST, "/system/contract/audit", auditPass));
 
         // 最终验证
-        String finalJson = getResponseJson(asManager("GET", "/system/contract/" + contractId, null));
+        String finalJson = getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + contractId, null));
         assertThat(finalJson).contains("\"auditStatus\":\"1\"");
         assertThat(finalJson).contains("地址出租合同-002-修改版");
     }
@@ -91,7 +92,7 @@ public class ContractApprovalFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "赵总");
         customer.put("contactPhone", "13900000100");
         customer.put("ownerId", 4L);
-        ResultActions result = asSales("POST", "/system/customer", customer);
+        ResultActions result = asSales(HttpMethod.POST, "/system/customer", customer);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");
@@ -113,7 +114,7 @@ public class ContractApprovalFlowTest extends BaseControllerTest {
         contract.put("contactPerson", "联系人");
         contract.put("contactPhone", "13900000099");
         contract.put("ownerId", 4L);
-        ResultActions result = asSales("POST", "/system/contract", contract);
+        ResultActions result = asSales(HttpMethod.POST, "/system/contract", contract);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");

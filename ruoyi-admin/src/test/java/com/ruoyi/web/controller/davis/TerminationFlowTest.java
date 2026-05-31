@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
+import org.springframework.http.HttpMethod;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,10 +32,10 @@ public class TerminationFlowTest extends BaseControllerTest {
         Map<String, Object> terminationReq = new LinkedHashMap<>();
         terminationReq.put("taskId", taskId);
         terminationReq.put("remark", "客户已注销公司，不再合作");
-        assertSuccess(asAccountant("POST", "/system/task/requestTermination", terminationReq));
+        assertSuccess(asAccountant(HttpMethod.POST, "/system/task/requestTermination", terminationReq));
 
         // 验证 taskType "3"（终止），status "2"（待审批）
-        String afterRequestJson = getResponseJson(asManager("GET", "/system/task/" + taskId, null));
+        String afterRequestJson = getResponseJson(asManager(HttpMethod.GET, "/system/task/" + taskId, null));
         assertThat(afterRequestJson).contains("\"taskType\":\"3\"");
         assertThat(afterRequestJson).contains("\"status\":\"2\"");
 
@@ -42,14 +43,14 @@ public class TerminationFlowTest extends BaseControllerTest {
         Map<String, Object> confirmApproved = new LinkedHashMap<>();
         confirmApproved.put("taskId", taskId);
         confirmApproved.put("approved", true);
-        assertSuccess(asManager("POST", "/system/task/confirmTermination", confirmApproved));
+        assertSuccess(asManager(HttpMethod.POST, "/system/task/confirmTermination", confirmApproved));
 
         // 验证任务 "4"（已完成）
-        assertThat(getResponseJson(asManager("GET", "/system/task/" + taskId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/task/" + taskId, null)))
             .contains("\"status\":\"4\"");
 
         // 验证合同 reminderStatus "3"（已完成）
-        assertThat(getResponseJson(asManager("GET", "/system/contract/" + contractId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + contractId, null)))
             .contains("\"reminderStatus\":\"3\"");
     }
 
@@ -65,16 +66,16 @@ public class TerminationFlowTest extends BaseControllerTest {
         Map<String, Object> req = new LinkedHashMap<>();
         req.put("taskId", taskId);
         req.put("remark", "客户拒绝付款");
-        asAccountant("POST", "/system/task/requestTermination", req);
+        asAccountant(HttpMethod.POST, "/system/task/requestTermination", req);
 
         // manager 拒绝终止（approved=false）
         Map<String, Object> reject = new LinkedHashMap<>();
         reject.put("taskId", taskId);
         reject.put("approved", false);
-        assertSuccess(asManager("POST", "/system/task/confirmTermination", reject));
+        assertSuccess(asManager(HttpMethod.POST, "/system/task/confirmTermination", reject));
 
         // 验证任务状态 "3"（已退回）
-        assertThat(getResponseJson(asManager("GET", "/system/task/" + taskId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/task/" + taskId, null)))
             .contains("\"status\":\"3\"");
     }
 
@@ -86,7 +87,7 @@ public class TerminationFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "周总");
         customer.put("contactPhone", "13900000300");
         customer.put("ownerId", 4L);
-        ResultActions result = asSales("POST", "/system/customer", customer);
+        ResultActions result = asSales(HttpMethod.POST, "/system/customer", customer);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         return resp.get("data") instanceof Map ?
@@ -105,7 +106,7 @@ public class TerminationFlowTest extends BaseControllerTest {
         contract.put("startDate", "2026-01-01");
         contract.put("endDate", "2026-12-31");
         contract.put("ownerId", 4L);
-        ResultActions result = asSales("POST", "/system/contract", contract);
+        ResultActions result = asSales(HttpMethod.POST, "/system/contract", contract);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");
@@ -114,7 +115,7 @@ public class TerminationFlowTest extends BaseControllerTest {
             Map<String, Object> audit = new LinkedHashMap<>();
             audit.put("contractId", contractId);
             audit.put("auditStatus", "1");
-            asManager("POST", "/system/contract/audit", audit);
+            asManager(HttpMethod.POST, "/system/contract/audit", audit);
         }
         return contractId;
     }
@@ -130,7 +131,7 @@ public class TerminationFlowTest extends BaseControllerTest {
         task.put("currentAmount", 12000.00);
         task.put("assignedTo", 3L);
         task.put("status", "0");
-        ResultActions result = asManager("POST", "/system/task", task);
+        ResultActions result = asManager(HttpMethod.POST, "/system/task", task);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");

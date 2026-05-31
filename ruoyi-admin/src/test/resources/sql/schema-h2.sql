@@ -374,3 +374,35 @@ create table cms_task_log (
   content    clob default null,
   create_time timestamp null
 );
+
+-- 22. 定时任务调度表
+drop table if exists sys_job;
+create table sys_job (
+  job_id           bigint auto_increment,
+  job_name         varchar(64) default '' not null,
+  job_group        varchar(64) default 'DEFAULT' not null,
+  invoke_target    varchar(500) not null,
+  cron_expression  varchar(255) default '' null,
+  misfire_policy   varchar(20) default '3' null,
+  concurrent       char(1) default '1' null,
+  status           char(1) default '0' null,
+  create_by        varchar(64) default '' null,
+  create_time      timestamp null,
+  update_by        varchar(64) default '' null,
+  update_time      timestamp null,
+  remark           varchar(500) default '' null,
+  primary key (job_id, job_name, job_group)
+);
+
+-- 23. 定时任务日志表
+drop table if exists sys_job_log;
+create table sys_job_log (
+  job_log_id      bigint auto_increment primary key,
+  job_name        varchar(64) not null,
+  job_group       varchar(64) not null,
+  invoke_target   varchar(500) not null,
+  job_message     varchar(500) null,
+  status          char(1) default '0' null,
+  exception_info  clob default null,
+  create_time     timestamp null
+);

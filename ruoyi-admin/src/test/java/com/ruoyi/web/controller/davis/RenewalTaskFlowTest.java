@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
+import org.springframework.http.HttpMethod;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class RenewalTaskFlowTest extends BaseControllerTest {
         task.put("currentAmount", 12000.00);
         task.put("assignedTo", 3L);
         task.put("status", "0");
-        ResultActions createResult = asManager("POST", "/system/task", task);
+        ResultActions createResult = asManager(HttpMethod.POST, "/system/task", task);
         assertSuccess(createResult);
         Long taskId = getTaskId(createResult);
         assertThat(taskId).isNotNull();
@@ -52,18 +53,18 @@ public class RenewalTaskFlowTest extends BaseControllerTest {
         completeRenewal.put("generateContract", true);
         completeRenewal.put("newContract", newContract);
 
-        ResultActions renewalResult = asAccountant("POST", "/system/task/completeRenewal", completeRenewal);
+        ResultActions renewalResult = asAccountant(HttpMethod.POST, "/system/task/completeRenewal", completeRenewal);
         assertSuccess(renewalResult);
 
         // 查任务获取 targetContractId（completeRenewal 返回 AjaxResult.success() 不含 data）
-        String taskJson = getResponseJson(asManager("GET", "/system/task/" + taskId, null));
+        String taskJson = getResponseJson(asManager(HttpMethod.GET, "/system/task/" + taskId, null));
         assertThat(taskJson).contains("\"status\":\"4\"");
         // 从 JSON 中提取 targetContractId
         Long newContractId = extractLongFromJson(taskJson, "targetContractId");
         assertThat(newContractId).isNotNull();
 
         // 查新合同验证 parentId 和 auditStatus
-        String newContractJson = getResponseJson(asManager("GET", "/system/contract/" + newContractId, null));
+        String newContractJson = getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + newContractId, null));
         assertThat(newContractJson).contains("\"parentId\":" + sourceContractId);
         assertThat(newContractJson).contains("\"contractName\":\"续费后新合同\"");
         assertThat(newContractJson).contains("\"auditStatus\":\"0\"");
@@ -80,7 +81,7 @@ public class RenewalTaskFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "孙总");
         customer.put("contactPhone", "13900000200");
         customer.put("ownerId", 4L);
-        ResultActions result = asSales("POST", "/system/customer", customer);
+        ResultActions result = asSales(HttpMethod.POST, "/system/customer", customer);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         return resp.get("data") instanceof Map ?
@@ -99,7 +100,7 @@ public class RenewalTaskFlowTest extends BaseControllerTest {
         contract.put("startDate", "2025-06-01");
         contract.put("endDate", "2026-05-31");
         contract.put("ownerId", 4L);
-        ResultActions result = asSales("POST", "/system/contract", contract);
+        ResultActions result = asSales(HttpMethod.POST, "/system/contract", contract);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");
@@ -108,7 +109,7 @@ public class RenewalTaskFlowTest extends BaseControllerTest {
             Map<String, Object> audit = new LinkedHashMap<>();
             audit.put("contractId", contractId);
             audit.put("auditStatus", "1");
-            asManager("POST", "/system/contract/audit", audit);
+            asManager(HttpMethod.POST, "/system/contract/audit", audit);
         }
         return contractId;
     }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
+import org.springframework.http.HttpMethod;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -37,42 +38,42 @@ public class CollectionTaskFlowTest extends BaseControllerTest {
         task.put("assignedTo", 3L);
         task.put("status", "0");
 
-        ResultActions createResult = asManager("POST", "/system/task", task);
+        ResultActions createResult = asManager(HttpMethod.POST, "/system/task", task);
         assertSuccess(createResult);
         Long taskId = getTaskId(createResult);
         assertThat(taskId).isNotNull();
 
         // 验证合同 reminderStatus 变为 "1"（催收中）
-        assertThat(getResponseJson(asManager("GET", "/system/contract/" + contractId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + contractId, null)))
             .contains("\"reminderStatus\":\"1\"");
 
         // 2. zhangsan 查看任务列表
-        assertThat(getResponseJson(asAccountant("GET", "/system/task/list", null)))
+        assertThat(getResponseJson(asAccountant(HttpMethod.GET, "/system/task/list", null)))
             .contains("催收任务-代账服务费");
 
         // 3. zhangsan 设置进行中 → 退回讲价
         Map<String, Object> inProgress = new LinkedHashMap<>();
         inProgress.put("taskId", taskId);
         inProgress.put("status", "1");
-        asAccountant("PUT", "/system/task", inProgress);
+        asAccountant(HttpMethod.PUT, "/system/task", inProgress);
 
         Map<String, Object> returnToAdmin = new LinkedHashMap<>();
         returnToAdmin.put("taskId", taskId);
         returnToAdmin.put("currentAmount", 10000.00);
-        assertSuccess(asAccountant("POST", "/system/task/returnToAdmin", returnToAdmin));
+        assertSuccess(asAccountant(HttpMethod.POST, "/system/task/returnToAdmin", returnToAdmin));
 
         // 验证任务状态变 "2"（待审批）
-        assertThat(getResponseJson(asManager("GET", "/system/task/" + taskId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/task/" + taskId, null)))
             .contains("\"status\":\"2\"");
 
         // 4. manager 重新派发
         Map<String, Object> redispatch = new LinkedHashMap<>();
         redispatch.put("taskId", taskId);
         redispatch.put("assignedTo", 3L);
-        assertSuccess(asManager("POST", "/system/task/redispatch", redispatch));
+        assertSuccess(asManager(HttpMethod.POST, "/system/task/redispatch", redispatch));
 
         // 验证任务状态变回 "0"
-        assertThat(getResponseJson(asManager("GET", "/system/task/" + taskId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/task/" + taskId, null)))
             .contains("\"status\":\"0\"");
 
         // 5. zhangsan 确认收款
@@ -80,14 +81,14 @@ public class CollectionTaskFlowTest extends BaseControllerTest {
         confirmPayment.put("taskId", taskId);
         confirmPayment.put("actualAmount", 10000.00);
         confirmPayment.put("receiveRemark", "银行转账收款，已到账");
-        assertSuccess(asAccountant("POST", "/system/task/confirmPayment", confirmPayment));
+        assertSuccess(asAccountant(HttpMethod.POST, "/system/task/confirmPayment", confirmPayment));
 
         // 验证任务状态 "4"（已完成）
-        assertThat(getResponseJson(asManager("GET", "/system/task/" + taskId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/task/" + taskId, null)))
             .contains("\"status\":\"4\"");
 
         // 验证合同 reminderStatus 变为 "3"（已完成）
-        assertThat(getResponseJson(asManager("GET", "/system/contract/" + contractId, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + contractId, null)))
             .contains("\"reminderStatus\":\"3\"");
     }
 
@@ -99,7 +100,7 @@ public class CollectionTaskFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "钱总");
         customer.put("contactPhone", "13900000100");
         customer.put("ownerId", 4L);
-        ResultActions result = asSales("POST", "/system/customer", customer);
+        ResultActions result = asSales(HttpMethod.POST, "/system/customer", customer);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");
@@ -118,7 +119,7 @@ public class CollectionTaskFlowTest extends BaseControllerTest {
         contract.put("startDate", "2026-06-01");
         contract.put("endDate", "2027-05-31");
         contract.put("ownerId", 4L);
-        ResultActions result = asSales("POST", "/system/contract", contract);
+        ResultActions result = asSales(HttpMethod.POST, "/system/contract", contract);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");
@@ -127,7 +128,7 @@ public class CollectionTaskFlowTest extends BaseControllerTest {
             Map<String, Object> audit = new LinkedHashMap<>();
             audit.put("contractId", contractId);
             audit.put("auditStatus", "1");
-            asManager("POST", "/system/contract/audit", audit);
+            asManager(HttpMethod.POST, "/system/contract/audit", audit);
         }
         return contractId;
     }

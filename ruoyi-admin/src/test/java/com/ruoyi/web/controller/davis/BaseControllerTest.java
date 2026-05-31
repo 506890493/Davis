@@ -2,16 +2,17 @@ package com.ruoyi.web.controller.davis;
 
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.core.domain.model.LoginUser;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -22,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 /**
  * CMS E2E 测试基类。
@@ -36,9 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @Transactional
 @Sql(scripts = {
-    "classpath:sql/schema-h2.sql",
     "classpath:sql/data-init.sql"
-}, executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
+})
 public abstract class BaseControllerTest {
 
     @Autowired
@@ -84,31 +83,30 @@ public abstract class BaseControllerTest {
     /**
      * 以 manager（业务管理员）身份执行 MockMvc 请求。
      */
-    protected ResultActions asManager(String method, String url, Object body) throws Exception {
+    protected ResultActions asManager(HttpMethod method, String url, Object body) throws Exception {
         return performRequest(method, url, body, USERNAME_MANAGER, USER_ID_MANAGER, "manager");
     }
 
     /**
      * 以 account（会计 / zhangsan）身份执行 MockMvc 请求。
      */
-    protected ResultActions asAccountant(String method, String url, Object body) throws Exception {
+    protected ResultActions asAccountant(HttpMethod method, String url, Object body) throws Exception {
         return performRequest(method, url, body, USERNAME_ZHANGSAN, USER_ID_ZHANGSAN, "account");
     }
 
     /**
      * 以 sales（销售 / lisi）身份执行 MockMvc 请求。
      */
-    protected ResultActions asSales(String method, String url, Object body) throws Exception {
+    protected ResultActions asSales(HttpMethod method, String url, Object body) throws Exception {
         return performRequest(method, url, body, USERNAME_LISI, USER_ID_LISI, "sales");
     }
 
-    private ResultActions performRequest(String method, String url, Object body,
+    private ResultActions performRequest(HttpMethod method, String url, Object body,
                                           String username, Long userId, String roleKey) throws Exception {
-        LoginUserForTest loginUser = new LoginUserForTest();
+        // 使用 RuoYi 的 LoginUser 类（SecurityUtils.getLoginUser() 强转为此类）
+        LoginUser loginUser = new LoginUser(getSysUser(username), getPermissionsForRole(roleKey));
         loginUser.setUserId(userId);
-        loginUser.setUsername(username);
-        loginUser.setUser(getSysUser(username));
-        loginUser.setPermissions(getPermissionsForRole(roleKey));
+        loginUser.setDeptId(getSysUser(username).getDeptId());
 
         UsernamePasswordAuthenticationToken auth =
             new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
@@ -202,39 +200,37 @@ public abstract class BaseControllerTest {
         return result.andReturn().getResponse().getContentAsString();
     }
 
-    // ========== 内部类：简化的 LoginUser ==========
-
-    public static class LoginUserForTest implements org.springframework.security.core.userdetails.UserDetails {
-        private Long userId;
-        private String username;
-        private SysUser user;
-        private Set<String> permissions;
-        private String password;
-
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-        @Override public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public SysUser getUser() { return user; }
-        public void setUser(SysUser user) { this.user = user; }
-        public Set<String> getPermissions() { return permissions; }
-        public void setPermissions(Set<String> permissions) { this.permissions = permissions; }
-        @Override public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-
-        @Override
-        public Collection<org.springframework.security.core.GrantedAuthority> getAuthorities() {
-            List<org.springframework.security.core.GrantedAuthority> authorities = new ArrayList<>();
-            if (permissions != null) {
-                for (String perm : permissions) {
-                    authorities.add(() -> perm);
+    /**
+     * 从列表查询响应（AjaxResult > data > TableDataInfo 格式）中提取第一条匹配记录的 ID。
+     * 响应格式：{"code":200,"data":{"total":1,"rows":[{"customerId":1,...}],"code":200,"msg":"查询成功"}}
+     */
+    @SuppressWarnings("unchecked")
+    protected Long getIdFromList(ResultActions listResult, String idField) throws Exception {
+        String json = getResponseJson(listResult);
+        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
+        // rows 在 data 对象内部（TableDataInfo 嵌套在 AjaxResult 中）
+        Object dataObj = resp.get("data");
+        if (dataObj instanceof Map) {
+            Map<String, Object> dataMap = (Map<String, Object>) dataObj;
+            Object rowsObj = dataMap.get("rows");
+            if (rowsObj instanceof List) {
+                List<Map<String, Object>> rows = (List<Map<String, Object>>) rowsObj;
+                if (!rows.isEmpty()) {
+                    Object id = rows.get(0).get(idField);
+                    return id instanceof Number ? ((Number) id).longValue() : null;
                 }
             }
-            return authorities;
         }
-        @Override public boolean isAccountNonExpired() { return true; }
-        @Override public boolean isAccountNonLocked() { return true; }
-        @Override public boolean isCredentialsNonExpired() { return true; }
-        @Override public boolean isEnabled() { return true; }
+        return null;
+    }
+
+    /**
+     * 检查响应 data 字段是否为 int（toAjax 返回值）。
+     */
+    @SuppressWarnings("unchecked")
+    protected boolean isIntData(ResultActions result) throws Exception {
+        String json = getResponseJson(result);
+        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
+        return resp.get("data") instanceof Integer;
     }
 }

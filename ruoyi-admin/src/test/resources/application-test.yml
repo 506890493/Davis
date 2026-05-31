@@ -12,19 +12,42 @@ spring:
         password:
       slave:
         enabled: false
-      # 最小化连接池
-      initial-size: 1
-      min-idle: 1
-      max-active: 2
-      max-wait: 60000
+      # Druid 连接池配置（DruidProperties 通过 @Value 精确读取 camelCase）
+      initialSize: 1
+      minIdle: 1
+      maxActive: 2
+      maxWait: 60000
+      connectTimeout: 30000
+      socketTimeout: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      maxEvictableIdleTimeMillis: 900000
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
 
   # 关闭 Redis — 测试环境不需要令牌缓存
   redis:
     enabled: false
 
+  # SQL 初始化 — 在 @PostConstruct 之前建表，避免 SysConfigServiceImpl 等启动报错
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/schema-h2.sql
+      # 数据由 @Sql 注解在测试类中初始化，此处不加载
+      data-locations:
+      continue-on-error: true
+
   # 禁用 flyway/liquibase
   flyway:
     enabled: false
+
+  # Quartz 关闭自动启动（测试环境无需定时任务）
+  quartz:
+    auto-startup: false
+    job-store-type: memory
 
   # 允许重复 bean 覆盖（测试环境可能需要）
   main:

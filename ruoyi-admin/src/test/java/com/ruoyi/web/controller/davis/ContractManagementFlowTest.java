@@ -5,10 +5,12 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
+import org.springframework.http.HttpMethod;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 /**
  * E2E: 合同管理流程。
@@ -28,11 +30,11 @@ public class ContractManagementFlowTest extends BaseControllerTest {
         Long contract2Id = createContract(customerId, "地址合同-B", "2", 8000.00);
 
         // 1. 查询列表包含两个合同
-        assertThat(getResponseJson(asManager("GET", "/system/contract/list", null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/list", null)))
             .contains("代账合同-A", "地址合同-B");
 
         // 2. 按类型筛选（代账 type=1）
-        assertThat(getResponseJson(asManager("GET", "/system/contract/list?contractType=1", null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/list?contractType=1", null)))
             .contains("代账合同-A")
             .doesNotContain("地址合同-B");
 
@@ -46,26 +48,26 @@ public class ContractManagementFlowTest extends BaseControllerTest {
         update.put("paymentCycle", "1");
         update.put("paymentMethod", "3");
         update.put("ownerId", 2L);
-        assertSuccess(asManager("PUT", "/system/contract", update));
+        assertSuccess(asManager(HttpMethod.PUT, "/system/contract", update));
 
         // 4. 验证金额已更新
-        assertThat(getResponseJson(asManager("GET", "/system/contract/" + contract1Id, null)))
+        assertThat(getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + contract1Id, null)))
             .contains("\"amount\":15000.0");
 
         // 5. 删除合同
-        assertSuccess(asManager("DELETE", "/system/contract/" + contract1Id, null));
+        assertSuccess(asManager(HttpMethod.DELETE, "/system/contract/" + contract1Id, null));
 
         // 6. 列表验证已删除
-        String listAfter = getResponseJson(asManager("GET", "/system/contract/list", null));
+        String listAfter = getResponseJson(asManager(HttpMethod.GET, "/system/contract/list", null));
         assertThat(listAfter).doesNotContain("代账合同-A");
         assertThat(listAfter).contains("地址合同-B");
 
         // 7. 按 ID 查已删除合同
-        asManager("GET", "/system/contract/" + contract1Id, null)
+        asManager(HttpMethod.GET, "/system/contract/" + contract1Id, null)
             .andExpect(jsonPath("$.code").value(org.hamcrest.Matchers.not(200)));
 
         // 8. 客户详情中已删除合同不出现
-        String customerDetail = getResponseJson(asManager("GET", "/system/customer/detail/" + customerId, null));
+        String customerDetail = getResponseJson(asManager(HttpMethod.GET, "/system/customer/detail/" + customerId, null));
         assertThat(customerDetail).doesNotContain("代账合同-A");
         assertThat(customerDetail).contains("地址合同-B");
     }
@@ -78,7 +80,7 @@ public class ContractManagementFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "联系人");
         customer.put("contactPhone", "13900000001");
         customer.put("ownerId", 2L);
-        ResultActions result = asManager("POST", "/system/customer", customer);
+        ResultActions result = asManager(HttpMethod.POST, "/system/customer", customer);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");
@@ -97,7 +99,7 @@ public class ContractManagementFlowTest extends BaseControllerTest {
         contract.put("startDate", "2026-06-01");
         contract.put("endDate", "2027-05-31");
         contract.put("ownerId", 2L);
-        ResultActions result = asManager("POST", "/system/contract", contract);
+        ResultActions result = asManager(HttpMethod.POST, "/system/contract", contract);
         String json = getResponseJson(result);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         Object data = resp.get("data");
@@ -106,7 +108,7 @@ public class ContractManagementFlowTest extends BaseControllerTest {
             Map<String, Object> audit = new LinkedHashMap<>();
             audit.put("contractId", contractId);
             audit.put("auditStatus", "1");
-            assertSuccess(asManager("POST", "/system/contract/audit", audit));
+            assertSuccess(asManager(HttpMethod.POST, "/system/contract/audit", audit));
         }
         return contractId;
     }
