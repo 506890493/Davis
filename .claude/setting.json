@@ -1,9 +1,0 @@
-{
-  "env": {
-    "ANTHROPIC_AUTH_TOKEN":"sk-b9c85fa03d4d46e494b0900484a1f11e",
-    "ANTHROPIC_BASE_URL":"https://api.deepseek.com/anthropic",
-    "ANTHROPIC_MODEL":"DeepSeek-V4-Pro",
-    "API_TIMEOUT_MS":"3000000",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC":"1"
-  }
-}
