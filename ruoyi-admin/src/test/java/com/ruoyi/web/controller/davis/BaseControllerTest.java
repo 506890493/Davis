@@ -167,6 +167,7 @@ public abstract class BaseControllerTest {
                 perms.add("system:task:edit");
                 perms.add("system:task:remove");
                 perms.add("system:task:export");
+                perms.add("cms:task:edit");
                 break;
             case "sales":
                 perms.add("system:contract:list");
