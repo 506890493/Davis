@@ -1,0 +1,44 @@
+# 测试环境配置 — 使用 H2 内存数据库，关闭 Redis
+# 说明：@ActiveProfiles("test") 会覆盖 application.yml 中的 "druid" profile，
+# 因此测试环境下不会加载 Druid 的 MySQL 数据源配置。
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      master:
+        driver-class-name: org.h2.Driver
+        url: jdbc:h2:mem:davis-test;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password:
+      slave:
+        enabled: false
+      # 最小化连接池
+      initial-size: 1
+      min-idle: 1
+      max-active: 2
+      max-wait: 60000
+
+  # 关闭 Redis — 测试环境不需要令牌缓存
+  redis:
+    enabled: false
+
+  # 禁用 flyway/liquibase
+  flyway:
+    enabled: false
+
+  # 允许重复 bean 覆盖（测试环境可能需要）
+  main:
+    allow-bean-definition-overriding: true
+
+# 关闭 MyBatis 缓存，调试方便
+mybatis:
+  configuration:
+    cache-enabled: false
+
+# 关闭验证码
+ruoyi:
+  captchaEnabled: false
+
+# PageHelper 分页插件 — H2 方言
+pagehelper:
+  helperDialect: h2
