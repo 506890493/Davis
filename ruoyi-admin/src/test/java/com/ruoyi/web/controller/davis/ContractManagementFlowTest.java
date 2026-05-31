@@ -62,9 +62,10 @@ public class ContractManagementFlowTest extends BaseControllerTest {
         assertThat(listAfter).doesNotContain("代账合同-A");
         assertThat(listAfter).contains("地址合同-B");
 
-        // 7. 按 ID 查已删除合同
-        asManager(HttpMethod.GET, "/system/contract/" + contract1Id, null)
-            .andExpect(jsonPath("$.code").value(org.hamcrest.Matchers.not(200)));
+        // 7. 按 ID 查已删除合同（AjaxResult.success(null)，data=null）
+        String deletedJson = getResponseJson(asManager(HttpMethod.GET, "/system/contract/" + contract1Id, null));
+        Map<String, Object> deletedResp = objectMapper.readValue(deletedJson, Map.class);
+        assertThat(deletedResp.get("data")).isNull();
 
         // 8. 客户详情中已删除合同不出现
         String customerDetail = getResponseJson(asManager(HttpMethod.GET, "/system/customer/detail/" + customerId, null));
@@ -72,7 +73,6 @@ public class ContractManagementFlowTest extends BaseControllerTest {
         assertThat(customerDetail).contains("地址合同-B");
     }
 
-    @SuppressWarnings("unchecked")
     private Long createCustomer(String name) throws Exception {
         Map<String, Object> customer = new LinkedHashMap<>();
         customer.put("customerName", name);
@@ -80,14 +80,14 @@ public class ContractManagementFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "联系人");
         customer.put("contactPhone", "13900000001");
         customer.put("ownerId", 2L);
-        ResultActions result = asManager(HttpMethod.POST, "/system/customer", customer);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        return data instanceof Map ? ((Number) ((Map<String, Object>) data).get("customerId")).longValue() : null;
+        assertSuccess(asManager(HttpMethod.POST, "/system/customer", customer));
+        ResultActions listResult = asManager(HttpMethod.GET, "/system/customer/list", null);
+        assertListSuccess(listResult);
+        Long customerId = getIdFromList(listResult, "customerId");
+        assertThat(customerId).isNotNull();
+        return customerId;
     }
 
-    @SuppressWarnings("unchecked")
     private Long createContract(Long customerId, String name, String type, Double amount) throws Exception {
         Map<String, Object> contract = new LinkedHashMap<>();
         contract.put("contractName", name);
@@ -99,17 +99,15 @@ public class ContractManagementFlowTest extends BaseControllerTest {
         contract.put("startDate", "2026-06-01");
         contract.put("endDate", "2027-05-31");
         contract.put("ownerId", 2L);
-        ResultActions result = asManager(HttpMethod.POST, "/system/contract", contract);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        Long contractId = data instanceof Map ? ((Number) ((Map<String, Object>) data).get("contractId")).longValue() : null;
-        if (contractId != null) {
-            Map<String, Object> audit = new LinkedHashMap<>();
-            audit.put("contractId", contractId);
-            audit.put("auditStatus", "1");
-            assertSuccess(asManager(HttpMethod.POST, "/system/contract/audit", audit));
-        }
+        assertSuccess(asManager(HttpMethod.POST, "/system/contract", contract));
+        ResultActions listResult = asManager(HttpMethod.GET, "/system/contract/list", null);
+        assertListSuccess(listResult);
+        Long contractId = getIdFromList(listResult, "contractId");
+        assertThat(contractId).isNotNull();
+        Map<String, Object> audit = new LinkedHashMap<>();
+        audit.put("contractId", contractId);
+        audit.put("auditStatus", "1");
+        assertSuccess(asManager(HttpMethod.POST, "/system/contract/audit", audit));
         return contractId;
     }
 }

@@ -124,11 +124,13 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         notice.setStatus("0"); // 0-正常 1-关闭
         notice.setCreateBy(String.valueOf(cmsTask.getAssignedTo()));
         noticeService.insertNotice(notice);
-        
-        // 记录任务日志
+
+        int rows = cmsTaskMapper.insertCmsTask(cmsTask);
+
+        // 记录任务日志（必须在 insert 之后，因为 taskId 由数据库自增生成）
         recordTaskLog(cmsTask.getTaskId(), "0", null, cmsTask.getStatus(), "创建任务");
-        
-        return cmsTaskMapper.insertCmsTask(cmsTask);
+
+        return rows;
     }
 
     /**

@@ -7,6 +7,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import org.springframework.http.HttpMethod;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,7 +93,6 @@ public class CollectionTaskFlowTest extends BaseControllerTest {
             .contains("\"reminderStatus\":\"3\"");
     }
 
-    @SuppressWarnings("unchecked")
     private Long createCustomer() throws Exception {
         Map<String, Object> customer = new LinkedHashMap<>();
         customer.put("customerName", "催收测试客户");
@@ -100,14 +100,14 @@ public class CollectionTaskFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "钱总");
         customer.put("contactPhone", "13900000100");
         customer.put("ownerId", 4L);
-        ResultActions result = asSales(HttpMethod.POST, "/system/customer", customer);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        return data instanceof Map ? ((Number) ((Map) data).get("customerId")).longValue() : null;
+        assertSuccess(asSales(HttpMethod.POST, "/system/customer", customer));
+        ResultActions listResult = asSales(HttpMethod.GET, "/system/customer/list", null);
+        assertListSuccess(listResult);
+        Long customerId = getIdFromList(listResult, "customerId");
+        assertThat(customerId).isNotNull();
+        return customerId;
     }
 
-    @SuppressWarnings("unchecked")
     private Long createContract(Long customerId) throws Exception {
         Map<String, Object> contract = new LinkedHashMap<>();
         contract.put("contractName", "催收测试合同");
@@ -119,25 +119,37 @@ public class CollectionTaskFlowTest extends BaseControllerTest {
         contract.put("startDate", "2026-06-01");
         contract.put("endDate", "2027-05-31");
         contract.put("ownerId", 4L);
-        ResultActions result = asSales(HttpMethod.POST, "/system/contract", contract);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        Long contractId = data instanceof Map ? ((Number) ((Map) data).get("contractId")).longValue() : null;
-        if (contractId != null) {
-            Map<String, Object> audit = new LinkedHashMap<>();
-            audit.put("contractId", contractId);
-            audit.put("auditStatus", "1");
-            asManager(HttpMethod.POST, "/system/contract/audit", audit);
-        }
+        assertSuccess(asSales(HttpMethod.POST, "/system/contract", contract));
+        ResultActions listResult = asSales(HttpMethod.GET, "/system/contract/list", null);
+        assertListSuccess(listResult);
+        Long contractId = getIdFromList(listResult, "contractId");
+        assertThat(contractId).isNotNull();
+        Map<String, Object> audit = new LinkedHashMap<>();
+        audit.put("contractId", contractId);
+        audit.put("auditStatus", "1");
+        assertSuccess(asManager(HttpMethod.POST, "/system/contract/audit", audit));
         return contractId;
     }
 
     @SuppressWarnings("unchecked")
     private Long getTaskId(ResultActions result) throws Exception {
-        String json = getResponseJson(result);
+        // POST 返回 toAjax(int)，需要查列表获取 ID
+        ResultActions listResult = asManager(HttpMethod.GET, "/system/task/list?pageNum=1&pageSize=50", null);
+        String json = getResponseJson(listResult);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        return data instanceof Map ? ((Number) ((Map) data).get("taskId")).longValue() : null;
+        // 尝试 data.rows（AjaxResult 包装）
+        Object dataObj = resp.get("data");
+        if (dataObj instanceof Map) {
+            Object rowsObj = ((Map) dataObj).get("rows");
+            if (rowsObj instanceof List && !((List) rowsObj).isEmpty()) {
+                return ((Number) ((Map) ((List) rowsObj).get(0)).get("taskId")).longValue();
+            }
+        }
+        // 尝试 rows（TableDataInfo 直接返回）
+        Object rowsObj = resp.get("rows");
+        if (rowsObj instanceof List && !((List) rowsObj).isEmpty()) {
+            return ((Number) ((Map) ((List) rowsObj).get(0)).get("taskId")).longValue();
+        }
+        return null;
     }
 }

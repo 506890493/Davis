@@ -49,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectCmsCustomerById" parameterType="Long" resultMap="CmsCustomerResult">
         <include refid="selectCmsCustomerVo"/>
-        where c.customer_id = #{customerId}
+        where c.customer_id = #{customerId} and c.del_flag = '0'
     </select>
 
     <insert id="insertCmsCustomer" parameterType="CmsCustomer" useGeneratedKeys="true" keyProperty="customerId">
@@ -101,11 +101,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteCmsCustomerById" parameterType="Long">
-        update cms_customer set del_flag = '1' where customer_id = #{customerId}
+        update cms_customer set del_flag = '2' where customer_id = #{customerId}
     </delete>
 
     <delete id="deleteCmsCustomerByIds" parameterType="Long">
-        update cms_customer set del_flag = '1' where customer_id in 
+        update cms_customer set del_flag = '2' where customer_id in
         <foreach item="customerId" collection="array" open="(" separator="," close=")">
             #{customerId}
         </foreach>

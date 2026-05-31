@@ -57,12 +57,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null and status != '' and status.indexOf(',') == -1">
                 and t.status = #{status}
             </if>
+            and t.del_flag = '0'
         </where>
     </select>
 
     <select id="selectCmsTaskByTaskId" parameterType="Long" resultMap="CmsTaskResult">
         <include refid="selectCmsTaskVo"/>
-        where t.task_id = #{taskId}
+        where t.task_id = #{taskId} and t.del_flag = '0'
     </select>
 
     <insert id="insertCmsTask" parameterType="CmsTask" useGeneratedKeys="true" keyProperty="taskId">
@@ -135,16 +136,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where task_id = #{taskId}
     </update>
 
-    <delete id="deleteCmsTaskByTaskId" parameterType="Long">
-        delete from cms_task where task_id = #{taskId}
-    </delete>
+    <update id="deleteCmsTaskByTaskId" parameterType="Long">
+        update cms_task set del_flag = '2' where task_id = #{taskId}
+    </update>
 
-    <delete id="deleteCmsTaskByTaskIds" parameterType="String">
-        delete from cms_task where task_id in
+    <update id="deleteCmsTaskByTaskIds" parameterType="String">
+        update cms_task set del_flag = '2' where task_id in
         <foreach item="taskId" collection="array" open="(" separator="," close=")">
             #{taskId}
         </foreach>
-    </delete>
+    </update>
 
     <!-- ========== Dashboard统计查询 ========== -->
 

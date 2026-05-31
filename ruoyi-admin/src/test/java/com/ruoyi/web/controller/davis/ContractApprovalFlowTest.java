@@ -84,7 +84,6 @@ public class ContractApprovalFlowTest extends BaseControllerTest {
         assertThat(finalJson).contains("地址出租合同-002-修改版");
     }
 
-    @SuppressWarnings("unchecked")
     private Long createCustomer() throws Exception {
         Map<String, Object> customer = new LinkedHashMap<>();
         customer.put("customerName", "审批测试客户");
@@ -92,14 +91,14 @@ public class ContractApprovalFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "赵总");
         customer.put("contactPhone", "13900000100");
         customer.put("ownerId", 4L);
-        ResultActions result = asSales(HttpMethod.POST, "/system/customer", customer);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        return data instanceof Map ? ((Number) ((Map) data).get("customerId")).longValue() : null;
+        assertSuccess(asSales(HttpMethod.POST, "/system/customer", customer));
+        ResultActions listResult = asSales(HttpMethod.GET, "/system/customer/list", null);
+        assertListSuccess(listResult);
+        Long customerId = getIdFromList(listResult, "customerId");
+        assertThat(customerId).isNotNull();
+        return customerId;
     }
 
-    @SuppressWarnings("unchecked")
     private Long createContract(Long customerId, String name) throws Exception {
         Map<String, Object> contract = new LinkedHashMap<>();
         contract.put("contractName", name);
@@ -114,10 +113,11 @@ public class ContractApprovalFlowTest extends BaseControllerTest {
         contract.put("contactPerson", "联系人");
         contract.put("contactPhone", "13900000099");
         contract.put("ownerId", 4L);
-        ResultActions result = asSales(HttpMethod.POST, "/system/contract", contract);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        return data instanceof Map ? ((Number) ((Map) data).get("contractId")).longValue() : null;
+        assertSuccess(asSales(HttpMethod.POST, "/system/contract", contract));
+        ResultActions listResult = asSales(HttpMethod.GET, "/system/contract/list", null);
+        assertListSuccess(listResult);
+        Long contractId = getIdFromList(listResult, "contractId");
+        assertThat(contractId).isNotNull();
+        return contractId;
     }
 }

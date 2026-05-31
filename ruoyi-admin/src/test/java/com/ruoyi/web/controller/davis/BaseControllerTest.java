@@ -196,30 +196,46 @@ public abstract class BaseControllerTest {
               .andExpect(jsonPath("$.code").value(org.hamcrest.Matchers.not(200)));
     }
 
+    /**
+     * 断言列表查询成功（TableDataInfo 格式，msg="查询成功"）。
+     * 用于 Contract/Task 等返回 TableDataInfo 而非 AjaxResult 的端点。
+     */
+    protected void assertListSuccess(ResultActions result) throws Exception {
+        result.andExpect(status().isOk())
+              .andExpect(jsonPath("$.code").value(200));
+    }
+
     protected String getResponseJson(ResultActions result) throws Exception {
         return result.andReturn().getResponse().getContentAsString();
     }
 
     /**
-     * 从列表查询响应（AjaxResult > data > TableDataInfo 格式）中提取第一条匹配记录的 ID。
-     * 响应格式：{"code":200,"data":{"total":1,"rows":[{"customerId":1,...}],"code":200,"msg":"查询成功"}}
+     * 从列表查询响应中提取第一条匹配记录的 ID。
+     * 支持两种格式：
+     *   1. AjaxResult > data > rows（如 CmsCustomerController）
+     *   2. TableDataInfo > rows 直接（如 CmsContractController、CmsTaskController）
      */
     @SuppressWarnings("unchecked")
     protected Long getIdFromList(ResultActions listResult, String idField) throws Exception {
         String json = getResponseJson(listResult);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        // rows 在 data 对象内部（TableDataInfo 嵌套在 AjaxResult 中）
+        // 尝试从 data.rows 提取（AjaxResult 包装格式）
         Object dataObj = resp.get("data");
         if (dataObj instanceof Map) {
             Map<String, Object> dataMap = (Map<String, Object>) dataObj;
             Object rowsObj = dataMap.get("rows");
-            if (rowsObj instanceof List) {
+            if (rowsObj instanceof List && !((List) rowsObj).isEmpty()) {
                 List<Map<String, Object>> rows = (List<Map<String, Object>>) rowsObj;
-                if (!rows.isEmpty()) {
-                    Object id = rows.get(0).get(idField);
-                    return id instanceof Number ? ((Number) id).longValue() : null;
-                }
+                Object id = rows.get(0).get(idField);
+                return id instanceof Number ? ((Number) id).longValue() : null;
             }
+        }
+        // 尝试从 rows 直接提取（TableDataInfo 直接返回格式）
+        Object rowsObj = resp.get("rows");
+        if (rowsObj instanceof List && !((List) rowsObj).isEmpty()) {
+            List<Map<String, Object>> rows = (List<Map<String, Object>>) rowsObj;
+            Object id = rows.get(0).get(idField);
+            return id instanceof Number ? ((Number) id).longValue() : null;
         }
         return null;
     }

@@ -192,7 +192,6 @@ public class CmsContractServiceImpl implements ICmsContractService {
     @Transactional
     @Override
     public int deleteCmsContractByContractIds(Long[] contractIds) {
-        cmsContractMapper.deleteCmsFileByContractIds(contractIds);
         return cmsContractMapper.deleteCmsContractByContractIds(contractIds);
     }
 
@@ -205,7 +204,6 @@ public class CmsContractServiceImpl implements ICmsContractService {
     @Transactional
     @Override
     public int deleteCmsContractByContractId(Long contractId) {
-        cmsContractMapper.deleteCmsFileByContractId(contractId);
         return cmsContractMapper.deleteCmsContractByContractId(contractId);
     }
 

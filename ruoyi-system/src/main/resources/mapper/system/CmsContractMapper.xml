@@ -97,6 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditStatus != null  and auditStatus != ''"> and c.audit_status = #{auditStatus}</if>
             <if test="reminderStatus != null  and reminderStatus != ''"> and c.reminder_status = #{reminderStatus}</if>
             <if test="annex != null  and annex != ''"> and c.annex = #{annex}</if>
+            and c.del_flag = '0'
         </where>
     </select>
     
@@ -105,7 +106,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from cms_contract c
         left join sys_user u on c.owner_id = u.user_id
         left join cms_customer cu on c.customer_id = cu.customer_id
-        where c.contract_id = #{contractId}
+        where c.contract_id = #{contractId} and c.del_flag = '0'
     </select>
 
     <select id="selectCmsContractByContractCode" parameterType="String" resultMap="CmsContractResult">
@@ -237,16 +238,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where contract_id = #{contractId}
     </update>
 
-    <delete id="deleteCmsContractByContractId" parameterType="Long">
-        delete from cms_contract where contract_id = #{contractId}
-    </delete>
+    <update id="deleteCmsContractByContractId" parameterType="Long">
+        update cms_contract set del_flag = '2' where contract_id = #{contractId}
+    </update>
 
-    <delete id="deleteCmsContractByContractIds" parameterType="String">
-        delete from cms_contract where contract_id in 
+    <update id="deleteCmsContractByContractIds" parameterType="String">
+        update cms_contract set del_flag = '2' where contract_id in
         <foreach item="contractId" collection="array" open="(" separator="," close=")">
             #{contractId}
         </foreach>
-    </delete>
+    </update>
     
     <delete id="deleteCmsFileByContractIds" parameterType="String">
         delete from cms_file where contract_id in 

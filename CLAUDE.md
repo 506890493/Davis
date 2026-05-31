@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+拓荒牛(Davis)企业服务合同管理系统
 
 ## Communication Language
 
@@ -8,11 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Davis** (达维斯管理系统) — a customized fork of RuoYi-Vue v3.9.0 for accounting and rental contract management.
+**Davis** (拓荒牛管理系统) — a customized fork of RuoYi-Vue v3.9.0 for accounting and rental contract management.
 - Java 8, Spring Boot 2.5.15, Spring Security 5.7, MyBatis, Druid, Redis, JWT
 - Vue 2.6, Element UI 2.15, Vuex 3.6, Axios 0.28
-
-Detailed code conventions and patterns are in `AGENTS.md` — read it before writing code.
 
 ## Build & Run
 
@@ -28,13 +26,6 @@ npm install
 npm run dev           # localhost:80, proxies /dev-api → localhost:8080
 npm run build:prod    # production build → dist/
 npm run build:stage   # staging build
-```
-
-## Local Infrastructure (Docker)
-
-```bash
-docker compose -f docker-compose.yml up -d    # MySQL 8.0 + Redis 7.0
-docker compose -f docker-compose-local.yml up -d  # adds Redis Cluster (6 nodes)
 ```
 
 ## Architecture
@@ -113,10 +104,31 @@ Routes are dynamically loaded from backend `/getRouters` API at login. The backe
 
 GitHub Actions (`.github/workflows/deploy.yml`): manual trigger only (`workflow_dispatch`). Builds Docker image → pushes to `ghcr.io` → SSHs to server → `docker compose up -d --no-deps web`.
 
+## Role & Permission System
+
+系统涉及四种角色，权限逐级包含：
+
+| 角色 | 权限范围 |
+|------|---------|
+| **admin**（超级管理员） | 拥有 manager 全部权限 + 系统配置管理（用户管理、角色管理、菜单管理、字典管理、系统参数等）。可以看到和操作所有数据。 |
+| **manager**（业务管理员） | 拥有所有业务模块权限（合同、客户、任务、审批、催收派发等），但不包含系统配置管理。可以看到和操作所有业务数据。**业务流程测试应以 manager 为主。** |
+| **account**（会计） | 只能看到分配给自己的任务（`assigned_to` = 自己）。可执行：退回讲价、确认收款、完成续签、发起终止请求。**不能**看到别人的任务。 |
+| **sales**（销售） | 只能看到自己创建的合同（`create_by` = 自己）。可新增客户和合同。审批通过前可编辑/删除自己的合同。 |
+
+**测试角色使用原则**：
+- 业务端到端测试以 **manager、sales、account** 三种角色为主
+- manager 代表管理视角（全部数据可见、可审批、可派发）
+- sales 代表销售视角（数据归属隔离）
+- account 代表会计视角（任务执行者，数据隔离）
+- admin 仅用于测试系统配置相关功能
+
 ## Code Change Rules
 
-**所有代码修改必须先写计划文件到 `docs/davis/plan/` 目录，用户确认后方可执行。** 计划文件应包含：问题根因、修复方案、影响范围、验证方法。
+**所有代码修改必须先询问是否需要写计划文件到 `docs/davis/plan/` 目录，用户确认后方可执行。** 计划文件应包含：问题根因、修复方案、影响范围、验证方法。
 
-## No Tests
-
-This project has no test framework configured. Do not run `mvn test` or write test files unless the user explicitly asks to set up a test framework.
+## Tests
+后端:
+** 单元测试覆盖率达到90%
+系统：
+** 集成测试覆盖率90%
+** E2E测试覆盖率90%

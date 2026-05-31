@@ -367,12 +367,17 @@ create table cms_notification (
 -- 21. 任务日志表
 drop table if exists cms_task_log;
 create table cms_task_log (
-  log_id     bigint auto_increment primary key,
-  task_id    bigint not null,
-  action     varchar(50) not null,
-  operator   bigint default null,
-  content    clob default null,
-  create_time timestamp null
+  log_id        bigint auto_increment primary key,
+  task_id       bigint not null,
+  operator_id   bigint default null,
+  operator_name varchar(64) default null,
+  action_type   varchar(50) default null,
+  before_status char(2) default null,
+  after_status  char(2) default null,
+  remark        varchar(500) default null,
+  amount_before decimal(10,2) default null,
+  amount_after  decimal(10,2) default null,
+  create_time   timestamp null
 );
 
 -- 22. 定时任务调度表
@@ -405,4 +410,19 @@ create table sys_job_log (
   status          char(1) default '0' null,
   exception_info  clob default null,
   create_time     timestamp null
+);
+
+-- 24. 通知公告表
+drop table if exists sys_notice;
+create table sys_notice (
+  notice_id      int auto_increment primary key,
+  notice_title   varchar(50) not null,
+  notice_type    char(1) not null,
+  notice_content clob null,
+  status         char(1) default '0' null,
+  create_by      varchar(64) default '' null,
+  create_time    timestamp null,
+  update_by      varchar(64) default '' null,
+  update_time    timestamp null,
+  remark         varchar(255) default '' null
 );

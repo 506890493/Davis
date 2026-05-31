@@ -79,7 +79,6 @@ public class TerminationFlowTest extends BaseControllerTest {
             .contains("\"status\":\"3\"");
     }
 
-    @SuppressWarnings("unchecked")
     private Long createCustomer() throws Exception {
         Map<String, Object> customer = new LinkedHashMap<>();
         customer.put("customerName", "终止测试客户");
@@ -87,14 +86,14 @@ public class TerminationFlowTest extends BaseControllerTest {
         customer.put("contactPerson", "周总");
         customer.put("contactPhone", "13900000300");
         customer.put("ownerId", 4L);
-        ResultActions result = asSales(HttpMethod.POST, "/system/customer", customer);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        return resp.get("data") instanceof Map ?
-            ((Number) ((Map) resp.get("data")).get("customerId")).longValue() : null;
+        assertSuccess(asSales(HttpMethod.POST, "/system/customer", customer));
+        ResultActions listResult = asSales(HttpMethod.GET, "/system/customer/list", null);
+        assertListSuccess(listResult);
+        Long customerId = getIdFromList(listResult, "customerId");
+        assertThat(customerId).isNotNull();
+        return customerId;
     }
 
-    @SuppressWarnings("unchecked")
     private Long createContract(Long customerId) throws Exception {
         Map<String, Object> contract = new LinkedHashMap<>();
         contract.put("contractName", "终止测试合同");
@@ -106,17 +105,15 @@ public class TerminationFlowTest extends BaseControllerTest {
         contract.put("startDate", "2026-01-01");
         contract.put("endDate", "2026-12-31");
         contract.put("ownerId", 4L);
-        ResultActions result = asSales(HttpMethod.POST, "/system/contract", contract);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        Long contractId = data instanceof Map ? ((Number) ((Map) data).get("contractId")).longValue() : null;
-        if (contractId != null) {
-            Map<String, Object> audit = new LinkedHashMap<>();
-            audit.put("contractId", contractId);
-            audit.put("auditStatus", "1");
-            asManager(HttpMethod.POST, "/system/contract/audit", audit);
-        }
+        assertSuccess(asSales(HttpMethod.POST, "/system/contract", contract));
+        ResultActions listResult = asSales(HttpMethod.GET, "/system/contract/list", null);
+        assertListSuccess(listResult);
+        Long contractId = getIdFromList(listResult, "contractId");
+        assertThat(contractId).isNotNull();
+        Map<String, Object> audit = new LinkedHashMap<>();
+        audit.put("contractId", contractId);
+        audit.put("auditStatus", "1");
+        assertSuccess(asManager(HttpMethod.POST, "/system/contract/audit", audit));
         return contractId;
     }
 
@@ -131,10 +128,10 @@ public class TerminationFlowTest extends BaseControllerTest {
         task.put("currentAmount", 12000.00);
         task.put("assignedTo", 3L);
         task.put("status", "0");
-        ResultActions result = asManager(HttpMethod.POST, "/system/task", task);
-        String json = getResponseJson(result);
-        Map<String, Object> resp = objectMapper.readValue(json, Map.class);
-        Object data = resp.get("data");
-        return data instanceof Map ? ((Number) ((Map) data).get("taskId")).longValue() : null;
+        assertSuccess(asManager(HttpMethod.POST, "/system/task", task));
+        // POST 返回 toAjax(int)，查列表获取 ID
+        ResultActions listResult = asManager(HttpMethod.GET, "/system/task/list?pageNum=1&pageSize=50", null);
+        assertListSuccess(listResult);
+        return getIdFromList(listResult, "taskId");
     }
 }
