@@ -94,9 +94,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="parentId != null "> and c.parent_id = #{parentId}</if>
             <if test="customerId != null "> and c.customer_id = #{customerId}</if>
 
-            <if test="auditStatus != null  and auditStatus != ''"> and c.audit_status = #{auditStatus}</if>
-            <if test="reminderStatus != null  and reminderStatus != ''"> and c.reminder_status = #{reminderStatus}</if>
-            <if test="annex != null  and annex != ''"> and c.annex = #{annex}</if>
+            <if test="createBy != null and createBy != ''"> and c.create_by = #{createBy}</if>
+            <if test="auditStatus != null and auditStatus != ''"> and c.audit_status = #{auditStatus}</if>
+            <if test="reminderStatus != null and reminderStatus != ''"> and c.reminder_status = #{reminderStatus}</if>
+            <if test="annex != null and annex != ''"> and c.annex = #{annex}</if>
             and c.del_flag = '0'
         </where>
     </select>
@@ -153,7 +154,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
             <if test="auditStatus != null">audit_status,</if>
             <if test="delFlag != null">del_flag,</if>
-            <if test="createBy != null">create_by,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
@@ -188,7 +189,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
             <if test="auditStatus != null">#{auditStatus},</if>
             <if test="delFlag != null">#{delFlag},</if>
-            <if test="createBy != null">#{createBy},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
@@ -227,7 +228,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
             <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
-            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
@@ -391,5 +392,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         GROUP BY u.user_id, u.user_name, u.nick_name
         ORDER BY totalAmount DESC
+    </select>
+
+    <!-- 统计指定客户的合同数量 -->
+    <select id="countContractsByCustomerId" resultType="Long">
+        SELECT COUNT(*)
+        FROM cms_contract
+        WHERE del_flag = '0'
+        AND customer_id = #{customerId}
     </select>
 </mapper>

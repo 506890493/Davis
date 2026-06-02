@@ -230,7 +230,15 @@ public interface CmsContractMapper
      * @return 人员统计列表
      */
     public List<LedgerByPersonVo> selectLedgerByPerson(@Param("year") Integer year,
-                                                        @Param("month") Integer month,
-                                                        @Param("beginDate") String beginDate,
-                                                        @Param("endDate") String endDate);
+                                                         @Param("month") Integer month,
+                                                         @Param("beginDate") String beginDate,
+                                                         @Param("endDate") String endDate);
+
+    /**
+     * 统计指定客户的合同数量
+     *
+     * @param customerId 客户ID
+     * @return 合同数量
+     */
+    public Long countContractsByCustomerId(@Param("customerId") Long customerId);
 }

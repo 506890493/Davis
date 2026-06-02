@@ -298,7 +298,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         return sysUserService.selectAllocatedList(queryUser);
     }
 
-    /**
+/**
      * 会计将任务退回管理员(讲价)
      *
      * @param task 任务信息
@@ -309,11 +309,23 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     public int returnToAdmin(CmsTask task)
     {
         CmsTask existingTask = cmsTaskMapper.selectCmsTaskByTaskId(task.getTaskId());
-        String oldStatus = existingTask != null ? existingTask.getStatus() : null;
+        if (existingTask == null) {
+            throw new ServiceException("任务不存在");
+        }
+        
+        Long currentUserId = SecurityUtils.getUserId();
+        if (!currentUserId.equals(existingTask.getAssignedTo())) {
+            throw new ServiceException("只能退回分配给自己的任务");
+        }
+        
+        String oldStatus = existingTask.getStatus();
+        if (!"0".equals(oldStatus) && !"1".equals(oldStatus)) {
+            throw new ServiceException("只能退回待处理或进行中的任务");
+        }
         
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
-        updateTask.setStatus("2"); // 2待审批
+        updateTask.setStatus("2");
         updateTask.setRemark(task.getRemark());
         updateTask.setCurrentAmount(task.getCurrentAmount());
         updateTask.setAdjustAmount(task.getAdjustAmount());
@@ -327,7 +339,6 @@ public class CmsTaskServiceImpl implements ICmsTaskService
                 "提交协商价格: 原金额" + existingTask.getOriginalAmount() + "→新金额" + task.getCurrentAmount() + ", 备注: " + task.getRemark(),
                 existingTask.getOriginalAmount(), task.getCurrentAmount());
             
-            // 通知所有管理员/经理
             List<SysUser> admins = findUsersByRoleKey("admin");
             for (SysUser admin : admins) {
                 sendNotification(admin.getUserId(), "协商价格待审批",
@@ -498,7 +509,6 @@ public class CmsTaskServiceImpl implements ICmsTaskService
     /**
      * 会计完成续签
      *
-     * @param task 任务信息
      * @return 结果
      */
     @Override
@@ -539,7 +549,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
         return result;
     }
 
-    /**
+/**
      * 确认收款（催收任务完成）
      *
      * @param task 任务信息（包含taskId, actualAmount, receiveRemark）
@@ -554,19 +564,26 @@ public class CmsTaskServiceImpl implements ICmsTaskService
             throw new ServiceException("任务不存在");
         }
         
+        Long currentUserId = SecurityUtils.getUserId();
+        if (!currentUserId.equals(existingTask.getAssignedTo())) {
+            throw new ServiceException("只能确认分配给自己的任务");
+        }
+        
         String oldStatus = existingTask.getStatus();
+        if (!"0".equals(oldStatus) && !"1".equals(oldStatus)) {
+            throw new ServiceException("只能确认待处理或进行中的任务");
+        }
 
         CmsTask updateTask = new CmsTask();
         updateTask.setTaskId(task.getTaskId());
         updateTask.setActualAmount(task.getActualAmount());
         updateTask.setReceiveRemark(task.getReceiveRemark());
-        updateTask.setStatus("4"); // 4已完成
+        updateTask.setStatus("4");
         updateTask.setUpdateTime(DateUtils.getNowDate());
         updateTask.setUpdateBy(SecurityUtils.getUsername());
         
         int result = cmsTaskMapper.updateCmsTask(updateTask);
 
-        // 更新关联合同的actual_amount
         Long contractIdToUpdate = existingTask.getSourceContractId();
         if (contractIdToUpdate == null) {
             contractIdToUpdate = existingTask.getContractId();
@@ -576,7 +593,7 @@ public class CmsTaskServiceImpl implements ICmsTaskService
             CmsContract contract = cmsContractService.selectCmsContractByContractId(contractIdToUpdate);
             if (contract != null) {
                 contract.setActualAmount(task.getActualAmount());
-                contract.setReminderStatus("3"); // 3已完成
+                contract.setReminderStatus("3");
                 cmsContractService.updateCmsContract(contract);
             }
         }

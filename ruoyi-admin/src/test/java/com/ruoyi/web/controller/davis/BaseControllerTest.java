@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -103,13 +104,18 @@ public abstract class BaseControllerTest {
 
     private ResultActions performRequest(HttpMethod method, String url, Object body,
                                           String username, Long userId, String roleKey) throws Exception {
-        // 使用 RuoYi 的 LoginUser 类（SecurityUtils.getLoginUser() 强转为此类）
-        LoginUser loginUser = new LoginUser(getSysUser(username), getPermissionsForRole(roleKey));
+        // 创建完整的 LoginUser 对象
+        SysUser sysUser = getSysUser(username);
+        LoginUser loginUser = new LoginUser(sysUser, getPermissionsForRole(roleKey));
         loginUser.setUserId(userId);
-        loginUser.setDeptId(getSysUser(username).getDeptId());
-
+        loginUser.setDeptId(sysUser.getDeptId());
+        
+        // 设置完整的认证信息
         UsernamePasswordAuthenticationToken auth =
             new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+        
+        // 确保SecurityContext正确设置
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
             .request(method, url)
@@ -149,6 +155,7 @@ public abstract class BaseControllerTest {
                 perms.add("system:customer:add");
                 perms.add("system:customer:edit");
                 perms.add("system:customer:remove");
+                perms.add("system:customer:export");
                 perms.add("system:task:list");
                 perms.add("system:task:query");
                 perms.add("system:task:add");
@@ -161,11 +168,11 @@ public abstract class BaseControllerTest {
             case "account":
                 perms.add("system:task:list");
                 perms.add("system:task:query");
-                perms.add("system:task:add");
-                perms.add("system:task:edit");
-                perms.add("system:task:remove");
                 perms.add("system:task:export");
                 perms.add("cms:task:edit");
+                perms.add("system:contract:query");
+                perms.add("system:contract:list");
+                perms.add("system:task:log");
                 break;
             case "sales":
                 perms.add("system:contract:list");
@@ -173,11 +180,13 @@ public abstract class BaseControllerTest {
                 perms.add("system:contract:add");
                 perms.add("system:contract:edit");
                 perms.add("system:contract:remove");
+                perms.add("system:contract:export");
                 perms.add("system:customer:list");
                 perms.add("system:customer:query");
                 perms.add("system:customer:add");
                 perms.add("system:customer:edit");
                 perms.add("system:customer:remove");
+                perms.add("system:customer:export");
                 break;
         }
         return perms;
@@ -205,7 +214,7 @@ public abstract class BaseControllerTest {
               .andExpect(jsonPath("$.code").value(200));
     }
 
-    protected String getResponseJson(ResultActions result) throws Exception {
+    public String getResponseJson(ResultActions result) throws Exception {
         return result.andReturn().getResponse().getContentAsString();
     }
 
@@ -216,7 +225,7 @@ public abstract class BaseControllerTest {
      *   2. TableDataInfo > rows 直接（如 CmsContractController、CmsTaskController）
      */
     @SuppressWarnings("unchecked")
-    protected Long getIdFromList(ResultActions listResult, String idField) throws Exception {
+    public Long getIdFromList(ResultActions listResult, String idField) throws Exception {
         String json = getResponseJson(listResult);
         Map<String, Object> resp = objectMapper.readValue(json, Map.class);
         // 尝试从 data.rows 提取（AjaxResult 包装格式）

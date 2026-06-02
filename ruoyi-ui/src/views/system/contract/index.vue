@@ -180,6 +180,7 @@
                 :underline="false"
                 style="font-size: 12px"
                 @click="importTemplate"
+                v-hasPermi="['system:contract:import']"
                 >下载模板</el-link
               >
             </div>
