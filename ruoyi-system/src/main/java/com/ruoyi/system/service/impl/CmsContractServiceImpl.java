@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Set;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.SecurityValidationUtil;
 import com.ruoyi.common.exception.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -271,14 +272,27 @@ public class CmsContractServiceImpl implements ICmsContractService {
         int failureNum = 0;
         StringBuilder successMsg = new StringBuilder();
         StringBuilder failureMsg = new StringBuilder();
+        int index = 0;
         for (CmsContract contract : contractList) {
+            index++;
             try {
                 if (StringUtils.isEmpty(contract.getContractCode())
                         || StringUtils.isEmpty(contract.getContractName())) {
                     failureNum++;
-                    failureMsg.append("合同编码或名称为空; ");
+                    failureMsg.append("第" + index + "行: 合同编码或名称为空; ");
                     continue;
                 }
+
+                // 安全字符校验
+                SecurityValidationUtil.validateField("合同编码", contract.getContractCode());
+                SecurityValidationUtil.validateField("合同名称", contract.getContractName());
+                if (StringUtils.isNotEmpty(contract.getCustomerName())) {
+                    SecurityValidationUtil.validateField("客户名称", contract.getCustomerName());
+                }
+                if (StringUtils.isNotEmpty(contract.getRemark())) {
+                    SecurityValidationUtil.validateField("备注", contract.getRemark());
+                }
+
                 CmsContract exists = cmsContractMapper.selectCmsContractByContractCode(contract.getContractCode());
                 contract.setCreateBy(operator);
                 contract.setCreateTime(DateUtils.getNowDate());
@@ -293,11 +307,11 @@ public class CmsContractServiceImpl implements ICmsContractService {
                     successNum++;
                 } else {
                     failureNum++;
-                    failureMsg.append("合同编码已存在且未开启更新; ");
+                    failureMsg.append("第" + index + "行: 合同编码已存在且未开启更新; ");
                 }
             } catch (Exception e) {
                 failureNum++;
-                failureMsg.append(e.getMessage()).append("; ");
+                failureMsg.append("第" + index + "行: " + e.getMessage() + "; ");
             }
         }
         if (failureNum > 0) {
