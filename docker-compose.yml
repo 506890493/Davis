@@ -56,6 +56,9 @@ services:
       - redis
     networks:
       - davis-net
+    volumes:
+      # 持久化上传文件，防止容器重建后丢失（头像、附件、导入模板等）
+      - ./data/upload:/app/uploadPath
     environment:
       # 告诉你的代码如何连接数据库和 Redis
       - DB_HOST=davis-mysql
