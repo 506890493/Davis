@@ -175,14 +175,20 @@
               >选择文件</el-button
             >
             <div class="el-upload__tip" slot="tip">
-              <el-link
-                type="primary"
-                :underline="false"
-                style="font-size: 12px"
-                @click="importTemplate"
-                v-hasPermi="['system:contract:import']"
-                >下载模板</el-link
-              >
+              <el-dropdown @command="importTemplate" style="margin-right: 5px">
+                <el-link
+                  type="primary"
+                  :underline="false"
+                  style="font-size: 12px"
+                  v-hasPermi="['system:contract:import']"
+                >
+                  下载模板<i class="el-icon-arrow-down el-icon--right"></i>
+                </el-link>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="1">代账合同模板</el-dropdown-item>
+                  <el-dropdown-item command="2">地址出售合同模板</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </div>
           </el-upload>
         </el-form-item>
@@ -710,11 +716,13 @@ export default {
       if (val === this.dictRent) return this.rentType;
       return null;
     },
-    importTemplate() {
+    importTemplate(contractType) {
+      const type = contractType || "1";
+      const filename = type === "1" ? "代账合同导入模板.xlsx" : "地址出售合同导入模板.xlsx";
       this.download(
         "system/contract/importTemplate",
-        {},
-        `contract_template_${new Date().getTime()}.xlsx`
+        { contractType: type },
+        filename
       );
     },
     openImport() {
