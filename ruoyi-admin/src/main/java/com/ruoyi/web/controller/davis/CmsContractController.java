@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.ruoyi.common.annotation.Log;
@@ -79,10 +80,26 @@ public class CmsContractController extends BaseController
 
     @PreAuthorize("@ss.hasPermi('system:contract:import')")
     @PostMapping("/importTemplate")
-    public void importTemplate(HttpServletResponse response)
+    public void importTemplate(HttpServletResponse response,
+                               @RequestParam(required = false, defaultValue = "1") String contractType)
     {
         ExcelUtil<CmsContract> util = new ExcelUtil<CmsContract>(CmsContract.class);
-        util.importTemplateExcel(response, "合同数据");
+        if ("1".equals(contractType))
+        {
+            // 代账合同：隐藏地址出售特有字段 + 系统字段
+            util.hideColumn("parentId", "customerId", "customerName",
+                    "auditStatus", "reminderStatus", "annex", "ownerId", "deptId",
+                    "rentalAddress", "isRented");
+            util.importTemplateExcel(response, "代账合同数据");
+        }
+        else
+        {
+            // 地址出售合同：隐藏代账特有字段 + 系统字段
+            util.hideColumn("parentId", "customerId", "customerName",
+                    "auditStatus", "reminderStatus", "annex", "ownerId", "deptId",
+                    "taxType", "establishmentDate");
+            util.importTemplateExcel(response, "地址出售合同数据");
+        }
     }
 
     /**
