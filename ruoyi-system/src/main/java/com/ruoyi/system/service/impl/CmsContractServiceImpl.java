@@ -276,6 +276,14 @@ public class CmsContractServiceImpl implements ICmsContractService {
         for (CmsContract contract : contractList) {
             index++;
             try {
+                // 自动设置系统字段默认值
+                contract.setAuditStatus("0");
+                if (StringUtils.isEmpty(contract.getReminderStatus())) {
+                    contract.setReminderStatus("0");
+                }
+                contract.setOwnerId(SecurityUtils.getUserId());
+                contract.setDeptId(SecurityUtils.getDeptId());
+
                 if (StringUtils.isEmpty(contract.getContractCode())
                         || StringUtils.isEmpty(contract.getContractName())) {
                     failureNum++;

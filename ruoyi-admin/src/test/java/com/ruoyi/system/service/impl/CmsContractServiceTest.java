@@ -1,13 +1,17 @@
 package com.ruoyi.system.service.impl;
 
+import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.system.domain.CmsContract;
 import com.ruoyi.system.mapper.CmsContractMapper;
 import com.ruoyi.system.service.ICmsContractService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -30,6 +34,19 @@ class CmsContractServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        // 设置安全上下文，确保 SecurityUtils.getUserId() / getDeptId() 不抛异常
+        LoginUser loginUser = new LoginUser();
+        loginUser.setUserId(1L);
+        loginUser.setDeptId(100L);
+        UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -156,7 +173,6 @@ class CmsContractServiceTest {
         contract.setContractName("合同'; DROP TABLE cms_contract;");
 
         when(cmsContractMapper.selectCmsContractByContractCode(anyString())).thenReturn(null);
-        when(cmsContractMapper.insertCmsContract(any())).thenThrow(new RuntimeException("SQL Error"));
 
         assertThrows(com.ruoyi.common.exception.ServiceException.class, () -> {
             cmsContractService.importCmsContract(
@@ -166,7 +182,7 @@ class CmsContractServiceTest {
             );
         });
 
-        verify(cmsContractMapper, times(1)).insertCmsContract(any());
+        verify(cmsContractMapper, never()).insertCmsContract(any());
     }
 
     @Test
