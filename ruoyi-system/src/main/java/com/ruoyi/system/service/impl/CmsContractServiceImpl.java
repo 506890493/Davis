@@ -70,20 +70,28 @@ public class CmsContractServiceImpl implements ICmsContractService {
 
     /**
      * 查询合同管理列表
-     * 
+     *
      * @param cmsContract 合同管理
      * @return 合同管理
      */
     @Override
     public List<CmsContract> selectCmsContractList(CmsContract cmsContract) {
-        // 数据权限过滤：非管理员只能看到自己创建的合同
-        if (!SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+        // 数据权限过滤：根据角色类型
+        String roleType = determineRoleType();
+
+        if ("sales".equals(roleType)) {
+            // sales只能看到自己创建的合同
             String createBy = SecurityUtils.getUsername();
             if (StringUtils.isEmpty(createBy)) {
                 createBy = "unknown";
             }
             cmsContract.setCreateBy(createBy);
+        } else if ("account".equals(roleType)) {
+            // account只能看到分配给自己的合同
+            cmsContract.setOwnerId(SecurityUtils.getUserId());
         }
+        // admin和manager可以看到所有合同（不过滤）
+
         return cmsContractMapper.selectCmsContractList(cmsContract);
     }
 
