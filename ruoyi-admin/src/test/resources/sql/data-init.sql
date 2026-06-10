@@ -189,3 +189,75 @@ insert into sys_config(config_id, config_name, config_key, config_value, config_
 values(1, '用户密码最大错误次数', 'sys.account.password.maxRetryCount', '5', 'Y', 'admin', now());
 insert into sys_config(config_id, config_name, config_key, config_value, config_type, create_by, create_time)
 values(2, '用户密码锁定时间', 'sys.account.password.lockTime', '10', 'Y', 'admin', now());
+
+-- ========== 知识库测试种子（Task 1 Step 6） ==========
+DROP TABLE IF EXISTS cms_kb_category;
+DROP TABLE IF EXISTS cms_kb_file;
+DROP TABLE IF EXISTS cms_kb_attachment;
+DROP TABLE IF EXISTS cms_kb_document_version;
+DROP TABLE IF EXISTS cms_kb_document;
+CREATE TABLE cms_kb_category (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    parent_id BIGINT DEFAULT 0, name VARCHAR(64) NOT NULL, icon VARCHAR(255),
+    order_num INT DEFAULT 0, is_required TINYINT(1) DEFAULT 0,
+    status TINYINT(1) DEFAULT 1,
+    create_by VARCHAR(64), create_time DATETIME, update_by VARCHAR(64), update_time DATETIME,
+    remark VARCHAR(255),
+    del_flag TINYINT(1) DEFAULT 0,
+    INDEX idx_parent (parent_id, del_flag, order_num)
+);
+CREATE TABLE cms_kb_file (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    original_name VARCHAR(255) NOT NULL, stored_name VARCHAR(255) NOT NULL,
+    rel_path VARCHAR(512) NOT NULL, file_size BIGINT NOT NULL,
+    mime_type VARCHAR(128), sha256 CHAR(64), bucket VARCHAR(32) DEFAULT 'kb',
+    create_by VARCHAR(64), create_time DATETIME, del_flag TINYINT(1) DEFAULT 0,
+    UNIQUE KEY uk_sha (sha256, del_flag)
+);
+CREATE TABLE cms_kb_document (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    category_id BIGINT NOT NULL, title VARCHAR(255) NOT NULL,
+    doc_type TINYINT NOT NULL, summary VARCHAR(500), tags VARCHAR(255),
+    cover_image_id BIGINT, primary_file_id BIGINT,
+    is_required TINYINT(1) DEFAULT 0, status TINYINT DEFAULT 0,
+    published_time DATETIME, view_count INT DEFAULT 0, current_version INT DEFAULT 1,
+    create_by VARCHAR(64), create_time DATETIME,
+    update_by VARCHAR(64), update_time DATETIME,
+    del_flag TINYINT(1) DEFAULT 0, delete_time DATETIME
+);
+CREATE TABLE cms_kb_document_version (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    document_id BIGINT NOT NULL, version_no INT NOT NULL,
+    title VARCHAR(255) NOT NULL, content LONGTEXT, primary_file_id BIGINT,
+    summary VARCHAR(500), tags VARCHAR(255), save_reason VARCHAR(255),
+    is_current TINYINT(1) DEFAULT 0,
+    create_by VARCHAR(64), create_time DATETIME,
+    UNIQUE KEY uk_doc_ver (document_id, version_no)
+);
+CREATE TABLE cms_kb_attachment (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    document_id BIGINT NOT NULL, version_id BIGINT, file_id BIGINT NOT NULL,
+    display_name VARCHAR(255), sort_num INT DEFAULT 0,
+    create_by VARCHAR(64), create_time DATETIME
+);
+
+INSERT INTO cms_kb_category(parent_id, name, order_num, is_required) VALUES
+(0,'系统操作手册',1,1),(0,'代账知识',2,0),(0,'会计知识',3,0),(0,'工商知识',4,0);
+
+INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon) VALUES
+('知识库', 0, 99, 'view', 'kb/portal/index', 1, 0, 'C', '0', '0', 'kb:portal:view', 'reading');
+-- 按钮级权限（与主 SQL 对齐）
+INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon) VALUES
+('知识库必读入口', 0, 100, '', '', 1, 0, 'F', '0', '0', 'kb:portal:required', '#'),
+('知识库文件下载', 0, 101, '', '', 1, 0, 'F', '0', '0', 'kb:file:download',  '#'),
+('知识库文件上传', 0, 102, '', '', 1, 0, 'F', '0', '0', 'kb:file:upload',    '#');
+-- 给 manager/account/sales 绑定知识库相关菜单（4 个：view + required + download + upload）
+INSERT INTO sys_role_menu(role_id, menu_id)
+SELECT 2, menu_id FROM sys_menu WHERE perms IN
+  ('kb:portal:view','kb:portal:required','kb:file:download','kb:file:upload');
+INSERT INTO sys_role_menu(role_id, menu_id)
+SELECT 3, menu_id FROM sys_menu WHERE perms IN
+  ('kb:portal:view','kb:portal:required','kb:file:download','kb:file:upload');
+INSERT INTO sys_role_menu(role_id, menu_id)
+SELECT 4, menu_id FROM sys_menu WHERE perms IN
+  ('kb:portal:view','kb:portal:required','kb:file:download','kb:file:upload');
