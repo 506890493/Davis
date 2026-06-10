@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CmsKbCategoryMapper">
+
+    <resultMap type="CmsKbCategory" id="BaseResultMap">
+        <id     property="id"          column="id"/>
+        <result property="parentId"    column="parent_id"/>
+        <result property="name"        column="name"/>
+        <result property="icon"        column="icon"/>
+        <result property="orderNum"    column="order_num"/>
+        <result property="isRequired"  column="is_required"/>
+        <result property="status"      column="status"/>
+        <result property="createBy"    column="create_by"/>
+        <result property="createTime"  column="create_time"/>
+        <result property="updateBy"    column="update_by"/>
+        <result property="updateTime"  column="update_time"/>
+        <result property="remark"      column="remark"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, parent_id, name, icon, order_num, is_required, status,
+        create_by, create_time, update_by, update_time, remark
+    </sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_category
+        WHERE id = #{id} AND del_flag = 0
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap" parameterType="CmsKbCategory">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_category
+        <where>
+            del_flag = 0
+            <if test="parentId != null">AND parent_id = #{parentId}</if>
+            <if test="name != null and name != ''">AND name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="status != null">AND status = #{status}</if>
+        </where>
+        ORDER BY parent_id, order_num
+    </select>
+
+    <select id="selectChildren" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_category
+        WHERE parent_id = #{parentId} AND del_flag = 0
+        ORDER BY order_num
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_category
+        WHERE del_flag = 0
+        ORDER BY parent_id, order_num
+    </select>
+
+    <insert id="insert" parameterType="CmsKbCategory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cms_kb_category(parent_id, name, icon, order_num, is_required, status,
+                                    create_by, create_time, update_by, update_time, remark)
+        VALUES(#{parentId}, #{name}, #{icon}, #{orderNum}, #{isRequired}, #{status},
+               #{createBy}, sysdate(), #{updateBy}, sysdate(), #{remark})
+    </insert>
+
+    <update id="update" parameterType="CmsKbCategory">
+        UPDATE cms_kb_category
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="isRequired != null">is_required = #{isRequired},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_by = #{updateBy},
+            update_time = sysdate()
+        </set>
+        WHERE id = #{id} AND del_flag = 0
+    </update>
+
+    <update id="updateOrderNum">
+        UPDATE cms_kb_category
+        SET parent_id = #{parentId}, order_num = #{orderNum}
+        WHERE id = #{id} AND del_flag = 0
+    </update>
+
+    <update id="deleteByIds">
+        UPDATE cms_kb_category
+        SET del_flag = 1, update_time = sysdate()
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="countChildren" resultType="int">
+        SELECT COUNT(1) FROM cms_kb_category
+        WHERE parent_id = #{parentId} AND del_flag = 0
+    </select>
+
+    <select id="countDocuments" resultType="int">
+        SELECT COUNT(1) FROM cms_kb_document
+        WHERE category_id = #{categoryId} AND del_flag = 0
+    </select>
+
+    <select id="selectRequired" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_category
+        WHERE del_flag = 0 AND status = 1 AND is_required = 1
+        ORDER BY order_num
+    </select>
+</mapper>

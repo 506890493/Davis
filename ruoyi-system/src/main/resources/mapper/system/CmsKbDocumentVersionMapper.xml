@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CmsKbDocumentVersionMapper">
+
+    <resultMap type="CmsKbDocumentVersion" id="BaseResultMap">
+        <id     property="id"            column="id"/>
+        <result property="documentId"    column="document_id"/>
+        <result property="versionNo"     column="version_no"/>
+        <result property="title"         column="title"/>
+        <result property="content"       column="content"/>
+        <result property="primaryFileId" column="primary_file_id"/>
+        <result property="summary"       column="summary"/>
+        <result property="tags"          column="tags"/>
+        <result property="saveReason"    column="save_reason"/>
+        <result property="isCurrent"     column="is_current"/>
+        <result property="createBy"      column="create_by"/>
+        <result property="createTime"    column="create_time"/>
+        <result property="updateBy"      column="update_by"/>
+        <result property="updateTime"    column="update_time"/>
+        <result property="remark"        column="remark"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, document_id, version_no, title, content, primary_file_id,
+        summary, tags, save_reason, is_current,
+        create_by, create_time, update_by, update_time, remark
+    </sql>
+
+    <select id="selectByDocAndVer" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_document_version
+        WHERE document_id = #{documentId} AND version_no = #{versionNo}
+    </select>
+
+    <select id="selectCurrentByDoc" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_document_version
+        WHERE document_id = #{documentId} AND is_current = 1
+    </select>
+
+    <select id="selectByDocument" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_document_version
+        WHERE document_id = #{documentId}
+        ORDER BY version_no DESC
+    </select>
+
+    <select id="selectMaxVersionNo" resultType="int">
+        SELECT COALESCE(MAX(version_no), 0) FROM cms_kb_document_version
+        WHERE document_id = #{documentId}
+    </select>
+
+    <insert id="insert" parameterType="CmsKbDocumentVersion" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cms_kb_document_version(document_id, version_no, title, content,
+                                            primary_file_id, summary, tags, save_reason,
+                                            is_current, create_by, create_time,
+                                            update_by, update_time, remark)
+        VALUES(#{documentId}, #{versionNo}, #{title}, #{content},
+               #{primaryFileId}, #{summary}, #{tags}, #{saveReason},
+               #{isCurrent}, #{createBy}, sysdate(),
+               #{updateBy}, sysdate(), #{remark})
+    </insert>
+
+    <update id="clearCurrent">
+        UPDATE cms_kb_document_version
+        SET is_current = 0
+        WHERE document_id = #{documentId}
+    </update>
+
+    <delete id="hardDeleteByDocument">
+        DELETE FROM cms_kb_document_version
+        WHERE document_id = #{documentId}
+    </delete>
+</mapper>
