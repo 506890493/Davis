@@ -31,7 +31,7 @@
 | 目录模型 | 单树多级 + 预置 4 个一级分类 |
 | 可见性 | 全部已登录员工（不按角色隔离） |
 | 搜索 | MySQL LIKE（标题 / 摘要 / 标签） |
-| 在线预览 | 不做，所有文件走下载 |
+| 在线预览 | 仅 `image/*` 走图片预览；`video/*` 走视频播放（HTML5 `<video>`，支持倍速/全屏）；其他 mime 走下载 |
 | 状态机 | 草稿 / 已发布 / 已下架 |
 | 回收站 | 30 天可恢复，过期物理清理 |
 | 版本历史 | 每次保存生成新版本，可回滚（回滚 = 产生新版本号） |
@@ -250,7 +250,7 @@
 | GET | `/kb/portal/detail/{id}` | `kb:portal:view` | 文档详情（文件走 download URL） |
 | GET | `/kb/portal/required` | `kb:portal:required` | 新员工必读列表 |
 | GET | `/kb/portal/search` | `kb:portal:view` | 关键字搜索（标题/摘要/标签 LIKE） |
-| GET | `/kb/file/download/{id}` | `kb:file:download` | 文件下载（Content-Disposition） |
+| GET | `/kb/file/raw/{id}` | `kb:file:download` | 统一代理：按 mime 返回 inline 预览 / video 播放 / attachment 下载 |
 | POST | `/kb/file/upload` | `kb:file:upload` | 通用上传（管理员/经理） |
 
 ### 7.2 管理端
@@ -277,6 +277,13 @@
 | DELETE | `/kb/recycle/purge` | `kb:recycle:purge` | 物理删除（admin only） |
 
 > 文件下载统一封装：`CmsKbFileService.buildDownloadResponse(fileId)`，并校验 `del_flag=0`。
+>
+> 预览/播放/下载**统一走后端代理路径**（`/kb/file/raw/{id}`），由 Controller 根据 `cms_kb_file.mime_type` 决定响应头：
+> - `image/*` → `Content-Type: image/...` + `inline`（浏览器内联渲染）
+> - `video/*` → `Content-Type: video/...` + `inline`（HTML5 `<video>` 可拖动进度条、倍速、全屏）
+> - 其他 → `Content-Disposition: attachment; filename="<original_name>"`
+>
+> 优势：① 不暴露 `/app/uploadPath` 绝对路径；② 统一鉴权 + 操作日志；③ 后续可挂防盗链 / 限速。
 
 ---
 
@@ -298,7 +305,10 @@ ruoyi-ui/src/
 │   │   └── portal/                    # 阅读端（员工）
 │   │       ├── index.vue              # 左侧树 + 右侧列表
 │   │       ├── detail.vue             # 文章详情 / 文件下载卡
-│   │       └── required.vue           # 新员工必读
+│   │       ├── required.vue           # 新员工必读
+│   │       └── components/
+│   │           ├── KbImagePreview.vue # el-image 列表预览（缩放/旋转）
+│   │           └── KbVideoPlayer.vue  # HTML5 <video controls>（倍速/全屏/进度）
 │   └── system/kb/                     # 系统管理菜单下的知识库入口
 └── api/
     └── kb/
@@ -334,6 +344,9 @@ ruoyi-ui/src/
 | 回滚到当前版本 | 拒绝 | 「已是当前版本，无需回滚」 |
 | 草稿被阅读端访问 | 拒绝（仅 status=1 可见） | 「文档尚未发布」 |
 | 角色无权限访问接口 | 403 | 沿用 RuoYi 默认 |
+| 视频格式浏览器不支持（如 rmvb/avi 老格式） | 浏览器原生提示，前端 fallback 提示「请下载到本地播放」 | 「当前浏览器无法在线播放，请下载查看」 |
+| 视频过大（>200MB）流式加载慢 | Range 请求支持 + 提示 | 「视频较大，请稍候或下载查看」 |
+| 图片 EXIF 隐私泄露 | 上传时通过 `thumbnailator` / `imgscalr` 去除 EXIF | 静默处理 |
 | 回收站过期清理 | 物理删除文件 + 移除 `cms_kb_file` | 后台日志 |
 
 所有异常走 `@RestControllerAdvice` 统一返回 `AjaxResult.error("KB_XXX", message)`。
@@ -348,8 +361,8 @@ ruoyi-ui/src/
 |---|---|---|
 | **Mapper 单测** | SQL 正确性 | 目录拖动后 order_num 连续无空洞；软删不被搜索；回收站过期清理 |
 | **Service 单测** | 业务规则 | 文件秒传（sha256 命中复用）；版本回滚产生新 version_no+1；删除目录拒绝有子节点 |
-| **Controller 集成测** | HTTP + 权限 | manager 可发布；sales 调 `kb:category:add` 返 403；草稿不可被阅读端看到；下载受 `kb:file:download` 限制 |
-| **E2E 端到端** | 全链路 | 新员工首登 → 首页必读 → 钻目录 → 读文章 → 上传文件 → 等待审批 → 发布 → 全员可见；manager 编辑→保存版本→回滚→对比；admin 删除→回收站→恢复→再删除→过期清理 |
+| **Controller 集成测** | HTTP + 权限 | manager 可发布；sales 调 `kb:category:add` 返 403；草稿不可被阅读端看到；下载受 `kb:file:download` 限制；`/kb/file/raw/{id}` 对 image 返回 `inline` + 正确 `Content-Type`，对 video 同样，对其他返回 `attachment` |
+| **E2E 端到端** | 全链路 | 新员工首登 → 首页必读 → 钻目录 → 读文章 → 预览图片 → 播放录屏 → 下载手册；manager 上传文件→发布→全员可见→编辑→保存版本→回滚→对比；admin 删除→回收站→恢复→再删除→过期清理 |
 
 每层覆盖率目标 ≥ 90%（沿用项目基线）。
 
@@ -378,7 +391,7 @@ ruoyi-ui/src/
 |---|---|
 | 大文件占满磁盘 | 单文件 200 MB 上限 + sha256 查重 + 30 天回收站 |
 | 富文本 XSS | WangEditor 默认白名单；后端二次过滤 `<script>` |
-| 视频播放体验差 | 本次不内置在线预览，员工本地打开；后续可扩展 |
+| 视频播放体验差 | 提供 HTML5 `<video controls>` 即可（倍速、全屏、音量由浏览器原生支持）；不做转码、不做 DRM |
 | 目录无限层级导致性能下降 | 树形查询走 parent_id 索引 + 一次返回全树；超过 500 节点时再考虑分页 |
 | 旧文章迁移 | 暂不提供导入工具，后续如需要可加 `importFromWord` |
 | 误删数据 | 30 天回收站 + 软删；admin 误操作可恢复 |
