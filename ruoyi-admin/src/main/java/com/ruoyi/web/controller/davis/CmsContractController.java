@@ -81,16 +81,17 @@ public class CmsContractController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:contract:import')")
     @PostMapping("/importTemplate")
     public void importTemplate(HttpServletResponse response,
-                               @RequestParam(required = false, defaultValue = "1") String contractType)
+                               @RequestParam(required = false, defaultValue = "1") String contractType) throws Exception
     {
         ExcelUtil<CmsContract> util = new ExcelUtil<CmsContract>(CmsContract.class);
+        String sheetName;
         if ("1".equals(contractType))
         {
             // 代账合同：隐藏地址出售特有字段 + 系统字段
             util.hideColumn("parentId", "customerId", "customerName",
                     "auditStatus", "reminderStatus", "annex", "ownerId", "deptId",
                     "rentalAddress", "isRented");
-            util.importTemplateExcel(response, "代账合同数据");
+            sheetName = "代账合同数据";
         }
         else
         {
@@ -98,8 +99,11 @@ public class CmsContractController extends BaseController
             util.hideColumn("parentId", "customerId", "customerName",
                     "auditStatus", "reminderStatus", "annex", "ownerId", "deptId",
                     "taxType", "establishmentDate");
-            util.importTemplateExcel(response, "地址出售合同数据");
+            sheetName = "地址出售合同数据";
         }
+        response.setHeader("Content-Disposition",
+                "attachment; filename=" + java.net.URLEncoder.encode(sheetName + ".xlsx", "UTF-8"));
+        util.importTemplateExcel(response, sheetName);
     }
 
     /**
