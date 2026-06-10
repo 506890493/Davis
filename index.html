@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>杭州拓荒牛企业服务有限公司 - 专业一站式企业服务平台</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%22 0 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐂</text></svg>">
+    <!-- 阿拉伯语字体：默认禁用，仅在切换到阿拉伯语时由 JS 启用 -->
+    <link id="arFont" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap" disabled>
+
+    <style>
+        :root { --primary: #003366; --accent: #c5a059; --light: #f4f7f9; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans Arabic", sans-serif; line-height: 1.6; color: #333; scroll-behavior: smooth; }
+
+        /* Header */
+        header { background: rgba(255,255,255,0.98); position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 800; font-size: 1.4rem; color: var(--primary); letter-spacing: 1px; }
+        .nav-links { display: flex; align-items: center; }
+        .nav-links a { margin-left: 25px; color: #555; text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+        .nav-links a:hover { color: var(--primary); }
+        .btn-staff { background: var(--primary); color: white !important; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem !important; transition: 0.3s; }
+        .btn-staff:hover { background: #004a94; box-shadow: 0 4px 10px rgba(0,51,102,0.2); }
+
+        /* Language Switcher */
+        .lang-switcher { position: relative; margin-left: 20px; }
+        .lang-btn { background: transparent; border: 1px solid #ddd; padding: 6px 12px; border-radius: 16px; cursor: pointer; font-size: 0.9rem; color: #555; display: flex; align-items: center; gap: 4px; font-family: inherit; }
+        .lang-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .lang-menu { position: absolute; top: 100%; right: 0; background: white; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); list-style: none; padding: 6px 0; margin-top: 6px; min-width: 140px; display: none; z-index: 1001; }
+        .lang-menu.open { display: block; }
+        .lang-menu li { padding: 8px 16px; cursor: pointer; font-size: 0.9rem; }
+        .lang-menu li:hover { background: var(--light); color: var(--primary); }
+        .lang-menu li.active { background: var(--primary); color: white; }
+
+        /* RTL 布局调整 */
+        [dir="rtl"] body { font-family: "Noto Sans Arabic", "PingFang SC", "Microsoft YaHei", sans-serif; }
+        [dir="rtl"] .lang-menu { right: auto; left: 0; }
+        [dir="rtl"] .nav-links a { margin-left: 0; margin-right: 25px; }
+        [dir="rtl"] .lang-switcher { margin-left: 0; margin-right: 20px; }
+        [dir="rtl"] .hero h1, [dir="rtl"] .hero p { direction: rtl; }
+
+        /* Hero */
+        .hero { height: 75vh; background: linear-gradient(rgba(0,51,102,0.85), rgba(0,51,102,0.85)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80') no-repeat center/cover; display: flex; align-items: center; justify-content: center; color: white; text-align: center; margin-top: 70px; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; }
+
+        /* Sections */
+        .section { padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
+        .section-title { text-align: center; margin-bottom: 50px; }
+        .section-title h2 { font-size: 2rem; color: var(--primary); margin-bottom: 10px; }
+
+        /* Services Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .card { padding: 30px; border: 1px solid #eee; border-radius: 12px; transition: 0.3s; background: white; }
+        .card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        .card h3 { color: var(--primary); margin-bottom: 15px; font-size: 1.2rem; }
+        .card p { color: #666; font-size: 0.95rem; }
+
+        /* Footer */
+        footer { background: var(--primary); color: #fff; text-align: center; padding: 40px; margin-top: 50px; font-size: 0.9rem; }
+        footer a { color: #fff; text-decoration: none; opacity: 0.8; }
+        footer a:hover { opacity: 1; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-inner">
+        <div class="logo" data-i18n="logo">杭州拓荒牛</div>
+        <nav class="nav-links">
+            <a href="#home" data-i18n="nav_home">首页</a>
+            <a href="#services" data-i18n="nav_services">业务中心</a>
+            <a href="#contact" data-i18n="nav_contact">联系我们</a>
+            <a href="https://www.thbull.cn/login" class="btn-staff" data-i18n="nav_staff">员工工作台</a>
+            <div class="lang-switcher">
+                <button class="lang-btn" id="langBtn" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>🌐</span>
+                    <span id="currentLang">中文</span>
+                    <span>▾</span>
+                </button>
+                <ul class="lang-menu" id="langMenu" role="menu">
+                    <li data-lang="zh-CN" role="menuitem">中文</li>
+                    <li data-lang="en" role="menuitem">English</li>
+                    <li data-lang="ar" role="menuitem">العربية</li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<section class="hero" id="home">
+    <div>
+        <h1 data-i18n="hero_title">杭州拓荒牛企业服务</h1>
+        <p data-i18n="hero_subtitle">深耕企服，勤勉开拓 — 为您的企业成长保驾护航</p>
+    </div>
+</section>
+
+<section id="services" class="section">
+    <div class="section-title"><h2 data-i18n="services_title">核心业务</h2></div>
+    <div class="grid">
+        <div class="card"><h3 data-i18n="svc1_title">工商服务</h3><p data-i18n="svc1_desc">公司注册（内/外资）、公司变更、注销、地址挂靠、解除异常、股权分析、公司转让等。</p></div>
+        <div class="card"><h3 data-i18n="svc2_title">资质许可</h3><p data-i18n="svc2_desc">办理食品经营许可证、医疗器械、劳务派遣、进出口经营权、道路运输等相关资质。</p></div>
+        <div class="card"><h3 data-i18n="svc3_title">财务/会计</h3><p data-i18n="svc3_desc">提供代理记账、税务筹划、审计年检、专业财务顾问等全方位财务服务。</p></div>
+        <div class="card"><h3 data-i18n="svc4_title">项目申报</h3><p data-i18n="svc4_desc">商标申请、软著、版权、大学生创业资助申请、高新技术企业认定等。</p></div>
+        <div class="card"><h3 data-i18n="svc5_title">国际业务</h3><p data-i18n="svc5_desc">提供注册香港公司、各类文件翻译及进出口经营权办理等服务。</p></div>
+    </div>
+</section>
+
+<footer id="contact">
+    <p><span data-i18n="footer_contact">联系负责人</span>：王世龙 | <span data-i18n="footer_phone">电话</span>：18989848925</p>
+    <p><span data-i18n="footer_address">地址</span>：杭州市余杭区余杭街道福智街8号2幢517室</p>
+<p style="margin-top:20px;">
+    &copy; 杭州拓荒牛企业服务有限公司 |
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="text-decoration:none;">浙ICP备2026028306号</a> |
+    <a href="https://beian.mps.gov.cn/" target="_blank" style="text-decoration:none;">浙公网安备33011002019466号</a>
+</p>
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    const I18N = {
+        'zh-CN': {
+            title: '杭州拓荒牛企业服务有限公司 - 专业一站式企业服务平台',
+            logo: '杭州拓荒牛',
+            nav_home: '首页',
+            nav_services: '业务中心',
+            nav_contact: '联系我们',
+            nav_staff: '员工工作台',
+            hero_title: '杭州拓荒牛企业服务',
+            hero_subtitle: '深耕企服，勤勉开拓 — 为您的企业成长保驾护航',
+            services_title: '核心业务',
+            svc1_title: '工商服务',
+            svc1_desc: '公司注册（内/外资）、公司变更、注销、地址挂靠、解除异常、股权分析、公司转让等。',
+            svc2_title: '资质许可',
+            svc2_desc: '办理食品经营许可证、医疗器械、劳务派遣、进出口经营权、道路运输等相关资质。',
+            svc3_title: '财务/会计',
+            svc3_desc: '提供代理记账、税务筹划、审计年检、专业财务顾问等全方位财务服务。',
+            svc4_title: '项目申报',
+            svc4_desc: '商标申请、软著、版权、大学生创业资助申请、高新技术企业认定等。',
+            svc5_title: '国际业务',
+            svc5_desc: '提供注册香港公司、各类文件翻译及进出口经营权办理等服务。',
+            footer_contact: '联系负责人',
+            footer_phone: '电话',
+            footer_address: '地址',
+            lang_label: '中文'
+        },
+        'en': {
+            title: 'Hangzhou Tuohuang Bull Enterprise Service Co., Ltd. - Professional One-Stop Enterprise Service Platform',
+            logo: 'Tuohuang Bull',
+            nav_home: 'Home',
+            nav_services: 'Services',
+            nav_contact: 'Contact',
+            nav_staff: 'Staff Portal',
+            hero_title: 'Hangzhou Tuohuang Bull Enterprise Service',
+            hero_subtitle: 'Deeply rooted in enterprise service, diligent and pioneering — Safeguarding your business growth',
+            services_title: 'Core Services',
+            svc1_title: 'Business Registration',
+            svc1_desc: 'Company registration (domestic/foreign), company changes, deregistration, registered address, abnormal status removal, equity analysis, company transfer, etc.',
+            svc2_title: 'Qualification & Licenses',
+            svc2_desc: 'Food business license, medical devices, labor dispatch, import-export rights, road transportation, and other related qualifications.',
+            svc3_title: 'Finance / Accounting',
+            svc3_desc: 'Comprehensive financial services including bookkeeping, tax planning, audit & annual inspection, professional financial consulting.',
+            svc4_title: 'Project Application',
+            svc4_desc: 'Trademark registration, software copyright, intellectual property, college student entrepreneurship subsidies, high-tech enterprise certification, etc.',
+            svc5_title: 'International Business',
+            svc5_desc: 'Hong Kong company registration, document translation, import-export rights processing, and other services.',
+            footer_contact: 'Contact Person',
+            footer_phone: 'Phone',
+            footer_address: 'Address',
+            lang_label: 'English'
+        },
+        'ar': {
+            title: 'شركة هانغتشو بايونير بُل لخدمات المؤسسات - منصة احترافية شاملة لخدمات الشركات',
+            logo: 'بايونير بُل',
+            nav_home: 'الرئيسية',
+            nav_services: 'مركز الأعمال',
+            nav_contact: 'اتصل بنا',
+            nav_staff: 'بوابة الموظفين',
+            hero_title: 'خدمات هانغتشو بايونير بُل للمؤسسات',
+            hero_subtitle: 'متخصصون في خدمات المؤسسات، نعمل بجد وريادة — لدعم نمو أعمالكم',
+            services_title: 'الخدمات الأساسية',
+            svc1_title: 'تسجيل الأعمال',
+            svc1_desc: 'تسجيل الشركات (محلية/أجنبية)، تعديل الشركات، الإلغاء، العناوين المسجلة، إزالة الحالات غير الطبيعية، تحليل الأسهم، نقل الشركات، إلخ.',
+            svc2_title: 'التراخيص والتصاريح',
+            svc2_desc: 'رخص الأغذية، الأجهزة الطبية، إرسال العمالة، حقوق الاستيراد والتصدير، النقل البري، وغيرها من التراخيص ذات الصلة.',
+            svc3_title: 'المالية / المحاسبة',
+            svc3_desc: 'خدمات مالية شاملة تشمل مسك الدفاتر، التخطيط الضريبي، التدقيق والفحص السنوي، الاستشارات المالية المتخصصة.',
+            svc4_title: 'تقديم المشاريع',
+            svc4_desc: 'تسجيل العلامات التجارية، حقوق برمجيات، الملكية الفكرية، دعم ريادة الأعمال للطلاب الجامعيين، اعتماد المؤسسات عالية التقنية، إلخ.',
+            svc5_title: 'الأعمال الدولية',
+            svc5_desc: 'تسجيل الشركات في هونغ كونغ، ترجمة المستندات، معالجة حقوق الاستيراد والتصدير، وخدمات أخرى.',
+            footer_contact: 'الشخص المسؤول',
+            footer_phone: 'الهاتف',
+            footer_address: 'العنوان',
+            lang_label: 'العربية'
+        }
+    };
+
+    const STORAGE_KEY = 'davis-lang';
+    const DEFAULT_LANG = 'zh-CN';
+    const RTL_LANGS = ['ar'];
+
+    function getSavedLang() {
+        try {
+            return localStorage.getItem(STORAGE_KEY) || DEFAULT_LANG;
+        } catch (e) {
+            return DEFAULT_LANG;
+        }
+    }
+
+    function applyLanguage(lang) {
+        if (!I18N[lang]) {
+            lang = DEFAULT_LANG;
+        }
+        const dict = I18N[lang];
+        const html = document.documentElement;
+        const isRTL = RTL_LANGS.indexOf(lang) !== -1;
+
+        // 1. 设置 HTML lang/dir
+        html.lang = lang;
+        html.dir = isRTL ? 'rtl' : 'ltr';
+
+        // 2. 阿拉伯语字体按需加载
+        const arFont = document.getElementById('arFont');
+        if (arFont) {
+            arFont.disabled = !isRTL;
+        }
+
+        // 3. 更新所有 data-i18n 元素
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key] !== undefined) {
+                el.textContent = dict[key];
+            }
+        });
+
+        // 4. 更新 title
+        if (dict.title) {
+            document.title = dict.title;
+        }
+
+        // 5. 更新当前语言标签
+        const currentLangEl = document.getElementById('currentLang');
+        if (currentLangEl && dict.lang_label) {
+            currentLangEl.textContent = dict.lang_label;
+        }
+
+        // 6. 菜单激活项样式
+        document.querySelectorAll('.lang-menu li').forEach(function(li) {
+            li.classList.toggle('active', li.dataset.lang === lang);
+        });
+
+        // 7. 持久化
+        try {
+            localStorage.setItem(STORAGE_KEY, lang);
+        } catch (e) {
+            // localStorage 不可用时静默忽略
+        }
+    }
+
+    function toggleMenu(open) {
+        const menu = document.getElementById('langMenu');
+        const btn = document.getElementById('langBtn');
+        if (!menu || !btn) return;
+        if (open === undefined) {
+            open = !menu.classList.contains('open');
+        }
+        menu.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    // 初始化：尽早应用语言，避免文本闪烁
+    applyLanguage(getSavedLang());
+
+    // 事件绑定
+    document.addEventListener('DOMContentLoaded', function() {
+        const langBtn = document.getElementById('langBtn');
+        const langMenu = document.getElementById('langMenu');
+
+        if (langBtn) {
+            langBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleMenu();
+            });
+        }
+
+        if (langMenu) {
+            langMenu.querySelectorAll('li').forEach(function(li) {
+                li.addEventListener('click', function() {
+                    const lang = this.dataset.lang;
+                    applyLanguage(lang);
+                    toggleMenu(false);
+                });
+            });
+        }
+
+        // 点击外部关闭菜单
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.lang-switcher')) {
+                toggleMenu(false);
+            }
+        });
+
+        // ESC 关闭菜单
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                toggleMenu(false);
+            }
+        });
+    });
+})();
+</script>
+
+</body>
+</html>
