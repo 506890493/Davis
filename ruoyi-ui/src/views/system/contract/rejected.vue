@@ -593,9 +593,21 @@ export default {
       }).catch(() => {});
     },
     handleDelete(row) {
-      const contractIds = row.contractId || this.ids;
+      // Vue 2 编译器会把 @click="handleDelete" 编译为 handleDelete($event)，
+      // 此时 row 是 MouseEvent 对象（没有 contractId 字段），不能当行对象用
+      const isRowObject = row && typeof row === 'object' && 'contractId' in row;
+      const contractIds = (isRowObject ? row.contractId : null) || this.ids;
+      const labels = (isRowObject
+        ? [row]
+        : this.contractList.filter((r) => this.ids.includes(r.contractId))
+      )
+        .map((r) => `[${r.contractCode || r.contractId}] ${r.contractName || ''}`)
+        .join('、');
+      const tip = labels
+        ? `确定要删除以下合同吗？\n\n${labels}\n\n此操作不可恢复，请谨慎操作！`
+        : '是否确认删除选中的合同？此操作不可恢复！';
       this.$modal
-        .confirm('是否确认删除合同管理编号为"' + contractIds + '"的数据项？')
+        .confirm(tip)
         .then(function () {
           return delContract(contractIds);
         })
