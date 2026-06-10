@@ -172,20 +172,26 @@ public class CmsContractServiceImpl implements ICmsContractService {
         if (exist != null && !exist.getContractId().equals(cmsContract.getContractId())) {
             throw new ServiceException("合同编号已存在：" + cmsContract.getContractCode());
         }
-        
+
         CmsContract existing = cmsContractMapper.selectCmsContractByContractId(cmsContract.getContractId());
-        if (existing != null && "1".equals(existing.getAuditStatus())) {
-            throw new ServiceException("已审批通过的合同不能修改");
+        if (existing == null) {
+            throw new ServiceException("合同不存在");
         }
-        
-        // 更新create_by字段（如果当前用户是创建者）
+
+        // 修改权限：admin/manager 可修改任何合同；sales/account 等其他角色仅能修改自己创建的合同
+        String roleType = determineRoleType();
         String currentUser = SecurityUtils.getUsername();
-        System.out.println("Update check - currentUser: " + currentUser + ", existing.create_by: " + existing.getCreateBy());
-        if (StringUtils.isNotEmpty(currentUser) && !currentUser.equals(existing.getCreateBy())) {
-            // 如果不是创建者，不能修改合同
-            throw new ServiceException("只有合同创建者才能修改合同");
+        boolean isManagerLike = "admin".equals(roleType) || "manager".equals(roleType);
+        if (!isManagerLike && StringUtils.isNotEmpty(currentUser)
+                && !currentUser.equals(existing.getCreateBy())) {
+            throw new ServiceException("仅合同创建者或管理员可修改合同");
         }
-        
+
+        // 变更审批：若原状态为「已审批通过」，修改后重置为「待审批」，需要走新的审批流程
+        if ("1".equals(existing.getAuditStatus())) {
+            cmsContract.setAuditStatus("0");
+        }
+
         cmsContract.setUpdateTime(DateUtils.getNowDate());
         if (cmsContract.getCmsFileList() != null) {
             cmsContractMapper.deleteCmsFileByContractId(cmsContract.getContractId());
@@ -196,27 +202,25 @@ public class CmsContractServiceImpl implements ICmsContractService {
 
     /**
      * 批量删除合同管理
-     * 
+     *
      * @param contractIds 需要删除的合同管理主键
      * @return 结果
      */
     @Transactional
     @Override
     public int deleteCmsContractByContractIds(Long[] contractIds) {
+        String roleType = determineRoleType();
+        boolean isManagerLike = "admin".equals(roleType) || "manager".equals(roleType);
+        String currentUser = SecurityUtils.getUsername();
         for (Long contractId : contractIds) {
             CmsContract contract = cmsContractMapper.selectCmsContractByContractId(contractId);
-            if (contract != null && "1".equals(contract.getAuditStatus())) {
-                throw new ServiceException("已审批通过的合同不能删除");
+            if (contract == null) {
+                throw new ServiceException("合同不存在: " + contractId);
             }
-            
-            // 检查删除权限：只有合同创建者或管理员才能删除合同
-            String currentUser = SecurityUtils.getUsername();
-            System.out.println("Delete check - currentUser: " + currentUser + ", contract.create_by: " + contract.getCreateBy());
-            if (StringUtils.isNotEmpty(currentUser)) {
-                String roleType = determineRoleType();
-                if (!"admin".equals(roleType) && !currentUser.equals(contract.getCreateBy())) {
-                    throw new ServiceException("只有合同创建者或管理员才能删除合同");
-                }
+            // 删除权限：admin/manager 可删除任何合同；其他角色仅能删除自己创建的合同
+            if (!isManagerLike && StringUtils.isNotEmpty(currentUser)
+                    && !currentUser.equals(contract.getCreateBy())) {
+                throw new ServiceException("仅合同创建者或管理员可删除合同");
             }
         }
         return cmsContractMapper.deleteCmsContractByContractIds(contractIds);
@@ -224,7 +228,7 @@ public class CmsContractServiceImpl implements ICmsContractService {
 
     /**
      * 删除合同管理信息
-     * 
+     *
      * @param contractId 合同管理主键
      * @return 结果
      */
@@ -232,8 +236,15 @@ public class CmsContractServiceImpl implements ICmsContractService {
     @Override
     public int deleteCmsContractByContractId(Long contractId) {
         CmsContract contract = cmsContractMapper.selectCmsContractByContractId(contractId);
-        if (contract != null && "1".equals(contract.getAuditStatus())) {
-            throw new ServiceException("已审批通过的合同不能删除");
+        if (contract == null) {
+            throw new ServiceException("合同不存在: " + contractId);
+        }
+        String roleType = determineRoleType();
+        boolean isManagerLike = "admin".equals(roleType) || "manager".equals(roleType);
+        String currentUser = SecurityUtils.getUsername();
+        if (!isManagerLike && StringUtils.isNotEmpty(currentUser)
+                && !currentUser.equals(contract.getCreateBy())) {
+            throw new ServiceException("仅合同创建者或管理员可删除合同");
         }
         return cmsContractMapper.deleteCmsContractByContractId(contractId);
     }
