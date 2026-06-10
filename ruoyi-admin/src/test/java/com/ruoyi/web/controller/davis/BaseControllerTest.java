@@ -1,12 +1,19 @@
 package com.ruoyi.web.controller.davis;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.core.redis.RedisCache;
+import com.ruoyi.system.service.ISysDictTypeService;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * 提供 MockMvc 实例、三种角色的认证后处理器、JSON 断言工具。
  * 每个测试方法执行后自动回滚事务（@Transactional）。
- * 类级别初始化建表+基础数据（@Sql BEFORE_TEST_CLASS）。
+ * 类级别初始化建表+基础数据（@Sql BEFORE_TEST_METHOD）。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -46,6 +55,53 @@ public abstract class BaseControllerTest {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @MockBean
+    private RedisCache redisCache;
+
+    @Autowired
+    private ISysDictTypeService sysDictTypeService;
+
+    private final Map<String, Object> cacheMap = new ConcurrentHashMap<>();
+
+    @BeforeEach
+    void setUpMockRedis() {
+        // 使用 Mockito doAnswer 使 setCacheObject 实际存储到 HashMap
+        Mockito.doAnswer(invocation -> {
+            String key = invocation.getArgument(0);
+            Object value = invocation.getArgument(1);
+            cacheMap.put(key, value);
+            return null;
+        }).when(redisCache).setCacheObject(Mockito.anyString(), Mockito.any());
+
+        Mockito.doAnswer(invocation -> {
+            String key = invocation.getArgument(0);
+            Object value = invocation.getArgument(1);
+            Integer timeout = invocation.getArgument(2);
+            TimeUnit timeUnit = invocation.getArgument(3);
+            cacheMap.put(key, value);
+            return null;
+        }).when(redisCache).setCacheObject(Mockito.anyString(), Mockito.any(), Mockito.anyInt(), Mockito.any(TimeUnit.class));
+
+        // getCacheObject 从 HashMap 读取
+        Mockito.when(redisCache.getCacheObject(Mockito.anyString()))
+            .thenAnswer(invocation -> {
+                Object value = cacheMap.get(invocation.getArgument(0));
+                // DictUtils stores List but retrieves as JSONArray (Redis JSON serializer).
+                // Simulate the ser/deser so getDictCache gets the expected type.
+                if (value instanceof List) {
+                    return new JSONArray((List<?>) value);
+                }
+                return value;
+            });
+
+        // deleteObject 从 HashMap 删除
+        Mockito.when(redisCache.deleteObject(Mockito.anyString()))
+            .thenAnswer(invocation -> cacheMap.remove(invocation.getArgument(0)) != null);
+
+        // 重新从数据库加载字典缓存（@Sql 已在此时执行完毕）
+        sysDictTypeService.resetDictCache();
+    }
 
     // 测试用户 ID 常量
     protected static final Long USER_ID_MANAGER = 2L;

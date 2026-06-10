@@ -115,9 +115,9 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("3. 下载导入模板 - 成功")
+    @DisplayName("3a. 下载导入模板（默认代账合同）— 向后兼容")
     void testDownloadTemplate_Success() throws Exception {
-        // 执行下载模板
+        // 不传 contractType 参数，默认下载代账合同模板
         ResultActions result = mockMvc.perform(
             MockMvcRequestBuilders.post("/system/contract/importTemplate")
                 .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
@@ -131,6 +131,88 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
         // 验证内容类型
         String contentType = result.andReturn().getResponse().getContentType();
         assertThat(contentType).contains("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    @Test
+    @DisplayName("3b. 下载代账合同模板 - 包含税务类型、成立日期字段")
+    void testDownloadTemplate_AccountingType() throws Exception {
+        ResultActions result = mockMvc.perform(
+            MockMvcRequestBuilders.post("/system/contract/importTemplate")
+                .param("contractType", "1")
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                    .authentication(createManagerAuth()))
+        );
+
+        result.andExpect(status().isOk())
+              .andExpect(header().exists("Content-Disposition"));
+
+        byte[] excelBytes = result.andReturn().getResponse().getContentAsByteArray();
+        java.io.ByteArrayInputStream bis = new java.io.ByteArrayInputStream(excelBytes);
+        Workbook workbook = new XSSFWorkbook(bis);
+        Sheet sheet = workbook.getSheetAt(0);
+        Row headerRow = sheet.getRow(0);
+
+        java.util.Set<String> headerSet = new java.util.HashSet<>();
+        for (int i = 0; i < headerRow.getPhysicalNumberOfCells(); i++) {
+            Cell cell = headerRow.getCell(i);
+            if (cell != null) {
+                headerSet.add(cell.getStringCellValue());
+            }
+        }
+
+        assertThat(headerSet).contains("税务类型");
+        assertThat(headerSet).contains("成立日期");
+        assertThat(headerSet).doesNotContain("租赁地址");
+        assertThat(headerSet).doesNotContain("是否已出租");
+        assertThat(headerSet).doesNotContain("父合同ID");
+        assertThat(headerSet).doesNotContain("客户ID");
+        assertThat(headerSet).doesNotContain("审核状态");
+        assertThat(headerSet).doesNotContain("催交状态");
+        assertThat(headerSet).doesNotContain("附件列表");
+        assertThat(headerSet).doesNotContain("归属人ID (关联sys_user)");
+
+        workbook.close();
+    }
+
+    @Test
+    @DisplayName("3c. 下载地址出售合同模板 - 包含租赁地址、是否已出租字段")
+    void testDownloadTemplate_RentalType() throws Exception {
+        ResultActions result = mockMvc.perform(
+            MockMvcRequestBuilders.post("/system/contract/importTemplate")
+                .param("contractType", "2")
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                    .authentication(createManagerAuth()))
+        );
+
+        result.andExpect(status().isOk())
+              .andExpect(header().exists("Content-Disposition"));
+
+        byte[] excelBytes = result.andReturn().getResponse().getContentAsByteArray();
+        java.io.ByteArrayInputStream bis = new java.io.ByteArrayInputStream(excelBytes);
+        Workbook workbook = new XSSFWorkbook(bis);
+        Sheet sheet = workbook.getSheetAt(0);
+        Row headerRow = sheet.getRow(0);
+
+        java.util.Set<String> headerSet = new java.util.HashSet<>();
+        for (int i = 0; i < headerRow.getPhysicalNumberOfCells(); i++) {
+            Cell cell = headerRow.getCell(i);
+            if (cell != null) {
+                headerSet.add(cell.getStringCellValue());
+            }
+        }
+
+        assertThat(headerSet).contains("租赁地址");
+        assertThat(headerSet).contains("是否已出租");
+        assertThat(headerSet).doesNotContain("税务类型");
+        assertThat(headerSet).doesNotContain("成立日期");
+        assertThat(headerSet).doesNotContain("父合同ID");
+        assertThat(headerSet).doesNotContain("客户ID");
+        assertThat(headerSet).doesNotContain("审核状态");
+        assertThat(headerSet).doesNotContain("催交状态");
+        assertThat(headerSet).doesNotContain("附件列表");
+        assertThat(headerSet).doesNotContain("归属人ID (关联sys_user)");
+
+        workbook.close();
     }
 
     @Test
@@ -273,6 +355,41 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
         assertThat(response.get("msg").toString()).contains("为空");
     }
 
+    @Test
+    @DisplayName("7. 导入后系统字段默认值自动设置")
+    void testImportContract_SystemFieldsDefaultValues() throws Exception {
+        byte[] excelData = createValidContractExcel();
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "contracts_valid.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            excelData
+        );
+
+        ResultActions importResult = mockMvc.perform(
+            MockMvcRequestBuilders.multipart("/system/contract/importData")
+                .file(file)
+                .param("updateSupport", "false")
+                .with(request -> {
+                    request.setMethod("POST");
+                    return request;
+                })
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                    .authentication(createManagerAuth()))
+        );
+
+        // 验证导入成功
+        importResult.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value(200));
+
+        String importJson = getResponseJson(importResult);
+        assertThat(importJson).contains("导入成功");
+
+        ResultActions listResult = asManager(HttpMethod.GET, "/system/contract/list", null);
+        String listJson = getResponseJson(listResult);
+        assertThat(listJson).contains("\"auditStatus\":\"0\"");
+    }
+
     // ==================== 辅助方法 ====================
 
     /**
@@ -280,26 +397,26 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
      */
     private byte[] createValidContractExcel() throws Exception {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("合同数据");
+        Sheet sheet = workbook.createSheet("代账合同数据");
 
-        // 创建表头
+        // 创建表头 — 代账合同模板（18列）
         Row headerRow = sheet.createRow(0);
         String[] headers = {
             "合同编号", "合同/公司名称", "合同类型", "法人", "联系人", "联系电话",
             "联系邮箱", "收费标准", "实际收款金额", "付款周期", "收款日期",
-            "收款方式", "合同开始日期", "合同结束日期", "税务类型", "成立日期",
-            "租赁地址", "是否已出租", "利润", "归属人ID (关联sys_user)"
+            "收款方式", "合同开始日期", "合同结束日期", "利润", "备注",
+            "税务类型", "成立日期"
         };
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
         }
 
-        // 创建数据行1
+        // 创建数据行1 — 代账报税
         Row dataRow1 = sheet.createRow(1);
         dataRow1.createCell(0).setCellValue("BATCH001");
         dataRow1.createCell(1).setCellValue("批量测试合同A");
-        dataRow1.createCell(2).setCellValue("代账");
+        dataRow1.createCell(2).setCellValue("代账报税");
         dataRow1.createCell(3).setCellValue("张法人");
         dataRow1.createCell(4).setCellValue("联系人A");
         dataRow1.createCell(5).setCellValue("13800138001");
@@ -311,18 +428,16 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
         dataRow1.createCell(11).setCellValue("银行转账");
         dataRow1.createCell(12).setCellValue("2026-01-01");
         dataRow1.createCell(13).setCellValue("2026-12-31");
-        dataRow1.createCell(14).setCellValue("小规模");
-        dataRow1.createCell(15).setCellValue("2025-01-01");
-        dataRow1.createCell(16).setCellValue("测试地址1");
-        dataRow1.createCell(17).setCellValue("否");
-        dataRow1.createCell(18).setCellValue(2000.00);
-        dataRow1.createCell(19).setCellValue(2L);
+        dataRow1.createCell(14).setCellValue(2000.00);
+        dataRow1.createCell(15).setCellValue("测试备注A");
+        dataRow1.createCell(16).setCellValue("小规模");
+        dataRow1.createCell(17).setCellValue("2025-01-01");
 
-        // 创建数据行2
+        // 创建数据行2 — 地址出售
         Row dataRow2 = sheet.createRow(2);
         dataRow2.createCell(0).setCellValue("BATCH002");
         dataRow2.createCell(1).setCellValue("批量测试合同B");
-        dataRow2.createCell(2).setCellValue("地址");
+        dataRow2.createCell(2).setCellValue("地址出售");
         dataRow2.createCell(3).setCellValue("李法人");
         dataRow2.createCell(4).setCellValue("联系人B");
         dataRow2.createCell(5).setCellValue("13800138002");
@@ -334,12 +449,10 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
         dataRow2.createCell(11).setCellValue("银行转账");
         dataRow2.createCell(12).setCellValue("2026-02-01");
         dataRow2.createCell(13).setCellValue("2027-01-31");
-        dataRow2.createCell(14).setCellValue("一般纳税人");
-        dataRow2.createCell(15).setCellValue("2025-02-01");
-        dataRow2.createCell(16).setCellValue("测试地址2");
-        dataRow2.createCell(17).setCellValue("否");
-        dataRow2.createCell(18).setCellValue(3000.00);
-        dataRow2.createCell(19).setCellValue(2L);
+        dataRow2.createCell(14).setCellValue(3000.00);
+        dataRow2.createCell(15).setCellValue("测试备注B");
+        dataRow2.createCell(16).setCellValue("一般纳税人");
+        dataRow2.createCell(17).setCellValue("2025-02-01");
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
@@ -352,15 +465,15 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
      */
     private byte[] createInvalidContractExcel() throws Exception {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("合同数据");
+        Sheet sheet = workbook.createSheet("代账合同数据");
 
-        // 创建表头
+        // 创建表头 — 代账合同模板（18列）
         Row headerRow = sheet.createRow(0);
         String[] headers = {
             "合同编号", "合同/公司名称", "合同类型", "法人", "联系人", "联系电话",
             "联系邮箱", "收费标准", "实际收款金额", "付款周期", "收款日期",
-            "收款方式", "合同开始日期", "合同结束日期", "税务类型", "成立日期",
-            "租赁地址", "是否已出租", "利润", "归属人ID (关联sys_user)"
+            "收款方式", "合同开始日期", "合同结束日期", "利润", "备注",
+            "税务类型", "成立日期"
         };
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -371,9 +484,8 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
         Row dataRow1 = sheet.createRow(1);
         dataRow1.createCell(0).setCellValue("BATCH_INVALID_001");
         dataRow1.createCell(1).setCellValue("恶意合同'; DROP TABLE cms_contract;");
-        dataRow1.createCell(2).setCellValue("代账");
+        dataRow1.createCell(2).setCellValue("代账报税");
         dataRow1.createCell(7).setCellValue(10000.00);
-        dataRow1.createCell(19).setCellValue(2L);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
@@ -386,15 +498,15 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
      */
     private byte[] createUpdatedContractExcel() throws Exception {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("合同数据");
+        Sheet sheet = workbook.createSheet("代账合同数据");
 
-        // 创建表头
+        // 创建表头 — 代账合同模板（18列）
         Row headerRow = sheet.createRow(0);
         String[] headers = {
             "合同编号", "合同/公司名称", "合同类型", "法人", "联系人", "联系电话",
             "联系邮箱", "收费标准", "实际收款金额", "付款周期", "收款日期",
-            "收款方式", "合同开始日期", "合同结束日期", "税务类型", "成立日期",
-            "租赁地址", "是否已出租", "利润", "归属人ID (关联sys_user)"
+            "收款方式", "合同开始日期", "合同结束日期", "利润", "备注",
+            "税务类型", "成立日期"
         };
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -405,18 +517,16 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
         Row dataRow1 = sheet.createRow(1);
         dataRow1.createCell(0).setCellValue("BATCH001");
         dataRow1.createCell(1).setCellValue("批量测试合同A（已更新）");
-        dataRow1.createCell(2).setCellValue("代账");
+        dataRow1.createCell(2).setCellValue("代账报税");
         dataRow1.createCell(7).setCellValue(25000.00); // 更新金额
         dataRow1.createCell(8).setCellValue(25000.00);
-        dataRow1.createCell(19).setCellValue(2L);
 
         Row dataRow2 = sheet.createRow(2);
         dataRow2.createCell(0).setCellValue("BATCH002");
         dataRow2.createCell(1).setCellValue("批量测试合同B（已更新）");
-        dataRow2.createCell(2).setCellValue("地址");
+        dataRow2.createCell(2).setCellValue("地址出售");
         dataRow2.createCell(7).setCellValue(30000.00); // 更新金额
         dataRow2.createCell(8).setCellValue(30000.00);
-        dataRow2.createCell(19).setCellValue(2L);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
@@ -429,7 +539,7 @@ public class ContractBatchUploadE2ETest extends BaseControllerTest {
      */
     private byte[] createEmptyExcel() throws Exception {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("合同数据");
+        Sheet sheet = workbook.createSheet("代账合同数据");
 
         // 只创建表头，没有数据行
         Row headerRow = sheet.createRow(0);
