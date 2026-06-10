@@ -134,21 +134,40 @@
 
         <el-card v-if="annexList.length" class="mt20" shadow="never">
           <div slot="header">附件</div>
-          <el-timeline>
-            <el-timeline-item
+          <ul class="annex-list">
+            <li
               v-for="(file, idx) in annexList"
               :key="idx"
-              :timestamp="file.name"
+              class="annex-item"
+              :title="file.name"
             >
               <el-image
-                style="width: 100px; height: 100px; border-radius: 5px"
+                v-if="file.isImage"
                 :src="file.url"
-                :preview-src-list="annexList.map((f) => f.url)"
+                :preview-src-list="imageUrlList"
+                :initial-index="imageIndexInList(file)"
+                class="annex-thumb"
                 fit="cover"
+              />
+              <i v-else class="el-icon-document annex-icon" />
+              <el-link
+                :underline="false"
+                type="primary"
+                class="annex-name"
+                @click="handlePreview(file)"
               >
-              </el-image>
-            </el-timeline-item>
-          </el-timeline>
+                {{ file.name }}
+              </el-link>
+              <el-button
+                type="text"
+                icon="el-icon-download"
+                size="mini"
+                class="annex-download"
+                @click="handleDownload(file)"
+                >下载</el-button
+              >
+            </li>
+          </ul>
         </el-card>
 
         <el-descriptions class="mt20" title="操作信息" :column="2" border>
@@ -167,6 +186,22 @@
         </el-descriptions>
       </div>
     </el-card>
+
+    <!-- PDF 预览对话框 -->
+    <el-dialog
+      :title="pdfPreviewName"
+      :visible.sync="pdfPreviewVisible"
+      width="80%"
+      top="5vh"
+      append-to-body
+      destroy-on-close
+    >
+      <iframe
+        v-if="pdfPreviewVisible"
+        :src="pdfPreviewUrl"
+        class="pdf-iframe"
+      />
+    </el-dialog>
 
     <!-- 审批记录对话框 -->
     <el-dialog
@@ -207,6 +242,9 @@
 <script>
 import { getContract } from "@/api/system/contract";
 import { listApproval } from "@/api/system/approval";
+import download from "@/plugins/download";
+
+const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"];
 
 export default {
   name: "ContractDetail",
@@ -230,6 +268,10 @@ export default {
       approvalOpen: false,
       approvalList: [],
       approvalLoading: false,
+      // PDF 预览
+      pdfPreviewVisible: false,
+      pdfPreviewUrl: "",
+      pdfPreviewName: "",
     };
   },
   computed: {
@@ -248,7 +290,11 @@ return this.detail.contractType === this.dictRent;
         return false;
       }
       return true;
-    }
+    },
+    // 仅图片 URL（用于 el-image 预览列表）
+    imageUrlList() {
+      return this.annexList.filter((f) => f.isImage).map((f) => f.url);
+    },
 },
   created() {
     this.fetch();
@@ -262,6 +308,26 @@ return this.detail.contractType === this.dictRent;
         this.approvalList = response.rows;
         this.approvalLoading = false;
       });
+    },
+    /** 计算 el-image 在 imageUrlList 中的索引 */
+    imageIndexInList(file) {
+      return this.imageUrlList.indexOf(file.url);
+    },
+    /** 预览入口：图片由 el-image 自身触发；PDF 弹 iframe；其他文件直接下载 */
+    handlePreview(file) {
+      if (file.isPdf) {
+        this.pdfPreviewUrl = file.url;
+        this.pdfPreviewName = file.name;
+        this.pdfPreviewVisible = true;
+      } else if (!file.isImage) {
+        this.handleDownload(file);
+      }
+      // 图片预览交给 el-image 的内置 preview 行为
+    },
+    /** 触发附件下载（走后端 /common/download/resource） */
+    handleDownload(file) {
+      if (!file || !file.resourcePath) return;
+      download.resource(file.resourcePath);
     },
     fetch() {
       const id = this.$route.params.id;
@@ -288,10 +354,26 @@ return this.detail.contractType === this.dictRent;
               const names = Array.isArray(obj.originalFilenames)
                 ? obj.originalFilenames
                 : String(obj.originalFilenames || "").split(",");
-              this.annexList = urls.map((url, i) => ({
-                url,
-                name: names[i] || `附件${i + 1}`,
-              }));
+              this.annexList = urls.map((url, i) => {
+                const name = names[i] || `附件${i + 1}`;
+                const ext = (name.split(".").pop() || "").toLowerCase();
+                // 从完整 url 中提取 /profile/... 部分，用于走后端 /common/download/resource
+                let resourcePath = url;
+                const profileIdx = url.indexOf("/profile/");
+                if (profileIdx > -1) {
+                  resourcePath = url.substring(profileIdx);
+                } else if (url.startsWith("/")) {
+                  resourcePath = url;
+                }
+                return {
+                  url,
+                  name,
+                  ext,
+                  isImage: IMAGE_EXTS.includes(ext),
+                  isPdf: ext === "pdf",
+                  resourcePath,
+                };
+              });
             } else {
               this.annexList = [];
             }
@@ -310,5 +392,70 @@ return this.detail.contractType === this.dictRent;
 <style scoped>
 .mt20 {
   margin-top: 20px;
+}
+.annex-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.annex-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 110px;
+  padding: 8px 4px;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  background: #fafafa;
+  cursor: default;
+  transition: box-shadow 0.2s;
+}
+.annex-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.annex-thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.annex-icon {
+  width: 80px;
+  height: 80px;
+  font-size: 48px;
+  color: #909399;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.annex-name {
+  margin-top: 6px;
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-all;
+}
+.annex-download {
+  margin-top: 2px;
+  padding: 2px 0;
+  font-size: 12px;
+}
+.pdf-iframe {
+  width: 100%;
+  height: 75vh;
+  border: 0;
+  display: block;
 }
 </style>
