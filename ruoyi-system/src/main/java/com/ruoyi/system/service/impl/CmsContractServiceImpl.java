@@ -58,12 +58,8 @@ public class CmsContractServiceImpl implements ICmsContractService {
         CmsContract contract = cmsContractMapper.selectCmsContractByContractId(contractId);
         if (contract != null) {
             contract.setReminderDays(getReminderDays());
-            // Amount hiding for non-admin
-            String roleType = determineRoleType();
-            if (!"admin".equals(roleType)) {
-                contract.setAmount(null);
-                contract.setProfit(null);
-            }
+            // 金额/利润的脱敏交给前端 showAmount 控制，与列表接口保持一致，
+            // 避免 manager/sales/其他角色在详情页拿不到自己业务上需要的金额字段
         }
         return contract;
     }
