@@ -211,7 +211,10 @@ CREATE TABLE cms_kb_file (
     original_name VARCHAR(255) NOT NULL, stored_name VARCHAR(255) NOT NULL,
     rel_path VARCHAR(512) NOT NULL, file_size BIGINT NOT NULL,
     mime_type VARCHAR(128), sha256 CHAR(64), bucket VARCHAR(32) DEFAULT 'kb',
-    create_by VARCHAR(64), create_time DATETIME, del_flag TINYINT(1) DEFAULT 0,
+    create_by VARCHAR(64), create_time DATETIME,
+    update_by VARCHAR(64), update_time DATETIME,
+    remark VARCHAR(255),
+    del_flag TINYINT(1) DEFAULT 0,
     UNIQUE KEY uk_sha (sha256, del_flag)
 );
 CREATE TABLE cms_kb_document (
@@ -232,13 +235,17 @@ CREATE TABLE cms_kb_document_version (
     summary VARCHAR(500), tags VARCHAR(255), save_reason VARCHAR(255),
     is_current TINYINT(1) DEFAULT 0,
     create_by VARCHAR(64), create_time DATETIME,
+    update_by VARCHAR(64), update_time DATETIME,
+    remark VARCHAR(255),
     UNIQUE KEY uk_doc_ver (document_id, version_no)
 );
 CREATE TABLE cms_kb_attachment (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     document_id BIGINT NOT NULL, version_id BIGINT, file_id BIGINT NOT NULL,
     display_name VARCHAR(255), sort_num INT DEFAULT 0,
-    create_by VARCHAR(64), create_time DATETIME
+    create_by VARCHAR(64), create_time DATETIME,
+    update_by VARCHAR(64), update_time DATETIME,
+    remark VARCHAR(255)
 );
 
 INSERT INTO cms_kb_category(parent_id, name, order_num, is_required) VALUES

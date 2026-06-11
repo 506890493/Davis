@@ -46,6 +46,9 @@ CREATE TABLE cms_kb_file (
     bucket         VARCHAR(32)  DEFAULT 'kb',
     create_by      VARCHAR(64),
     create_time    DATETIME,
+    update_by      VARCHAR(64),
+    update_time    DATETIME,
+    remark         VARCHAR(255),
     del_flag       TINYINT(1)   DEFAULT 0,
     UNIQUE KEY uk_sha (sha256, del_flag)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='知识库-文件元数据';
@@ -90,6 +93,9 @@ CREATE TABLE cms_kb_document_version (
     is_current      TINYINT(1)   DEFAULT 0,
     create_by       VARCHAR(64),
     create_time     DATETIME,
+    update_by       VARCHAR(64),
+    update_time     DATETIME,
+    remark          VARCHAR(255),
     UNIQUE KEY uk_doc_ver (document_id, version_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='知识库-文档版本';
 
@@ -104,6 +110,9 @@ CREATE TABLE cms_kb_attachment (
     sort_num     INT     DEFAULT 0,
     create_by    VARCHAR(64),
     create_time  DATETIME,
+    update_by    VARCHAR(64),
+    update_time  DATETIME,
+    remark       VARCHAR(255),
     INDEX idx_doc (document_id, sort_num)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='知识库-文章附件';
 
