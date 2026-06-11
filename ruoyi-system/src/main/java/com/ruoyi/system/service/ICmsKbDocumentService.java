@@ -59,4 +59,13 @@ public interface ICmsKbDocumentService {
      * 回收站列表（仅 del_flag=1 的文档）
      */
     List<CmsKbDocument> selectRecycleList(CmsKbDocument query);
+
+    /**
+     * 物理删除回收站中 delete_time < cutoff 的文档（连同 version、attachment）。
+     * 由 Quartz 任务（KbRecycleCleanTask）每日 02:00 调用。
+     *
+     * @param cutoff 截止时间，早于该时间进入回收站的文档将被物理删除
+     * @return 实际删除的文档数
+     */
+    int purgeExpired(java.util.Date cutoff);
 }

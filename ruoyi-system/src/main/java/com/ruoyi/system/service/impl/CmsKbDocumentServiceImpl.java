@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import com.ruoyi.common.exception.ServiceException;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.system.domain.CmsKbDocument;
 import com.ruoyi.system.domain.CmsKbDocumentVersion;
+import com.ruoyi.system.mapper.CmsKbAttachmentMapper;
 import com.ruoyi.system.mapper.CmsKbDocumentMapper;
 import com.ruoyi.system.mapper.CmsKbDocumentVersionMapper;
 import com.ruoyi.system.service.ICmsKbDocumentService;
@@ -37,6 +39,9 @@ public class CmsKbDocumentServiceImpl implements ICmsKbDocumentService {
 
     @Autowired
     private CmsKbDocumentVersionMapper versionMapper;
+
+    @Autowired
+    private CmsKbAttachmentMapper attachmentMapper;
 
     @Override
     public CmsKbDocument selectById(Long id) {
@@ -133,5 +138,33 @@ public class CmsKbDocumentServiceImpl implements ICmsKbDocumentService {
     @Override
     public List<CmsKbDocument> selectRecycleList(CmsKbDocument query) {
         return documentMapper.selectRecycleList(query);
+    }
+
+    @Override
+    @Transactional
+    public int purgeExpired(Date cutoff) {
+        // 1) 找回收站里的全部文档
+        List<CmsKbDocument> expired = documentMapper.selectRecycleList(new CmsKbDocument());
+        if (expired == null || expired.isEmpty()) {
+            return 0;
+        }
+        // 2) 过滤 delete_time < cutoff
+        List<Long> toDelete = new ArrayList<>();
+        for (CmsKbDocument d : expired) {
+            if (d.getDeleteTime() != null && d.getDeleteTime().before(cutoff)) {
+                toDelete.add(d.getId());
+            }
+        }
+        if (toDelete.isEmpty()) {
+            return 0;
+        }
+        // 3) 物理删关联：version / attachment
+        Long[] ids = toDelete.toArray(new Long[0]);
+        for (Long id : ids) {
+            versionMapper.hardDeleteByDocument(id);
+            attachmentMapper.hardDeleteByDocument(id);
+        }
+        // 4) 物理删文档
+        return documentMapper.hardDelete(ids);
     }
 }

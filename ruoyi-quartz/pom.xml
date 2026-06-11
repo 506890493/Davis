@@ -35,6 +35,12 @@
             <artifactId>ruoyi-common</artifactId>
         </dependency>
 
+        <!-- 业务模块：知识库（回收站清理） -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-system</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

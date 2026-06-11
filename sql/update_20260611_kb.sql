@@ -190,3 +190,10 @@ WHERE perms IN ('kb:portal:view','kb:portal:required','kb:file:download','kb:fil
 INSERT INTO sys_role_menu(role_id, menu_id)
 SELECT 4, menu_id FROM sys_menu
 WHERE perms IN ('kb:portal:view','kb:portal:required','kb:file:download','kb:file:upload');
+
+-- ============================================================
+-- Step 6: Quartz 定时任务 — 30 天回收站清理
+-- ============================================================
+INSERT INTO sys_job(job_name, job_group, invoke_target, cron_expression, misfire_policy, concurrent, status, create_by, create_time, remark)
+VALUES
+('知识库回收站清理', 'DEFAULT', 'kbRecycleCleanTask.cleanDaily()', '0 0 2 * * ?', '3', '0', '0', 'admin', NOW(), '每日 02:00 物理删除 30 天前进入回收站的文档');
