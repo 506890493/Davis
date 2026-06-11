@@ -8,6 +8,8 @@
       </el-col>
     </el-row>
 
+    <kb-required-banner style="margin: 0 0 16px 0" />
+
     <div v-loading="loading" style="min-height: 400px">
       <!-- 管理员/经理视图 -->
       <div v-if="stats.roleType === 'admin' || stats.roleType === 'manager'">
@@ -232,11 +234,13 @@ import { getDashboardStats } from "@/api/system/dashboard";
 import { createCollectionTask } from "@/api/system/task";
 import { listUser } from "@/api/system/user";
 import CountTo from 'vue-count-to'
+import KbRequiredBanner from './system/kb/portal/KbRequiredBanner.vue';
 
 export default {
   name: "Index",
   components: {
-    CountTo
+    CountTo,
+    KbRequiredBanner
   },
   dicts: ['cms_contract_type'],
   data() {
