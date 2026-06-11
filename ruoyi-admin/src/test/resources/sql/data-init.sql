@@ -1,5 +1,17 @@
 -- data-init.sql
 -- 测试基础数据：用户、角色、字典、菜单权限
+-- 说明：本脚本被 @Sql 在每个测试方法前重新执行，因此需要保证幂等
+
+-- ========== 清空（保持幂等） ==========
+DELETE FROM sys_role_menu;
+DELETE FROM sys_user_role;
+DELETE FROM sys_user;
+DELETE FROM sys_role;
+DELETE FROM sys_dept;
+DELETE FROM sys_dict_data;
+DELETE FROM sys_dict_type;
+DELETE FROM sys_config;
+DELETE FROM sys_menu;
 
 -- ========== 部门 ==========
 insert into sys_dept(dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time)
@@ -226,6 +238,7 @@ CREATE TABLE cms_kb_document (
     published_time DATETIME, view_count INT DEFAULT 0, current_version INT DEFAULT 1,
     create_by VARCHAR(64), create_time DATETIME,
     update_by VARCHAR(64), update_time DATETIME,
+    remark VARCHAR(255),
     del_flag TINYINT(1) DEFAULT 0, delete_time DATETIME
 );
 CREATE TABLE cms_kb_document_version (

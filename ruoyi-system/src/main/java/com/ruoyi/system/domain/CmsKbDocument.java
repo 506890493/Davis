@@ -60,6 +60,12 @@ public class CmsKbDocument extends BaseEntity {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date deleteTime;
 
+    /**
+     * 新版本正文（仅 Service 层使用，不入库 cms_kb_document）
+     * cms_kb_document 不保存富文本，正文存于 cms_kb_document_version
+     */
+    private transient String newContent;
+
     public Long getId() {
         return id;
     }
@@ -178,5 +184,13 @@ public class CmsKbDocument extends BaseEntity {
 
     public void setDeleteTime(Date deleteTime) {
         this.deleteTime = deleteTime;
+    }
+
+    public String getNewContent() {
+        return newContent;
+    }
+
+    public void setNewContent(String newContent) {
+        this.newContent = newContent;
     }
 }
