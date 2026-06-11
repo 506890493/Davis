@@ -65,3 +65,7 @@ ruoyi:
 # PageHelper 分页插件 — H2 方言
 pagehelper:
   helperDialect: h2
+
+# 知识库文件上传临时目录（Windows / Linux 都可写）
+kb:
+  upload-path: ${java.io.tmpdir}/davis-kb-test

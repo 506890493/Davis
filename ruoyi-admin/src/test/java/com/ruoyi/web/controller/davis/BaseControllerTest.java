@@ -104,20 +104,29 @@ public abstract class BaseControllerTest {
     }
 
     // 测试用户 ID 常量
+    protected static final Long USER_ID_ADMIN = 1L;
     protected static final Long USER_ID_MANAGER = 2L;
     protected static final Long USER_ID_ZHANGSAN = 3L;
     protected static final Long USER_ID_LISI = 4L;
 
+    protected static final String USERNAME_ADMIN = "admin";
     protected static final String USERNAME_MANAGER = "manager";
     protected static final String USERNAME_ZHANGSAN = "zhangsan";
     protected static final String USERNAME_LISI = "lisi";
 
+    protected static SysUser adminUser;
     protected static SysUser managerUser;
     protected static SysUser zhangsanUser;
     protected static SysUser lisiUser;
 
     @BeforeAll
     static void setupUsers() {
+        adminUser = new SysUser();
+        adminUser.setUserId(USER_ID_ADMIN);
+        adminUser.setUserName(USERNAME_ADMIN);
+        adminUser.setNickName("管理员");
+        adminUser.setDeptId(1L);
+
         managerUser = new SysUser();
         managerUser.setUserId(USER_ID_MANAGER);
         managerUser.setUserName(USERNAME_MANAGER);
@@ -135,6 +144,13 @@ public abstract class BaseControllerTest {
         lisiUser.setUserName(USERNAME_LISI);
         lisiUser.setNickName("李四");
         lisiUser.setDeptId(101L);
+    }
+
+    /**
+     * 以 admin（系统管理员）身份执行 MockMvc 请求。
+     */
+    protected ResultActions asAdmin(HttpMethod method, String url, Object body) throws Exception {
+        return performRequest(method, url, body, USERNAME_ADMIN, USER_ID_ADMIN, "admin");
     }
 
     /**
@@ -188,6 +204,7 @@ public abstract class BaseControllerTest {
     }
 
     private SysUser getSysUser(String username) {
+        if (USERNAME_ADMIN.equals(username)) return adminUser;
         if (USERNAME_MANAGER.equals(username)) return managerUser;
         if (USERNAME_ZHANGSAN.equals(username)) return zhangsanUser;
         if (USERNAME_LISI.equals(username)) return lisiUser;
@@ -197,6 +214,29 @@ public abstract class BaseControllerTest {
     private Set<String> getPermissionsForRole(String roleKey) {
         Set<String> perms = new HashSet<>();
         switch (roleKey) {
+            case "admin":
+                // 知识库（admin：含物理删除的全量权限）
+                perms.add("kb:portal:view");
+                perms.add("kb:portal:required");
+                perms.add("kb:category:list");
+                perms.add("kb:category:query");
+                perms.add("kb:category:add");
+                perms.add("kb:category:edit");
+                perms.add("kb:category:remove");
+                perms.add("kb:document:list");
+                perms.add("kb:document:query");
+                perms.add("kb:document:add");
+                perms.add("kb:document:edit");
+                perms.add("kb:document:remove");
+                perms.add("kb:document:publish");
+                perms.add("kb:version:list");
+                perms.add("kb:version:rollback");
+                perms.add("kb:recycle:list");
+                perms.add("kb:recycle:restore");
+                perms.add("kb:recycle:purge");
+                perms.add("kb:file:upload");
+                perms.add("kb:file:download");
+                break;
             case "manager":
                 perms.add("system:contract:list");
                 perms.add("system:contract:query");
