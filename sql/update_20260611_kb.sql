@@ -158,11 +158,11 @@ SET @kb_pid = LAST_INSERT_ID();
 
 INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark) VALUES
 -- 管理端
-('目录管理',  @kb_pid, 1, 'category', 'kb/admin/category', 1, 0, 'C', '0', '0', 'kb:category:list', '#', 'admin', NOW(), ''),
-('文档管理',  @kb_pid, 2, 'document', 'kb/admin/document', 1, 0, 'C', '0', '0', 'kb:document:list', '#', 'admin', NOW(), ''),
-('回收站',    @kb_pid, 3, 'recycle',  'kb/admin/recycle',  1, 0, 'C', '0', '0', 'kb:recycle:list',  '#', 'admin', NOW(), ''),
+('目录管理',  @kb_pid, 1, 'category', 'system/kb/category', 1, 0, 'C', '0', '0', 'kb:category:list', '#', 'admin', NOW(), ''),
+('文档管理',  @kb_pid, 2, 'document', 'system/kb/document', 1, 0, 'C', '0', '0', 'kb:document:list', '#', 'admin', NOW(), ''),
+('回收站',    @kb_pid, 3, 'recycle',  'system/kb/recycle',  1, 0, 'C', '0', '0', 'kb:recycle:list',  '#', 'admin', NOW(), ''),
 -- 阅读端（顶层显示，parent_id=0）
-('知识库学习', 0,     5, 'view',     'kb/portal/index',    1, 0, 'C', '0', '0', 'kb:portal:view',  'reading', 'admin', NOW(), '');
+('知识库学习', 0,     5, 'view',     'system/kb/portal/index', 1, 0, 'C', '0', '0', 'kb:portal:view',  'reading', 'admin', NOW(), '');
 
 -- 按钮级权限（供 sales/account 绑定，menu_type='F'，parent_id=0）
 INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark) VALUES

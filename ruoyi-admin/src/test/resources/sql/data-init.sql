@@ -264,8 +264,17 @@ CREATE TABLE cms_kb_attachment (
 INSERT INTO cms_kb_category(parent_id, name, order_num, is_required) VALUES
 (0,'系统操作手册',1,1),(0,'代账知识',2,0),(0,'会计知识',3,0),(0,'工商知识',4,0);
 
+-- 父菜单：知识库（parent_id=0，顶层 M 类型目录）
 INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon) VALUES
-('知识库', 0, 99, 'view', 'kb/portal/index', 1, 0, 'C', '0', '0', 'kb:portal:view', 'reading');
+('知识库', 0, 98, 'kb', null, 1, 0, 'M', '0', '0', '', 'documentation');
+-- 管理端子菜单（parent_id 引用刚插入的父菜单 ID）
+INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon) VALUES
+('目录管理', 0, 99, 'category', 'system/kb/category', 1, 0, 'C', '0', '0', 'kb:category:list', '#'),
+('文档管理', 0, 100, 'document', 'system/kb/document', 1, 0, 'C', '0', '0', 'kb:document:list', '#'),
+('回收站',   0, 101, 'recycle',  'system/kb/recycle',  1, 0, 'C', '0', '0', 'kb:recycle:list',  '#');
+-- 阅读端入口（顶层显示，parent_id=0）
+INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon) VALUES
+('知识库', 0, 99, 'view', 'system/kb/portal/index', 1, 0, 'C', '0', '0', 'kb:portal:view', 'reading');
 -- 按钮级权限（与主 SQL 对齐）
 INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon) VALUES
 ('知识库必读入口', 0, 100, '', '', 1, 0, 'F', '0', '0', 'kb:portal:required', '#'),
