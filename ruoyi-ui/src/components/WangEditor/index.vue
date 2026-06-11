@@ -90,5 +90,5 @@ export default {
 </script>
 
 <style scoped>
-@import '@wangeditor/editor/dist/css/style.css';
+@import '~@wangeditor/editor/dist/css/style.css';
 </style>
