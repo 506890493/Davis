@@ -44,4 +44,19 @@ public interface ICmsKbDocumentService {
      * 批量软删除（写入回收站）
      */
     int softDelete(Long[] ids);
+
+    /**
+     * 批量恢复软删文档
+     */
+    int restore(Long[] ids);
+
+    /**
+     * 批量物理删除
+     */
+    int hardDelete(Long[] ids);
+
+    /**
+     * 回收站列表（仅 del_flag=1 的文档）
+     */
+    List<CmsKbDocument> selectRecycleList(CmsKbDocument query);
 }

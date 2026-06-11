@@ -117,4 +117,21 @@ public class CmsKbDocumentServiceImpl implements ICmsKbDocumentService {
     public int softDelete(Long[] ids) {
         return documentMapper.softDelete(ids, new Date());
     }
+
+    @Override
+    @Transactional
+    public int restore(Long[] ids) {
+        return documentMapper.restoreByIds(ids);
+    }
+
+    @Override
+    @Transactional
+    public int hardDelete(Long[] ids) {
+        return documentMapper.hardDelete(ids);
+    }
+
+    @Override
+    public List<CmsKbDocument> selectRecycleList(CmsKbDocument query) {
+        return documentMapper.selectRecycleList(query);
+    }
 }

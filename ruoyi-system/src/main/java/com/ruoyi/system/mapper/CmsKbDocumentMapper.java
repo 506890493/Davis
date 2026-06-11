@@ -53,9 +53,19 @@ public interface CmsKbDocumentMapper {
                    @Param("deleteTime") Date deleteTime);
 
     /**
+     * 恢复软删文档（del_flag=0, delete_time=NULL）
+     */
+    int restoreByIds(@Param("ids") Long[] ids);
+
+    /**
      * 物理删除（批量）
      */
     int hardDelete(@Param("ids") Long[] ids);
+
+    /**
+     * 回收站列表（del_flag=1）
+     */
+    List<CmsKbDocument> selectRecycleList(CmsKbDocument query);
 
     /**
      * 统计某目录下文档数

@@ -220,6 +220,26 @@ public abstract class BaseControllerTest {
                 perms.add("system:task:export");
                 perms.add("cms:task:dispatch");
                 perms.add("cms:task:audit");
+                // 知识库（manager：除 purge 之外的全部）
+                perms.add("kb:portal:view");
+                perms.add("kb:portal:required");
+                perms.add("kb:category:list");
+                perms.add("kb:category:query");
+                perms.add("kb:category:add");
+                perms.add("kb:category:edit");
+                perms.add("kb:category:remove");
+                perms.add("kb:document:list");
+                perms.add("kb:document:query");
+                perms.add("kb:document:add");
+                perms.add("kb:document:edit");
+                perms.add("kb:document:remove");
+                perms.add("kb:document:publish");
+                perms.add("kb:version:list");
+                perms.add("kb:version:rollback");
+                perms.add("kb:recycle:list");
+                perms.add("kb:recycle:restore");
+                perms.add("kb:file:upload");
+                perms.add("kb:file:download");
                 break;
             case "account":
                 perms.add("system:task:list");
@@ -229,6 +249,11 @@ public abstract class BaseControllerTest {
                 perms.add("system:contract:query");
                 perms.add("system:contract:list");
                 perms.add("system:task:log");
+                // 知识库（account：仅读 + 下载 + 上传）
+                perms.add("kb:portal:view");
+                perms.add("kb:portal:required");
+                perms.add("kb:file:upload");
+                perms.add("kb:file:download");
                 break;
             case "sales":
                 perms.add("system:contract:list");
@@ -243,6 +268,11 @@ public abstract class BaseControllerTest {
                 perms.add("system:customer:edit");
                 perms.add("system:customer:remove");
                 perms.add("system:customer:export");
+                // 知识库（sales：仅读 + 下载 + 上传）
+                perms.add("kb:portal:view");
+                perms.add("kb:portal:required");
+                perms.add("kb:file:upload");
+                perms.add("kb:file:download");
                 break;
         }
         return perms;
