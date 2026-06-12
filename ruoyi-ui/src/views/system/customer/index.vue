@@ -21,8 +21,11 @@
       </el-form-item>
       <el-form-item label="客户类型" prop="customerType">
         <el-select v-model="queryParams.customerType" placeholder="请选择" clearable size="small">
-          <el-option label="个人" value="个人" />
-          <el-option label="企业" value="企业" />
+          <el-option
+            v-for="dict in dict.type.cms_customer_type"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="客户状态" prop="status">
@@ -179,8 +182,12 @@
         </el-form-item>
         <el-form-item label="客户类型" prop="customerType">
           <el-radio-group v-model="form.customerType">
-            <el-radio label="个人">个人</el-radio>
-            <el-radio label="企业">企业</el-radio>
+            <el-radio
+              v-for="dict in dict.type.cms_customer_type"
+              :key="dict.value"
+              :label="dict.value">
+              {{ dict.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="联系人" prop="contactPerson">
@@ -233,7 +240,7 @@ export default {
       customerListSelections: [],
       expandedRowKeys: [],
       contractMap: {},
-      dicts: ['cms_customer_status'],
+      dicts: ['cms_customer_type', 'cms_customer_status'],
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -246,6 +253,9 @@ export default {
       rules: {
         customerName: [
           { required: true, message: "客户名称不能为空", trigger: "blur" }
+        ],
+        customerType: [
+          { required: true, message: "请选择客户类型", trigger: "change" }
         ]
       }
     };

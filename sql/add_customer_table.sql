@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS `cms_customer` (
     `customer_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '客户ID',
     `customer_name` VARCHAR(100) NOT NULL COMMENT '客户名称',
-    `customer_type` VARCHAR(10) DEFAULT NULL COMMENT '客户类型（个人/企业）',
+    `customer_type` VARCHAR(10) DEFAULT NULL COMMENT '客户类型 dict_value: 1=公司 2=个体户 3=合伙企业 4=民办非',
     `contact_person` VARCHAR(50) DEFAULT NULL COMMENT '联系人',
     `contact_phone` VARCHAR(20) DEFAULT NULL COMMENT '联系电话',
     `contact_email` VARCHAR(100) DEFAULT NULL COMMENT '邮箱',

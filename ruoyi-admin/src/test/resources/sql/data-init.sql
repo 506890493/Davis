@@ -115,11 +115,17 @@ values(151, 2, '续费', '2', 'cms_approval_type', 'N', '0', 'admin', now());
 insert into sys_dict_data(dict_code, dict_sort, dict_label, dict_value, dict_type, is_default, status, create_by, create_time)
 values(152, 3, '变更', '3', 'cms_approval_type', 'N', '0', 'admin', now());
 
--- 客户类型
-insert into sys_dict_data(dict_code, dict_sort, dict_label, dict_value, dict_type, is_default, status, create_by, create_time)
-values(160, 1, '企业', '1', 'cms_customer_type', 'Y', '0', 'admin', now());
-insert into sys_dict_data(dict_code, dict_sort, dict_label, dict_value, dict_type, is_default, status, create_by, create_time)
-values(161, 2, '个人', '2', 'cms_customer_type', 'N', '0', 'admin', now());
+-- 客户类型 (1=公司 2=个体户 3=合伙企业 4=民办非)
+insert into sys_dict_data(dict_code, dict_sort, dict_label, dict_value, dict_type, is_default, status, create_by, create_time, remark)
+values(160, 1, '公司',     '1', 'cms_customer_type', 'N', '0', 'admin', now(), '有限责任公司 / 股份有限公司等')
+on duplicate key update dict_label=values(dict_label), dict_sort=values(dict_sort), is_default=values(is_default), remark=values(remark);
+insert into sys_dict_data(dict_code, dict_sort, dict_label, dict_value, dict_type, is_default, status, create_by, create_time, remark)
+values(161, 2, '个体户',   '2', 'cms_customer_type', 'N', '0', 'admin', now(), '个体工商户')
+on duplicate key update dict_label=values(dict_label), dict_sort=values(dict_sort), is_default=values(is_default), remark=values(remark);
+insert into sys_dict_data(dict_code, dict_sort, dict_label, dict_value, dict_type, is_default, status, create_by, create_time, remark)
+values(162, 3, '合伙企业', '3', 'cms_customer_type', 'N', '0', 'admin', now(), '普通合伙 / 有限合伙');
+insert into sys_dict_data(dict_code, dict_sort, dict_label, dict_value, dict_type, is_default, status, create_by, create_time, remark)
+values(163, 4, '民办非',   '4', 'cms_customer_type', 'N', '0', 'admin', now(), '民办非企业单位');
 
 -- 催收状态
 insert into sys_dict_data(dict_code, dict_sort, dict_label, dict_value, dict_type, is_default, status, create_by, create_time)
