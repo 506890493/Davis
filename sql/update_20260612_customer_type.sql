@@ -34,6 +34,16 @@ VALUES
     (162, 3, '合伙企业', '3', 'cms_customer_type', 'N', '0', 'admin', NOW(), '普通合伙 / 有限合伙'),
     (163, 4, '民办非',   '4', 'cms_customer_type', 'N', '0', 'admin', NOW(), '民办非企业单位');
 
+-- 4) 修复双重 UTF-8 编码（dict_label 被错编为 latin1 字节流）
+--    触发原因：写入时 mysql client 字符集不是 utf8mb4
+--    修复公式：CONVERT(BINARY(CONVERT(col USING latin1)) USING utf8mb4)
+--    命中条件：HEX 前两个字节是 c3a5/c3a4/c3a6（双重编码的标志）
+UPDATE sys_dict_data
+SET    dict_label = CONVERT(CAST(CONVERT(dict_label USING latin1) AS BINARY) USING utf8mb4)
+WHERE  dict_type = 'cms_customer_type'
+  AND  (HEX(dict_label) LIKE 'C3A5%' OR HEX(dict_label) LIKE 'C3A4%'
+     OR HEX(dict_label) LIKE 'C3A6%' OR HEX(dict_label) LIKE 'C2%');
+
 -- 4) 不迁移 cms_customer 历史行（用户决策）
 
 -- 5) 验证
