@@ -191,16 +191,17 @@ SELECT '知识库学习', 0,     5, 'view',     'system/kb/portal/index', 1, 0, 
 WHERE NOT EXISTS (SELECT 1 FROM sys_menu WHERE perms='kb:portal:view');
 
 -- 按钮级权限（供 sales/account 绑定，menu_type='F'，parent_id=0） — sys_menu 无唯一约束 → NOT EXISTS
+-- 注：path 字段填 '#<perms>' 虚拟值，避免空 path 在 /system/menu 列表里被 el-table 树形 prop 隐藏
 INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-SELECT '知识库必读入口', 0, 6, '', '', 1, 0, 'F', '0', '0', 'kb:portal:required', '#', 'admin', NOW(), '' FROM dual
+SELECT '知识库必读入口', 0, 6, CONCAT('#', 'kb:portal:required'), '', 1, 0, 'F', '0', '0', 'kb:portal:required', '#', 'admin', NOW(), '' FROM dual
 WHERE NOT EXISTS (SELECT 1 FROM sys_menu WHERE perms='kb:portal:required');
 
 INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-SELECT '知识库文件下载', 0, 7, '', '', 1, 0, 'F', '0', '0', 'kb:file:download',  '#', 'admin', NOW(), '' FROM dual
+SELECT '知识库文件下载', 0, 7, CONCAT('#', 'kb:file:download'), '', 1, 0, 'F', '0', '0', 'kb:file:download',  '#', 'admin', NOW(), '' FROM dual
 WHERE NOT EXISTS (SELECT 1 FROM sys_menu WHERE perms='kb:file:download');
 
 INSERT INTO sys_menu(menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-SELECT '知识库文件上传', 0, 8, '', '', 1, 0, 'F', '0', '0', 'kb:file:upload',    '#', 'admin', NOW(), '' FROM dual
+SELECT '知识库文件上传', 0, 8, CONCAT('#', 'kb:file:upload'), '', 1, 0, 'F', '0', '0', 'kb:file:upload',    '#', 'admin', NOW(), '' FROM dual
 WHERE NOT EXISTS (SELECT 1 FROM sys_menu WHERE perms='kb:file:upload');
 
 -- ============================================================
