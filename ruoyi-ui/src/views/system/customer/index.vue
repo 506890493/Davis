@@ -21,11 +21,10 @@
       </el-form-item>
       <el-form-item label="客户类型" prop="customerType">
         <el-select v-model="queryParams.customerType" placeholder="请选择" clearable size="small">
-          <el-option
-            v-for="dict in customerTypeOptions"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value" />
+          <el-option label="公司" value="1" />
+          <el-option label="个体户" value="2" />
+          <el-option label="合伙企业" value="3" />
+          <el-option label="民办非" value="4" />
         </el-select>
       </el-form-item>
       <el-form-item label="客户状态" prop="status">
@@ -182,12 +181,10 @@
         </el-form-item>
         <el-form-item label="客户类型" prop="customerType">
           <el-radio-group v-model="form.customerType">
-            <el-radio
-              v-for="dict in customerTypeOptions"
-              :key="dict.value"
-              :label="dict.value">
-              {{ dict.label }}
-            </el-radio>
+            <el-radio :label="'1'">公司</el-radio>
+            <el-radio :label="'2'">个体户</el-radio>
+            <el-radio :label="'3'">合伙企业</el-radio>
+            <el-radio :label="'4'">民办非</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="联系人" prop="contactPerson">
