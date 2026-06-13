@@ -275,7 +275,6 @@ export default {
         this.customerTypeOptions = [];
       });
     },
-  methods: {
     getList() {
       this.loading = true;
       listCustomer(this.queryParams).then(response => {
