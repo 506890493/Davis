@@ -22,7 +22,7 @@
       <el-form-item label="客户类型" prop="customerType">
         <el-select v-model="queryParams.customerType" placeholder="请选择" clearable size="small">
           <el-option
-            v-for="dict in (dict.type.cms_customer_type || [])"
+            v-for="dict in customerTypeOptions"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value" />
@@ -183,7 +183,7 @@
         <el-form-item label="客户类型" prop="customerType">
           <el-radio-group v-model="form.customerType">
             <el-radio
-              v-for="dict in (dict.type.cms_customer_type || [])"
+              v-for="dict in customerTypeOptions"
               :key="dict.value"
               :label="dict.value">
               {{ dict.label }}
@@ -223,6 +223,7 @@
 <script>
 import { listCustomer, getCustomer, addCustomer, updateCustomer, delCustomer, exportCustomer } from "@/api/system/customer";
 import { listContract } from "@/api/system/contract";
+import { getDicts } from "@/api/system/dict/data";
 
 export default {
   name: "Customer",
@@ -241,6 +242,8 @@ export default {
       expandedRowKeys: [],
       contractMap: {},
       dicts: ['cms_customer_type', 'cms_customer_status'],
+      // 本地兜底：组件内直接调 getDicts 加载，不依赖 dict mixin
+      customerTypeOptions: [],
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -261,8 +264,17 @@ export default {
     };
   },
   created() {
+    this.loadCustomerTypeDict();
     this.getList();
   },
+  methods: {
+    loadCustomerTypeDict() {
+      getDicts('cms_customer_type').then(res => {
+        if (res.code === 200) this.customerTypeOptions = res.data || [];
+      }).catch(() => {
+        this.customerTypeOptions = [];
+      });
+    },
   methods: {
     getList() {
       this.loading = true;
