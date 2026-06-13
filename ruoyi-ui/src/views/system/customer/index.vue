@@ -101,11 +101,12 @@
                     {{ s.row.startDate }} ~ {{ s.row.endDate }}
                   </template>
                 </el-table-column>
-                <el-table-column prop="status" label="状态" width="80">
+                <el-table-column prop="auditStatus" label="状态" width="90">
                   <template slot-scope="s">
-                    <el-tag v-if="s.row.status === '0'" type="warning">进行中</el-tag>
-                    <el-tag v-else-if="s.row.status === '1'" type="success">已完成</el-tag>
-                    <el-tag v-else type="info">未知</el-tag>
+                    <el-tag v-if="s.row.auditStatus === '0'" type="warning">待审批</el-tag>
+                    <el-tag v-else-if="s.row.auditStatus === '1'" type="success">审批通过</el-tag>
+                    <el-tag v-else-if="s.row.auditStatus === '2'" type="danger">已拒绝</el-tag>
+                    <el-tag v-else type="info">-</el-tag>
                   </template>
                 </el-table-column>
               </el-table>
@@ -123,11 +124,12 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="rentalAddress" label="地址" :show-overflow-tooltip="true" />
-                <el-table-column prop="status" label="状态" width="80">
+                <el-table-column prop="auditStatus" label="状态" width="90">
                   <template slot-scope="s">
-                    <el-tag v-if="s.row.status === '0'" type="warning">进行中</el-tag>
-                    <el-tag v-else-if="s.row.status === '1'" type="success">已完成</el-tag>
-                    <el-tag v-else type="info">未知</el-tag>
+                    <el-tag v-if="s.row.auditStatus === '0'" type="warning">待审批</el-tag>
+                    <el-tag v-else-if="s.row.auditStatus === '1'" type="success">审批通过</el-tag>
+                    <el-tag v-else-if="s.row.auditStatus === '2'" type="danger">已拒绝</el-tag>
+                    <el-tag v-else type="info">-</el-tag>
                   </template>
                 </el-table-column>
               </el-table>
