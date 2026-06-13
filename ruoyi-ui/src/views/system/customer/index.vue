@@ -22,7 +22,7 @@
       <el-form-item label="客户类型" prop="customerType">
         <el-select v-model="queryParams.customerType" placeholder="请选择" clearable size="small">
           <el-option
-            v-for="dict in dict.type.cms_customer_type"
+            v-for="dict in (dict.type.cms_customer_type || [])"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value" />
@@ -183,7 +183,7 @@
         <el-form-item label="客户类型" prop="customerType">
           <el-radio-group v-model="form.customerType">
             <el-radio
-              v-for="dict in dict.type.cms_customer_type"
+              v-for="dict in (dict.type.cms_customer_type || [])"
               :key="dict.value"
               :label="dict.value">
               {{ dict.label }}
