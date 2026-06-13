@@ -144,7 +144,7 @@
       </el-table-column>
       <el-table-column label="客户类型" align="center" key="customerType" prop="customerType">
         <template slot-scope="scope">
-          <span>{{ scope.row.customerType || '-' }}</span>
+          <span>{{ {'1':'公司','2':'个体户','3':'合伙企业','4':'民办非'}[scope.row.customerType] || scope.row.customerType || '-' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="联系人" align="center" key="contactPerson" prop="contactPerson" />
