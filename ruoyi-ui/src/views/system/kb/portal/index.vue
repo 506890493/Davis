@@ -81,7 +81,7 @@ export default {
   methods: {
     async loadTree() {
       const res = await treeCategory();
-      if (res.code === 200) this.tree = this.buildTree(res.data || []);
+      if (res.code === 200) this.tree = this.buildTree(res.rows || []);
     },
     buildTree(list) {
       const map = {}; const roots = [];
