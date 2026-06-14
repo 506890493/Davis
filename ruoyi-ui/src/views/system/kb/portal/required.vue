@@ -29,7 +29,10 @@ export default {
   data() { return { list: [] }; },
   async created() {
     const res = await listRequired({ limit: 20 });
-    if (res.code === 200) this.list = res.data || [];
+    if (res.code === 200) {
+      const list = (res.data && res.data.rows) || (Array.isArray(res.data) ? res.data : []);
+      this.list = list;
+    }
   }
 };
 </script>

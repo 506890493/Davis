@@ -105,7 +105,10 @@ export default {
     },
     async loadCategoryOptions() {
       const res = await listCategory({});
-      if (res.code === 200) this.categoryOptions = res.data || [];
+      if (res.code === 200) {
+        const list = (res.data && res.data.rows) || (Array.isArray(res.data) ? res.data : []);
+        this.categoryOptions = list;
+      }
     },
     resetQuery() {
       this.queryParams = { pageNum: 1, pageSize: 10, categoryId: null, status: null, title: null };
