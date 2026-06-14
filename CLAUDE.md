@@ -77,3 +77,7 @@ GitHub Actions（手动触发）：构建镜像 → 推送到 ghcr.io → SSH �
 - 单元测试覆盖率 ≥90%
 - 集成测试覆盖率 ≥90%
 - E2E测试覆盖率 ≥90%
+
+## 关键事实（避免反复纠正）
+- **本地运行，不是基于 dist 文件**——前端在 webpack-dev-server / `npm run dev` 跑，**不要让用户构建 dist** 来验证修复。HMR 卡死时建议**重启 dev server**。
+- **用户的 token 存在 Cookies，不是 localStorage**——`getToken()` 走 `js-cookie` 读 `Admin-Token` cookie。诊断登录态时**先查 `document.cookie`** 而不是 `localStorage`。
