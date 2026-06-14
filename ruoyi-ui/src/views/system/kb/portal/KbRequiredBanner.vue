@@ -24,8 +24,7 @@ export default {
   async created() {
     const res = await listRequired({ limit: 4 });
     if (res.code === 200) {
-      const list = (res.data && res.data.rows) || (Array.isArray(res.data) ? res.data : []);
-      this.list = list;
+      this.list = res.rows || [];
     }
   }
 };

@@ -106,8 +106,7 @@ export default {
     async loadCategoryOptions() {
       const res = await listCategory({});
       if (res.code === 200) {
-        const list = (res.data && res.data.rows) || (Array.isArray(res.data) ? res.data : []);
-        this.categoryOptions = list;
+        this.categoryOptions = res.rows || [];
       }
     },
     resetQuery() {
