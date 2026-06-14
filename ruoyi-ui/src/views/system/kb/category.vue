@@ -133,8 +133,10 @@ export default {
     async loadTree() {
       const res = await listCategory({});
       if (res.code === 200) {
-        this.treeData = this.buildTree(res.data || []);
-        this.expandedKeys = (res.data || []).filter(c => c.parentId === 0).map(c => c.id);
+        // 后端返回 TableDataInfo {total, rows}，需取 rows
+        const list = (res.data && res.data.rows) || (Array.isArray(res.data) ? res.data : []);
+        this.treeData = this.buildTree(list);
+        this.expandedKeys = list.filter(c => c.parentId === 0).map(c => c.id);
       }
     },
     buildTree(list) {
