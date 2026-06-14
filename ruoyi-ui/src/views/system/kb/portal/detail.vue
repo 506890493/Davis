@@ -80,17 +80,20 @@ export default {
       const id = this.$route.params.id;
       this.loading = true;
       try {
+        // getDetail 返回的是 doc 对象本身（axios 拦截器已解包 AjaxResult.data）
         const res = await getDetail(id);
-        if (res.code === 200) {
-          this.doc = res.data;
+        if (res && res.id) {
+          this.doc = res;
           if (this.doc.docType === 2) {
             this.processRichText();
           }
-          // 加载同分类下其他文档
+          // 加载同分类下其他文档（listPublished 是 TableDataInfo，拦截器解包后直接是 {code,rows,total}）
           const relRes = await listPublished({ categoryId: this.doc.categoryId, pageNum: 1, pageSize: 5 });
-          if (relRes.code === 200) this.related = (relRes.rows || []).filter(r => r.id !== this.doc.id).slice(0, 4);
+          if (relRes && relRes.rows) {
+            this.related = (relRes.rows || []).filter(r => r.id !== this.doc.id).slice(0, 4);
+          }
         } else {
-          this.$message.error(res.msg || '文档不存在');
+          this.$message.error('文档不存在');
         }
       } finally { this.loading = false; }
     },
