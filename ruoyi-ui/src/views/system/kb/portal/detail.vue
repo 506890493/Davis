@@ -50,7 +50,7 @@
         <el-divider v-if="related && related.length" content-position="left">相关推荐</el-divider>
         <el-row v-if="related && related.length" :gutter="12">
           <el-col v-for="r in related" :key="r.id" :span="6" style="margin-bottom: 12px">
-            <el-card shadow="hover" class="related-card" @click.native="$router.push('/kb/view/detail/' + r.id)">
+            <el-card shadow="hover" class="related-card" @click.native="$router.push('/view/detail/' + r.id)">
               <div class="related-title">{{ r.title }}</div>
               <div class="related-meta">{{ r.publishedTime }}</div>
             </el-card>
@@ -73,10 +73,11 @@ export default {
   data() {
     return { loading: false, doc: null, richContent: '', attachments: [], related: [] };
   },
-  created() { this.load(); },
+  created() {    console.log(this.$route.params.id);this.load(); },
   methods: {
     rawFileUrl(id) { return rawFileUrl(id); },
     async load() {
+      // KB 详情页加载: getDetail 走 axios 拦截器, res 已是 doc 对象
       const id = this.$route.params.id;
       this.loading = true;
       try {

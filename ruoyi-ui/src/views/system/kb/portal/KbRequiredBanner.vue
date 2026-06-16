@@ -6,7 +6,7 @@
     </div>
     <el-row :gutter="16">
       <el-col v-for="d in list" :key="d.id" :span="6">
-        <el-card shadow="hover" class="banner-card" @click.native="$router.push('/kb/view/detail/' + d.id)">
+        <el-card shadow="hover" class="banner-card" @click.native="$router.push('/view/detail/' + d.id)">
           <div class="title">{{ d.title }}</div>
           <div class="meta">{{ d.publishedTime }}</div>
         </el-card>
@@ -24,7 +24,7 @@ export default {
   async created() {
     const res = await listRequired({ limit: 4 });
     if (res.code === 200) {
-      this.list = res.rows || [];
+      this.list = res.data || [];
     }
   }
 };

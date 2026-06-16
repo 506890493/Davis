@@ -109,14 +109,18 @@ public class CmsTaskController extends BaseController
     /**
      * 获取可分配的会计用户列表
      * 仅管理员和经理可调用
+     * 注意：sys_role 表中"经理"角色的 role_key 是 'common'（RuoYi 默认普通角色），
+     *      SecurityUtils.hasRole 必须用 'common' 才能命中；同时兼容 'manager' 字面量
+     *      以防未来数据库 role_key 被统一改为 'manager'
      */
     @GetMapping("/assignableUsers")
     public AjaxResult getAssignableUsers()
     {
         Long userId = SecurityUtils.getUserId();
-        if (!SecurityUtils.isAdmin(userId) && !SecurityUtils.hasRole("manager"))
+        boolean isManagerLike = SecurityUtils.hasRole("common") || SecurityUtils.hasRole("manager");
+        if (!SecurityUtils.isAdmin(userId) && !isManagerLike)
         {
-//            return error("无权限调用此接口");
+            // 无权限（sales/account 等），返回空列表
             return success();
         }
         List<SysUser> users = cmsTaskService.getAssignableUsers();

@@ -17,6 +17,9 @@ import com.ruoyi.system.domain.SysNotice;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.ISysRoleService;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.core.domain.model.LoginUser;
@@ -273,29 +276,42 @@ public class CmsTaskServiceImpl implements ICmsTaskService
 
     /**
      * 获取可分配的会计用户列表
+     * 包含经理(manager/common) 与会计(accountant) 角色用户，过滤掉 admin
      *
-     * @return 会计角色用户列表
+     * @return 用户列表
      */
     @Override
     public List<SysUser> getAssignableUsers()
     {
-        // 查找accountant角色
+        // 查找 manager(可能是 common) 和 accountant 角色
         SysRole queryRole = new SysRole();
         List<SysRole> allRoles = sysRoleService.selectRoleList(queryRole);
-        Long accountantRoleId = null;
+        Set<String> allowedRoleKeys = new HashSet<>(Arrays.asList("common", "manager", "accountant"));
+        List<Long> allowedRoleIds = new ArrayList<>();
         for (SysRole role : allRoles) {
-            if ("accountant".equals(role.getRoleKey())) {
-                accountantRoleId = role.getRoleId();
-                break;
+            if (role != null && allowedRoleKeys.contains(role.getRoleKey())) {
+                allowedRoleIds.add(role.getRoleId());
             }
         }
-        if (accountantRoleId == null) {
+        if (allowedRoleIds.isEmpty()) {
             return new ArrayList<>();
         }
-        // 通过角色ID查询已分配该角色的用户
-        SysUser queryUser = new SysUser();
-        queryUser.setRoleId(accountantRoleId);
-        return sysUserService.selectAllocatedList(queryUser);
+        // 按角色ID逐个查询已分配用户，按 userId 去重
+        Set<Long> seenUserIds = new HashSet<>();
+        List<SysUser> result = new ArrayList<>();
+        for (Long roleId : allowedRoleIds) {
+            SysUser queryUser = new SysUser();
+            queryUser.setRoleId(roleId);
+            List<SysUser> users = sysUserService.selectAllocatedList(queryUser);
+            if (users != null) {
+                for (SysUser u : users) {
+                    if (u != null && u.getUserId() != null && seenUserIds.add(u.getUserId())) {
+                        result.add(u);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
 /**

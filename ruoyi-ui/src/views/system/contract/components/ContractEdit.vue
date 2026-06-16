@@ -260,8 +260,7 @@
 </template>
 
 <script>
-import { getContract, addContract, updateContract } from "@/api/system/contract";
-import { listUser } from "@/api/system/user";
+import { getContract, addContract, updateContract, listAssignableOwners } from "@/api/system/contract";
 import { getToken } from "@/utils/auth";
 import axios from "axios";
 
@@ -324,8 +323,9 @@ export default {
   },
   methods: {
     getUserList() {
-      listUser().then(response => {
-        this.userList = response.rows;
+      // 仅取经理 + 会计角色用户，过滤掉 admin / sales
+      listAssignableOwners().then(response => {
+        this.userList = response.data || response.rows || [];
       });
     },
     handleAccountantChange(userId) {

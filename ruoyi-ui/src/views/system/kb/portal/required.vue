@@ -4,7 +4,7 @@
     <el-alert title="📌 以下内容为新员工入职必读" type="warning" :closable="false" show-icon style="margin-bottom: 16px" />
     <el-row :gutter="16">
       <el-col v-for="d in list" :key="d.id" :span="6" style="margin-bottom: 16px">
-        <el-card shadow="hover" class="required-card" @click.native="$router.push('/kb/view/detail/' + d.id)">
+        <el-card shadow="hover" class="required-card" @click.native="$router.push('/view/detail/' + d.id)">
           <div class="card-title">
             <el-tag type="warning" size="mini" style="margin-right:4px">★</el-tag>
             {{ d.title }}
@@ -30,7 +30,7 @@ export default {
   async created() {
     const res = await listRequired({ limit: 20 });
     if (res.code === 200) {
-      this.list = res.rows || [];
+      this.list = res.data || [];
     }
   }
 };

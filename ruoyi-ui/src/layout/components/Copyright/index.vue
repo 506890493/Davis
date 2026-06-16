@@ -24,7 +24,7 @@ export default {
   right: 0;
   height: 36px;
   padding: 10px 20px;
-  text-align: right;
+  text-align: center;
   background-color: #f8f8f8;
   color: #666;
   font-size: 14px;

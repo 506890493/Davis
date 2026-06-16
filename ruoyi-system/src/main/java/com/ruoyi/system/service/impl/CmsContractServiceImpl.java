@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
@@ -24,6 +25,8 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.system.service.ICmsContractService;
 import com.ruoyi.system.service.ISysConfigService;
+import com.ruoyi.system.service.ISysRoleService;
+import com.ruoyi.system.service.ISysUserService;
 import com.alibaba.fastjson2.JSON;
 
 /**
@@ -45,6 +48,10 @@ public class CmsContractServiceImpl implements ICmsContractService {
     private ICmsNotificationService notificationService;
     @Autowired
     private SysUserMapper sysUserMapper;
+    @Autowired
+    private ISysUserService sysUserService;
+    @Autowired
+    private ISysRoleService sysRoleService;
 
 
     /**
@@ -299,10 +306,25 @@ public class CmsContractServiceImpl implements ICmsContractService {
                 contract.setOwnerId(SecurityUtils.getUserId());
                 contract.setDeptId(SecurityUtils.getDeptId());
 
-                if (StringUtils.isEmpty(contract.getContractCode())
-                        || StringUtils.isEmpty(contract.getContractName())) {
+                // 合同编号：前端不传则自动生成（yyyyMMdd + 3位序号）
+                if (StringUtils.isEmpty(contract.getContractCode())) {
+                    String todayPrefix = DateUtils.dateTime();
+                    String maxCode = cmsContractMapper.selectMaxContractCodeByPrefix(todayPrefix);
+                    int seq = 1;
+                    if (StringUtils.isNotEmpty(maxCode)) {
+                        String seqPart = maxCode.substring(todayPrefix.length());
+                        try {
+                            seq = Integer.parseInt(seqPart) + 1;
+                        } catch (NumberFormatException e) {
+                            // 如果后三位无法解析，默认从1开始
+                        }
+                    }
+                    contract.setContractCode(todayPrefix + String.format("%03d", seq));
+                }
+
+                if (StringUtils.isEmpty(contract.getContractName())) {
                     failureNum++;
-                    failureMsg.append("第" + index + "行: 合同编码或名称为空; ");
+                    failureMsg.append("第" + index + "行: 合同名称为空; ");
                     continue;
                 }
 
@@ -376,6 +398,45 @@ public class CmsContractServiceImpl implements ICmsContractService {
         }
         return rows;
     }
+
+    /**
+     * 查询可作为合同「会计/归属人」的用户列表
+     * 仅返回 role_key 属于 common（经理/普通角色）或 accountant（会计）的用户
+     * 过滤掉 admin / sales / 其他非业务角色
+     */
+    @Override
+    public List<SysUser> listAssignableOwners() {
+        // 1. 查全部角色，筛选出允许的 roleKey
+        SysRole queryRole = new SysRole();
+        List<SysRole> allRoles = sysRoleService.selectRoleList(queryRole);
+        Set<String> allowedRoleKeys = new HashSet<>(Arrays.asList("common", "manager", "accountant"));
+        List<Long> allowedRoleIds = new ArrayList<>();
+        for (SysRole role : allRoles) {
+            if (role != null && allowedRoleKeys.contains(role.getRoleKey())) {
+                allowedRoleIds.add(role.getRoleId());
+            }
+        }
+        if (allowedRoleIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // 2. 按角色ID逐个查询已分配用户，按 userId 去重
+        Set<Long> seenUserIds = new HashSet<>();
+        List<SysUser> result = new ArrayList<>();
+        for (Long roleId : allowedRoleIds) {
+            SysUser queryUser = new SysUser();
+            queryUser.setRoleId(roleId);
+            List<SysUser> users = sysUserService.selectAllocatedList(queryUser);
+            if (users != null) {
+                for (SysUser u : users) {
+                    if (u != null && u.getUserId() != null && seenUserIds.add(u.getUserId())) {
+                        result.add(u);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     /**
      * 获取到期提醒天数配置
      * @return 天数，默认30

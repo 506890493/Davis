@@ -51,3 +51,11 @@ export function auditContract(data) {
     data: data
   })
 }
+
+// 查询可作为合同「会计/归属人」的用户列表（仅 manager + accountant 角色）
+export function listAssignableOwners() {
+  return request({
+    url: '/system/contract/assignableOwners',
+    method: 'get'
+  })
+}

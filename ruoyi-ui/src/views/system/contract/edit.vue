@@ -24,7 +24,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="关联客户" prop="customerId">
-              <el-select v-model="form.customerId" placeholder="请选择客户" clearable filterable style="width: calc(100% - 60px)">
+              <el-select v-model="form.customerId" placeholder="请选择客户" clearable filterable style="width: calc(100% - 60px)" @change="handleCustomerChange">
                 <el-option
                   v-for="customer in customerList"
                   :key="customer.customerId"
@@ -288,6 +288,28 @@ import { getToken } from "@/utils/auth";
 import axios from "axios";
 import AreaCascader from "@/components/AreaCascader";
 
+const validatePhone = (rule, value, callback) => {
+  if (!value) {
+    callback(new Error('联系电话不能为空'));
+  } else if (!/^\d+$/.test(value)) {
+    callback(new Error('联系电话只能输入数字'));
+  } else if (value.length !== 11) {
+    callback(new Error('联系电话必须为11位'));
+  } else {
+    callback();
+  }
+};
+
+const validateAmount = (rule, value, callback) => {
+  if (!value) {
+    callback(new Error('收费标准不能为空'));
+  } else if (!/^\d+(\.\d+)?$/.test(value)) {
+    callback(new Error('收费标准只能输入数值'));
+  } else {
+    callback();
+  }
+};
+
 export default {
   name: "ContractEditPage",
   components: { AreaCascader },
@@ -352,6 +374,21 @@ export default {
         ],
         endDate: [
           { required: true, message: "结束日期不能为空", trigger: "blur" }
+        ],
+        contactPhone: [
+          { required: true, validator: validatePhone, trigger: "blur" }
+        ],
+        amount: [
+          { required: true, validator: validateAmount, trigger: "blur" }
+        ],
+        paymentDate: [
+          { required: true, message: "收款日期不能为空", trigger: "change" }
+        ],
+        paymentMethod: [
+          { required: true, message: "收款方式不能为空", trigger: "change" }
+        ],
+        ownerId: [
+          { required: true, message: "会计不能为空", trigger: "change" }
         ]
       },
       upload: {
@@ -383,6 +420,20 @@ export default {
     },
     handleTypeChange(val) {
       this.$refs.form.clearValidate();
+    },
+    handleCustomerChange(customerId) {
+      if (!customerId) {
+        this.form.contactPerson = null;
+        this.form.contactPhone = null;
+        this.form.contactEmail = null;
+        return;
+      }
+      const customer = this.customerList.find(c => c.customerId === customerId);
+      if (customer) {
+        this.form.contactPerson = customer.contactPerson || null;
+        this.form.contactPhone = customer.contactPhone || null;
+        this.form.contactEmail = customer.contactEmail || null;
+      }
     },
     handleAccountantChange(userId) {
       if (!userId) {

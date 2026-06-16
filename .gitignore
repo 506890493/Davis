@@ -46,3 +46,5 @@ data/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
+/davis-backend.tar
+/docs/davis/杭州拓荒牛代理记账公司.xlsx

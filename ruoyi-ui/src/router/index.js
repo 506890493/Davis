@@ -157,6 +157,21 @@ export const constantRoutes = [
       },
     ],
   },
+  // 知识库阅读端子路由（无菜单，静态注册）
+  {
+    path: "/view/required",
+    component: () => import("@/views/system/kb/portal/required"),
+    name: "KbPortalRequired",
+    hidden: true,
+    meta: { title: "新员工必读", activeMenu: "/view" }
+  },
+  {
+    path: "/view/detail/:id(\\d+)",   // 注意保留数字匹配，或者去掉 (\\d+) 也行
+    component: () => import("@/views/system/kb/portal/detail"),
+    name: "KbPortalDetail",
+    hidden: true,
+    meta: { title: "文档详情", activeMenu: "/view" }
+  },
 ];
 
 // 动态路由，基于用户权限动态去加载

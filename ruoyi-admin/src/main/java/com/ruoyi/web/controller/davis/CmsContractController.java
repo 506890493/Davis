@@ -196,4 +196,15 @@ public class CmsContractController extends BaseController
     {
         return toAjax(cmsContractService.auditContract(cmsContract));
     }
+
+    /**
+     * 查询可作为合同「会计/归属人」的用户列表
+     * 仅返回经理(manager/common) 与会计(accountant) 角色的用户，过滤掉 admin / sales
+     */
+    @PreAuthorize("@ss.hasPermi('system:contract:query')")
+    @GetMapping("/assignableOwners")
+    public AjaxResult assignableOwners()
+    {
+        return success(cmsContractService.listAssignableOwners());
+    }
 }

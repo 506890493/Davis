@@ -23,7 +23,7 @@ public class CmsContract extends BaseEntity {
     private Long contractId;
 
     /** 合同编号 */
-    @Excel(name = "合同编号")
+    @Excel(name = "合同编号（不填则自动生成）")
     private String contractCode;
 
     /** 合同/公司名称 */
@@ -64,7 +64,7 @@ public class CmsContract extends BaseEntity {
 
     /** 收款日期 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "收款日期", width = 30, dateFormat = "yyyy-MM-dd")
+    @Excel(name = "收款日期（格式：yyyy-MM-dd）", width = 30, dateFormat = "yyyy-MM-dd")
     private Date paymentDate;
 
     /** 收款方式（字典：cms_pay_method 1微信 2支付宝 3公户） */
@@ -73,12 +73,12 @@ public class CmsContract extends BaseEntity {
 
     /** 合同开始日期 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "合同开始日期", width = 30, dateFormat = "yyyy-MM-dd")
+    @Excel(name = "合同开始日期（格式：yyyy-MM-dd）", width = 30, dateFormat = "yyyy-MM-dd")
     private Date startDate;
 
     /** 合同结束日期 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "合同结束日期", width = 30, dateFormat = "yyyy-MM-dd")
+    @Excel(name = "合同结束日期（格式：yyyy-MM-dd）", width = 30, dateFormat = "yyyy-MM-dd")
     private Date endDate;
 
     /** 税务类型（字典：cms_tax_type） */
@@ -87,7 +87,7 @@ public class CmsContract extends BaseEntity {
 
     /** 成立日期 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "成立日期", width = 30, dateFormat = "yyyy-MM-dd")
+    @Excel(name = "成立日期（格式：yyyy-MM-dd）", width = 30, dateFormat = "yyyy-MM-dd")
     private Date establishmentDate;
 
     /** 租赁地址 */

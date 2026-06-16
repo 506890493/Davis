@@ -36,7 +36,7 @@
         </div>
       </el-form-item>
       <el-form-item v-else label="正文" prop="content">
-        <wang-editor v-model="form.content" :height="400" />
+        <editor v-model="form.content" :height="400" type="base64" />
       </el-form-item>
     </el-form>
     <div slot="footer">
@@ -47,18 +47,23 @@
 </template>
 
 <script>
-import WangEditor from '@/components/WangEditor';
+import Editor from '@/components/Editor';
 import { addDocument, updateDocument } from '@/api/system/kb/document';
 import { uploadFile, rawFileUrl } from '@/api/system/kb/file';
 
 export default {
   name: 'DocumentForm',
-  components: { WangEditor },
+  components: { Editor },
   props: { categoryOptions: { type: Array, default: () => [] } },
   data() {
     return {
       visible: false, saving: false, title: '',
-      form: this.initial()
+      form: this.initial(),
+      rules: {
+        title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
+        categoryId: [{ required: true, message: '请选择目录', trigger: 'change' }],
+        content: [{ required: true, message: '请输入正文', trigger: 'blur' }]
+      }
     };
   },
   methods: {

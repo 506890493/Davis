@@ -133,10 +133,11 @@ export default {
     async loadTree() {
       const res = await listCategory({});
       if (res.code === 200) {
-        // 后端返回 TableDataInfo {total, rows}，需取 rows
-        const list = (res.data && res.data.rows) || (Array.isArray(res.data) ? res.data : []);
+        const list = res.rows || [];  // 直接取 rows
         this.treeData = this.buildTree(list);
         this.expandedKeys = list.filter(c => c.parentId === 0).map(c => c.id);
+      } else {
+        this.$message.error(res.msg || '加载目录树失败');
       }
     },
     buildTree(list) {

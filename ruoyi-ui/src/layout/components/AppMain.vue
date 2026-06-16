@@ -6,6 +6,7 @@
       </keep-alive>
     </transition>
     <iframe-toggle />
+    <div class="secret-warning">涉密信息 人人有责 严禁拍照 泄密必究</div>
     <copyright />
   </section>
 </template>
@@ -79,6 +80,19 @@ export default {
     height: calc(100vh - 84px);
     min-height: 0px;
   }
+}
+
+.secret-warning {
+  position: fixed;
+  bottom: 36px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #e60000;
+  font-size: 21px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  z-index: 998;
 }
 </style>
 

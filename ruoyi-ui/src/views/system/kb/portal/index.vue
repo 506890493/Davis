@@ -5,7 +5,7 @@
         <el-card>
           <div slot="header" class="clearfix">
             <span>分类导航</span>
-            <el-link type="primary" :underline="false" style="float:right" @click="$router.push('/kb/view/required')">📌 新员工必读</el-link>
+            <el-link type="primary" :underline="false" style="float:right" @click="$router.push('/view/required')">📌 新员工必读</el-link>
           </div>
           <el-input v-model="searchKw" placeholder="搜索文档" clearable size="small" style="margin-bottom: 8px" />
           <el-tree
@@ -26,7 +26,7 @@
           <el-table v-loading="loading" :data="list" border>
             <el-table-column label="标题" min-width="200">
               <template v-slot="{row}">
-                <el-link type="primary" :underline="false" @click="$router.push('/kb/view/detail/' + row.id)">
+                <el-link type="primary" :underline="false" @click="$router.push('/view/detail/' + row.id)">
                   <el-tag v-if="row.isRequired===1" type="warning" size="mini" style="margin-right:4px">★</el-tag>
                   {{ row.title }}
                 </el-link>
@@ -42,7 +42,7 @@
             <el-table-column label="发布时间" prop="publishedTime" width="160" />
             <el-table-column label="阅读" width="80" align="center">
               <template v-slot="{row}">
-                <el-button size="mini" type="text" icon="el-icon-view" @click="$router.push('/kb/view/detail/' + row.id)">查看</el-button>
+                <el-button size="mini" type="text" icon="el-icon-view" @click="$router.push('/view/detail/' + row.id)">查看</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -81,7 +81,7 @@ export default {
   methods: {
     async loadTree() {
       const res = await treeCategory();
-      if (res.code === 200) this.tree = this.buildTree(res.rows || []);
+      if (res.code === 200) this.tree = this.buildTree(res.data || []);
     },
     buildTree(list) {
       const map = {}; const roots = [];

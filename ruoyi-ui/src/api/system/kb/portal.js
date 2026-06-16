@@ -22,7 +22,10 @@ export function getDetail(id) {
   return request({
     url: '/kb/portal/detail/' + id,
     method: 'get'
-  })
+  }).then(res => {
+    // 假设 request 拦截器返回的是完整响应，手动取 data
+    return res && res.data ? res.data : res;
+  });
 }
 
 // 新员工必读列表
