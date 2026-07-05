@@ -3589,3 +3589,355 @@ SET v.content = '<h1>12 | 注意事项与常见问题</h1>
 ',
     v.update_time = NOW();
 
+
+
+-- ============================================================
+-- 知识库管理操作手册（新增文档，由 SQL 迁移脚本一次性写入）
+-- 说明：这是一篇面向管理员的文章，介绍如何管理 KB 文档（新增/编辑/
+--       发布/下架/版本/回收站等）。
+-- ============================================================
+
+-- 创建文档元数据（如果不存在）
+INSERT IGNORE INTO cms_kb_document(
+  category_id, title, doc_type, summary, tags,
+  is_required, status, current_version, del_flag,
+  create_by, create_time, update_by, update_time, remark)
+SELECT
+  (SELECT id FROM cms_kb_category WHERE name = '系统操作手册' AND del_flag = 0 LIMIT 1),
+  '知识库管理操作手册',
+  '2',
+  '面向管理员（admin/manager）：介绍如何在系统中管理知识库，包括新增/编辑/发布/下架文档，目录管理，回收站，版本历史',
+  '知识库,文档管理,目录管理,版本,回收站',
+  0, 1, 1, 0,
+  'admin', sysdate(), 'admin', sysdate(),
+  '由 005_update_manual_kb_content.sql 一次性写入'
+FROM dual
+WHERE NOT EXISTS (
+  SELECT 1 FROM cms_kb_document
+  WHERE title = '知识库管理操作手册'
+    AND category_id = (SELECT id FROM cms_kb_category WHERE name = '系统操作手册' AND del_flag = 0 LIMIT 1)
+    AND del_flag = 0
+);
+
+-- 创建 v1 占位版本（如果不存在）
+INSERT IGNORE INTO cms_kb_document_version(
+  document_id, version_no, title, content, save_reason, is_current,
+  create_by, create_time, update_by, update_time)
+SELECT d.id, 1, d.title,
+       CONCAT('# 知识库管理操作手册\n\n参见知识库管理操作手册。'),
+       '初始化', 1,
+       'admin', sysdate(), 'admin', sysdate()
+FROM cms_kb_document d
+WHERE d.title = '知识库管理操作手册'
+  AND d.category_id = (SELECT id FROM cms_kb_category WHERE name = '系统操作手册' AND del_flag = 0 LIMIT 1)
+  AND d.del_flag = 0
+  AND NOT EXISTS (
+    SELECT 1 FROM cms_kb_document_version v WHERE v.document_id = d.id AND v.is_current = 1
+  );
+
+-- 知识库管理操作手册
+-- preview: <h1>知识库管理操作手册</h1> <blockquote> <p>面向管理员（admin/manager）：如何管理知识库模块，包括新增/编辑/发布/下架文档，目录管理，回收站，版本历史等。</p> </blockquote> <hr ...
+UPDATE cms_kb_document_version v
+INNER JOIN cms_kb_document d ON v.document_id = d.id
+   AND d.category_id = (SELECT id FROM cms_kb_category WHERE name = '系统操作手册' AND del_flag = 0 LIMIT 1)
+   AND d.title = '知识库管理操作手册'
+   AND d.del_flag = 0
+   AND v.is_current = 1
+SET v.content = '<h1>知识库管理操作手册</h1>
+<blockquote>
+<p>面向管理员（admin/manager）：如何管理知识库模块，包括新增/编辑/发布/下架文档，目录管理，回收站，版本历史等。</p>
+</blockquote>
+<hr />
+<h2>1. 文档生命周期（核心概念）</h2>
+<p>知识库中每篇文档有三种状态，状态决定文档的可见范围：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>值</th>
+<th>可见范围</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>草稿</strong></td>
+<td><code>0</code></td>
+<td>仅管理员可见</td>
+<td>创作中，未发布</td>
+</tr>
+<tr>
+<td><strong>已发布</strong></td>
+<td><code>1</code></td>
+<td><strong>全员可见</strong>（包括 accountant/sales）</td>
+<td>正式发布，门户阅读端可见</td>
+</tr>
+<tr>
+<td><strong>已下架</strong></td>
+<td><code>2</code></td>
+<td>仅管理员可见</td>
+<td>从门户消失，但仍可后台编辑</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>必须强调</strong>：只有&quot;已发布&quot;的文档才会在 <code>全部文档</code> 页面或 <code>新员工必读</code> 页面展示给所有人看。新增文档默认是草稿，必须手动&quot;发布&quot;后才会出现在阅读端。</p>
+</blockquote>
+<hr />
+<h2>2. 目录管理（分类）</h2>
+<h3>2.1 入口</h3>
+<pre><code>系统管理 → 知识库 → 目录管理
+</code></pre>
+<h3>2.2 默认分类（系统预置）</h3>
+<table>
+<thead>
+<tr>
+<th>目录名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>系统操作手册</td>
+<td>Davis 系统使用手册</td>
+</tr>
+<tr>
+<td>代账知识</td>
+<td>代账业务知识</td>
+</tr>
+<tr>
+<td>会计知识</td>
+<td>财务/会计类知识</td>
+</tr>
+<tr>
+<td>工商知识</td>
+<td>公司注册/变更/注销类知识</td>
+</tr>
+</tbody>
+</table>
+<h3>2.3 新增目录</h3>
+<ul>
+<li><strong>根目录</strong>：在目录管理页点击&quot;新增根目录&quot;</li>
+<li><strong>子目录</strong>：点击目录右侧的&quot;新增&quot;按钮</li>
+</ul>
+<p>填写表单：</p>
+<ul>
+<li><strong>名称</strong>（必填）：目录的显示名</li>
+<li><strong>图标</strong>：Element UI 图标名（如 <code>book</code>、<code>document</code>、<code>folder</code>）</li>
+<li><strong>排序号</strong>：数字小的排在前</li>
+<li><strong>是否必读</strong>：该目录下的必读文档会在仪表盘 Banner 展示</li>
+</ul>
+<h3>2.4 编辑 / 删除目录</h3>
+<ul>
+<li><strong>编辑</strong>：点击&quot;编辑&quot;按钮，修改名称、图标、排序、是否必读</li>
+<li><strong>删除</strong>：点击&quot;删除&quot;按钮，<strong>仅当目录下无文档且无子目录时才允许删除</strong></li>
+</ul>
+<blockquote>
+<p>💡 删除目录前需先清空目录下的文档。</p>
+</blockquote>
+<hr />
+<h2>3. 新增文档</h2>
+<h3>3.1 入口</h3>
+<pre><code>系统管理 → 知识库 → 文档管理 → 上传文件 / 撰写文章
+</code></pre>
+<h3>3.2 两种文档类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>文件型</strong>（docType=1）</td>
+<td>上传 PDF / Word / Excel / 图片等附件</td>
+</tr>
+<tr>
+<td><strong>富文本</strong>（docType=2）</td>
+<td>在线编辑图文文章（支持表格/列表/代码块）</td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 操作步骤（新增）</h3>
+<ol>
+<li>点击 <strong>&quot;上传文件&quot;</strong> 或 <strong>&quot;撰写文章&quot;</strong> 按钮</li>
+<li>填写 <strong>标题</strong>（必填）</li>
+<li>选择 <strong>目录</strong>（必填）</li>
+<li>设置 <strong>新员工必读</strong> 开关（可选）</li>
+<li>填写 <strong>标签</strong>（逗号分隔，便于检索）</li>
+<li>填写 <strong>摘要</strong>（会显示在列表页）</li>
+<li>文件型：上传附件；富文本：在编辑器中写正文</li>
+<li>点击 <strong>保存</strong></li>
+</ol>
+<blockquote>
+<p>📌 保存后默认是 <strong>草稿</strong> 状态，需要手动&quot;发布&quot;后才在门户可见。</p>
+</blockquote>
+<hr />
+<h2>4. 编辑文档</h2>
+<h3>4.1 编辑入口</h3>
+<p>在文档管理列表页，点击行尾的 <strong>&quot;编辑&quot;</strong> 按钮。</p>
+<h3>4.2 编辑特点</h3>
+<ul>
+<li>编辑会<strong>自动产生新版本</strong>（v1 → v2 → v3...）</li>
+<li>旧版本完整保留，可在版本历史中查看和回滚</li>
+<li>编辑后状态保持不变（草稿/已发布/已下架）</li>
+</ul>
+<h3>4.3 编辑流程</h3>
+<ol>
+<li>找到目标文档，点击 <strong>编辑</strong></li>
+<li>修改标题/目录/正文/标签/摘要</li>
+<li>点 <strong>保存</strong></li>
+<li>系统提示&quot;已保存新版本 v2&quot;</li>
+<li>列表刷新，新版本成为&quot;当前版本&quot;</li>
+</ol>
+<hr />
+<h2>5. 版本历史与回滚</h2>
+<h3>5.1 查看版本</h3>
+<p>点击文档行的 <strong>&quot;历史&quot;</strong> 按钮 → 弹出左侧时间线 + 右侧预览窗。</p>
+<h3>5.2 版本历史操作</h3>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>查看历史版本</td>
+<td>点击时间线上的某个版本 → 右侧显示该版本内容</td>
+</tr>
+<tr>
+<td>回滚到历史版本</td>
+<td>在目标版本上点击 <strong>&quot;回滚&quot;</strong> → 创建新版本（不是覆盖历史）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 回滚采用&quot;产生新版本&quot;策略，保留完整历史链路，不会破坏任何已有版本记录。</p>
+</blockquote>
+<hr />
+<h2>6. 发布与下架</h2>
+<h3>6.1 发布（草稿 → 已发布）</h3>
+<ul>
+<li>在文档行点击 <strong>&quot;发布&quot;</strong> 按钮</li>
+<li>状态从 <code>0</code>（草稿）变为 <code>1</code>（已发布）</li>
+<li>立即在门户的&quot;全部文档&quot;列表展示</li>
+<li>仪表盘 Banner 也会展示（如果标记为必读）</li>
+</ul>
+<h3>6.2 下架（已发布 → 已下架）</h3>
+<ul>
+<li>在已发布文档行点击 <strong>&quot;下架&quot;</strong> 按钮</li>
+<li>状态从 <code>1</code>（已发布）变为 <code>2</code>（已下架）</li>
+<li>从门户消失</li>
+<li>后台仍可编辑并重新发布</li>
+</ul>
+<h3>6.3 重新发布</h3>
+<p>下架后如需恢复：</p>
+<ol>
+<li>编辑文档（必要时修改内容）</li>
+<li>点击 <strong>&quot;发布&quot;</strong> 按钮</li>
+<li>状态重新变为已发布</li>
+</ol>
+<blockquote>
+<p>⚠️ <strong>重要</strong>：只有已发布文档才在门户展示。新增文档默认是草稿状态，记得发布！</p>
+</blockquote>
+<hr />
+<h2>7. 回收站</h2>
+<h3>7.1 删除文档</h3>
+<ul>
+<li>在文档管理列表选中目标文档</li>
+<li>点击 <strong>&quot;删除&quot;</strong> 按钮（红色）</li>
+<li>确认后执行软删除（进入回收站）</li>
+</ul>
+<h3>7.2 回收站规则</h3>
+<ul>
+<li>删除是<strong>软删除</strong>（<code>del_flag=1</code>），数据保留</li>
+<li><strong>30 天后</strong>自动物理删除（永久清除）</li>
+<li>删除后 30 天内可在回收站恢复</li>
+</ul>
+<h3>7.3 回收站操作</h3>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>恢复</td>
+<td>从回收站恢复（状态变为草稿），恢复后需重新发布才能在门户可见</td>
+</tr>
+<tr>
+<td>永久删除</td>
+<td>立即物理删除（不可恢复）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. 新员工必读标记</h2>
+<h3>8.1 文档级必读</h3>
+<ul>
+<li>文档的 <code>is_required=1</code> 开关</li>
+<li>已发布的必读文档会出现在 <code>/view/required</code>（新员工必读页）</li>
+<li>也会在仪表盘顶部 Banner 横滚展示</li>
+</ul>
+<h3>8.2 目录级必读</h3>
+<ul>
+<li>目录的 <code>is_required=1</code> 开关</li>
+<li>该目录下所有&quot;必读&quot;文档都会在 Banner 展示</li>
+</ul>
+<h3>8.3 运营建议</h3>
+<ul>
+<li>必读仅限核心文档，建议每个分类 1-2 篇</li>
+<li>太多必读等于没必读</li>
+</ul>
+<hr />
+<h2>9. 常见问题（FAQ）</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>解答</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新增文档后门户看不到？</td>
+<td>默认是草稿状态，需手动点击&quot;发布&quot;按钮</td>
+</tr>
+<tr>
+<td>回收站文档消失了？</td>
+<td>超过 30 天被定时任务自动物理删除</td>
+</tr>
+<tr>
+<td>删除目录失败？</td>
+<td>目录下还有文档，需先删除或移动文档到其他目录</td>
+</tr>
+<tr>
+<td>富文本图片上传失败？</td>
+<td>图片以 base64 内嵌，单张建议控制在 500KB 以内</td>
+</tr>
+<tr>
+<td>编辑后内容没变？</td>
+<td>可能是浏览器缓存，Ctrl+Shift+R 强制刷新</td>
+</tr>
+<tr>
+<td>版本历史太多？</td>
+<td>建议规范编辑习惯，不要频繁无意义保存</td>
+</tr>
+<tr>
+<td>附件上传失败？</td>
+<td>单个文件 ≤ 200MB，格式：jpg/png/pdf/doc/docx/xls/xlsx</td>
+</tr>
+<tr>
+<td>谁可以管理知识库？</td>
+<td>admin 和 manager（acccountant/sales 仅浏览）</td>
+</tr>
+</tbody>
+</table>
+',
+    v.update_time = NOW();
+
