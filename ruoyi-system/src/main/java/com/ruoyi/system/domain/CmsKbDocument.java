@@ -41,6 +41,13 @@ public class CmsKbDocument extends BaseEntity {
     /** 是否必学（0否 1是） */
     private Integer isRequired;
 
+    /** 是否置顶（0否 1是） */
+    private Integer isPinned;
+
+    /** 置顶时间（同置顶层级按此升序排，先置顶的排上） */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date pinnedAt;
+
     /** 状态（0草稿 1已发布 2已下线） */
     private Integer status;
 
@@ -139,6 +146,22 @@ public class CmsKbDocument extends BaseEntity {
 
     public void setIsRequired(Integer isRequired) {
         this.isRequired = isRequired;
+    }
+
+    public Integer getIsPinned() {
+        return isPinned;
+    }
+
+    public void setIsPinned(Integer isPinned) {
+        this.isPinned = isPinned;
+    }
+
+    public Date getPinnedAt() {
+        return pinnedAt;
+    }
+
+    public void setPinnedAt(Date pinnedAt) {
+        this.pinnedAt = pinnedAt;
     }
 
     public Integer getStatus() {

@@ -112,6 +112,15 @@ public class CmsKbDocumentServiceImpl implements ICmsKbDocumentService {
     }
 
     @Override
+    public int setPinned(Long id, boolean pinned, String updateBy) {
+        CmsKbDocument doc = documentMapper.selectById(id);
+        if (doc == null) {
+            throw new ServiceException("文档不存在[code=KB_DOC_NOT_FOUND]");
+        }
+        return documentMapper.updatePin(id, pinned, updateBy);
+    }
+
+    @Override
     @Transactional
     public int offline(Long id) {
         return documentMapper.updateStatus(id, 2, null);

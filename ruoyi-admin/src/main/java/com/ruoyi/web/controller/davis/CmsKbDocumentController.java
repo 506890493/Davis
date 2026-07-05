@@ -115,4 +115,19 @@ public class CmsKbDocumentController extends BaseController {
     public AjaxResult offline(@RequestBody CmsKbDocument doc) {
         return toAjax(documentService.offline(doc.getId()));
     }
+
+    /**
+     * 置顶 / 取消置顶
+     * 请求体：{ "id": 1, "pinned": true|false }
+     */
+    @PreAuthorize("@ss.hasPermi('kb:document:publish')")
+    @Log(title = "知识库文档", businessType = BusinessType.UPDATE)
+    @PutMapping("/pin")
+    public AjaxResult pin(@RequestBody CmsKbDocument doc) {
+        if (doc.getId() == null) {
+            return AjaxResult.error("缺少文档 id[code=KB_DOC_ID_REQUIRED]");
+        }
+        boolean pinned = doc.getIsPinned() != null && doc.getIsPinned() == 1;
+        return toAjax(documentService.setPinned(doc.getId(), pinned, getUsername()));
+    }
 }

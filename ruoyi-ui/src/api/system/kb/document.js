@@ -60,3 +60,13 @@ export function offlineDocument(data) {
     data: data
   })
 }
+
+// 置顶 / 取消置顶
+// data: { id: number, isPinned: 1|0 }
+export function pinDocument(data) {
+  return request({
+    url: '/kb/document/pin',
+    method: 'put',
+    data: data
+  })
+}

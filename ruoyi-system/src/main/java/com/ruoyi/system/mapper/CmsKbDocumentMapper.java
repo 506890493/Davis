@@ -19,9 +19,15 @@ public interface CmsKbDocumentMapper {
     CmsKbDocument selectById(@Param("id") Long id);
 
     /**
-     * 条件查询列表
+     * 条件查询列表（应用置顶排序规则：is_pinned DESC, pinned_at ASC, title ASC）
      */
     List<CmsKbDocument> selectList(CmsKbDocument query);
+
+    /**
+     * 搜索专用：与 selectList 条件相同，但排序不应用置顶规则
+     * （按 create_time DESC，避免置顶文档在搜索结果中插队）
+     */
+    List<CmsKbDocument> selectListForSearch(CmsKbDocument query);
 
     /**
      * 新增文档
@@ -45,6 +51,15 @@ public interface CmsKbDocumentMapper {
      */
     int updateCurrentVersion(@Param("id") Long id,
                              @Param("currentVersion") Integer currentVersion);
+
+    /**
+     * 置顶 / 取消置顶。
+     * pinned=true  → is_pinned=1, pinned_at=NOW()
+     * pinned=false → is_pinned=0, pinned_at=NULL
+     */
+    int updatePin(@Param("id") Long id,
+                  @Param("pinned") boolean pinned,
+                  @Param("updateBy") String updateBy);
 
     /**
      * 逻辑删除（写入删除时间，进入回收站）

@@ -14,6 +14,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="coverImageId"   column="cover_image_id"/>
         <result property="primaryFileId"  column="primary_file_id"/>
         <result property="isRequired"     column="is_required"/>
+        <result property="isPinned"       column="is_pinned"/>
+        <result property="pinnedAt"       column="pinned_at"/>
         <result property="status"         column="status"/>
         <result property="publishedTime"  column="published_time"/>
         <result property="viewCount"      column="view_count"/>
@@ -29,8 +31,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="Base_Column_List">
         id, category_id, title, doc_type, summary, tags, cover_image_id, primary_file_id,
-        is_required, status, published_time, view_count, current_version, del_flag, delete_time,
-        create_by, create_time, update_by, update_time, remark
+        is_required, is_pinned, pinned_at, status, published_time, view_count, current_version,
+        del_flag, delete_time, create_by, create_time, update_by, update_time, remark
     </sql>
 
     <select id="selectById" resultMap="BaseResultMap">
@@ -50,8 +52,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null">AND status = #{status}</if>
             <if test="isRequired != null">AND is_required = #{isRequired}</if>
         </where>
-        ORDER BY create_time DESC
+        ORDER BY is_pinned DESC, pinned_at ASC, title ASC, id ASC
     </select>
+
+    <!--
+        搜索专用：与 selectList 的唯一差异是排序规则不应用置顶逻辑
+        （按 create_time 倒序，置顶文档不应在搜索结果中插队）
+    -->
+    <select id="selectListForSearch" resultMap="BaseResultMap" parameterType="CmsKbDocument">
+        SELECT <include refid="Base_Column_List"/>
+        FROM cms_kb_document
+        <where>
+            del_flag = 0
+            <if test="categoryId != null">AND category_id = #{categoryId}</if>
+            <if test="title != null and title != ''">AND title LIKE CONCAT('%', #{title}, '%')</if>
+            <if test="docType != null and docType != ''">AND doc_type = #{docType}</if>
+            <if test="status != null">AND status = #{status}</if>
+            <if test="isRequired != null">AND is_required = #{isRequired}</if>
+        </where>
+        ORDER BY create_time DESC, id ASC
+    </select>
+
+    <!--
+        置顶 / 取消置顶（按 pinned 布尔参数切换值）
+        pinned=true  → is_pinned=1, pinned_at=NOW()
+        pinned=false → is_pinned=0, pinned_at=NULL
+    -->
+    <update id="updatePin">
+        UPDATE cms_kb_document
+        <set>
+            is_pinned = <choose><when test="pinned">1</when><otherwise>0</otherwise></choose>,
+            pinned_at = <choose><when test="pinned">NOW()</when><otherwise>NULL</otherwise></choose>,
+            update_by = #{updateBy},
+            update_time = NOW()
+        </set>
+        WHERE id = #{id} AND del_flag = 0
+    </update>
 
     <insert id="insert" parameterType="CmsKbDocument" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO cms_kb_document(category_id, title, doc_type, summary, tags,

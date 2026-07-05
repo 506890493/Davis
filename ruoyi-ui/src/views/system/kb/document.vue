@@ -33,7 +33,12 @@
 
     <el-table v-loading="loading" :data="list" border>
       <el-table-column label="ID" prop="id" width="60" />
-      <el-table-column label="标题" prop="title" min-width="180" show-overflow-tooltip />
+      <el-table-column label="标题" prop="title" min-width="200" show-overflow-tooltip>
+        <template v-slot="{row}">
+          <el-tag v-if="row.isPinned===1" type="danger" size="mini" style="margin-right:4px">📌 置顶</el-tag>
+          <span>{{ row.title }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="类型" prop="docType" width="80">
         <template v-slot="{row}">
           <el-tag v-if="row.docType===1" type="info" size="mini">文件</el-tag>
@@ -54,12 +59,25 @@
         </template>
       </el-table-column>
       <el-table-column label="发布时间" prop="publishedTime" width="160" />
-      <el-table-column label="操作" width="280" fixed="right">
+      <el-table-column label="操作" width="340" fixed="right">
         <template v-slot="{row}">
           <el-button size="mini" type="text" @click="openForm(row.docType, row)">编辑</el-button>
           <el-button size="mini" type="text" @click="openVersion(row)">历史</el-button>
           <el-button v-if="row.status!==1" size="mini" type="text" @click="handlePublish(row)">发布</el-button>
           <el-button v-if="row.status===1" size="mini" type="text" @click="handleOffline(row)">下架</el-button>
+          <el-button
+            v-if="row.isPinned===1"
+            size="mini"
+            type="text"
+            style="color:#f56c6c"
+            @click="handlePin(row, false)"
+          >取消置顶</el-button>
+          <el-button
+            v-else
+            size="mini"
+            type="text"
+            @click="handlePin(row, true)"
+          >置顶</el-button>
           <el-button size="mini" type="text" style="color:red" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
@@ -73,7 +91,7 @@
 </template>
 
 <script>
-import { listDocument, getDocument, delDocument, publishDocument, offlineDocument } from '@/api/system/kb/document';
+import { listDocument, getDocument, delDocument, publishDocument, offlineDocument, pinDocument } from '@/api/system/kb/document';
 import { listCategory } from '@/api/system/kb/category';
 import DocumentForm from './documentForm.vue';
 import VersionDialog from './version.vue';
@@ -138,6 +156,12 @@ export default {
       await this.$confirm('确认下架「' + row.title + '」?');
       const res = await offlineDocument({ id: row.id });
       if (res.code === 200) { this.$message.success('已下架'); this.loadList(); }
+    },
+    async handlePin(row, pinned) {
+      const action = pinned ? '置顶' : '取消置顶';
+      await this.$confirm('确认' + action + '「' + row.title + '」?');
+      const res = await pinDocument({ id: row.id, isPinned: pinned ? 1 : 0 });
+      if (res.code === 200) { this.$message.success(action + '成功'); this.loadList(); }
     },
     async handleDelete(row) {
       await this.$confirm('删除「' + row.title + '」将进入回收站（30 天后清理），确认?');

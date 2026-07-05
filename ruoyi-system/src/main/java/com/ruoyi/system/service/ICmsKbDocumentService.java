@@ -10,6 +10,16 @@ import com.ruoyi.system.domain.CmsKbDocument;
  * @date 2026-06-11
  */
 public interface ICmsKbDocumentService {
+
+    /**
+     * 置顶 / 取消置顶
+     *
+     * @param id        文档 ID
+     * @param pinned    true=置顶（is_pinned=1, pinned_at=NOW()）；false=取消（is_pinned=0, pinned_at=NULL）
+     * @param updateBy  操作人用户名
+     * @return 影响行数
+     */
+    int setPinned(Long id, boolean pinned, String updateBy);
     /**
      * 根据ID查询
      */

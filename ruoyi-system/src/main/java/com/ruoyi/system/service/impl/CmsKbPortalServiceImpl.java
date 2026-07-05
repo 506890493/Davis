@@ -91,7 +91,8 @@ public class CmsKbPortalServiceImpl implements ICmsKbPortalService {
         int pn = pageNum == null || pageNum < 1 ? 1 : pageNum;
         int ps = pageSize == null || pageSize < 1 ? 10 : pageSize;
         PageHelper.startPage(pn, ps);
-        List<CmsKbDocument> list = documentMapper.selectList(q);
+        // 搜索结果不应用置顶排序（按 create_time DESC，避免置顶文档在搜索中插队）
+        List<CmsKbDocument> list = documentMapper.selectListForSearch(q);
         long total = list instanceof Page ? ((Page<?>) list).getTotal() : list.size();
         return new TableDataInfo(list, total);
     }
