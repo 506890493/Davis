@@ -6,6 +6,8 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.CmsKbDocument;
+import com.ruoyi.system.domain.CmsKbDocumentVersion;
+import com.ruoyi.system.mapper.CmsKbDocumentVersionMapper;
 import com.ruoyi.system.service.ICmsKbDocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +33,9 @@ public class CmsKbDocumentController extends BaseController {
     @Autowired
     private ICmsKbDocumentService documentService;
 
+    @Autowired
+    private CmsKbDocumentVersionMapper versionMapper;
+
     /**
      * 查询文档列表
      */
@@ -42,12 +47,19 @@ public class CmsKbDocumentController extends BaseController {
     }
 
     /**
-     * 获取文档详细信息
+     * 获取文档详细信息（含当前版本正文，供编辑弹窗渲染）
      */
     @PreAuthorize("@ss.hasPermi('kb:document:query')")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id) {
-        return success(documentService.selectById(id));
+        CmsKbDocument doc = documentService.selectById(id);
+        if (doc != null) {
+            CmsKbDocumentVersion ver = versionMapper.selectCurrentByDoc(id);
+            if (ver != null && ver.getContent() != null) {
+                doc.setNewContent(ver.getContent());
+            }
+        }
+        return success(doc);
     }
 
     /**

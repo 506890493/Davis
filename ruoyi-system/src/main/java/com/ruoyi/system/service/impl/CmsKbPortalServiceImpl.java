@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.domain.CmsKbCategory;
 import com.ruoyi.system.domain.CmsKbDocument;
+import com.ruoyi.system.domain.CmsKbDocumentVersion;
 import com.ruoyi.system.mapper.CmsKbCategoryMapper;
 import com.ruoyi.system.mapper.CmsKbDocumentMapper;
+import com.ruoyi.system.mapper.CmsKbDocumentVersionMapper;
 import com.ruoyi.system.service.ICmsKbDocumentVersionService;
 import com.ruoyi.system.service.ICmsKbPortalService;
 
@@ -30,6 +32,9 @@ public class CmsKbPortalServiceImpl implements ICmsKbPortalService {
 
     @Autowired
     private CmsKbDocumentMapper documentMapper;
+
+    @Autowired
+    private CmsKbDocumentVersionMapper versionMapper;
 
     @Autowired
     private ICmsKbDocumentVersionService versionService;
@@ -59,6 +64,11 @@ public class CmsKbPortalServiceImpl implements ICmsKbPortalService {
         CmsKbDocument doc = documentMapper.selectById(id);
         if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
             return null;
+        }
+        // 补充当前版本的正文（前端 v-html 直接渲染此字段）
+        CmsKbDocumentVersion ver = versionMapper.selectCurrentByDoc(id);
+        if (ver != null && ver.getContent() != null) {
+            doc.setNewContent(ver.getContent());
         }
         return doc;
     }

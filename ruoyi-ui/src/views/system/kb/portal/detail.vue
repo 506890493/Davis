@@ -85,7 +85,10 @@ export default {
         const res = await getDetail(id);
         if (res && res.id) {
           this.doc = res;
-          if (this.doc.docType === 2) {
+          // docType 在 Java 实体是 String，后端可能返回 "2"（字符串）或 2（数字）
+          // 用宽松相等 + 显式判断两种值，确保富文本分支能命中
+          const docType = this.doc.docType;
+          if (docType == 2 || docType === '2' || docType === 2) {
             this.processRichText();
           }
           // 加载同分类下其他文档（listPublished 是 TableDataInfo，拦截器解包后直接是 {code,rows,total}）
@@ -109,9 +112,152 @@ export default {
 <style scoped>
 .kb-detail { padding: 16px; }
 .file-card { display: flex; align-items: center; padding: 16px; }
-.rich-content { padding: 16px; background: #fafafa; border-radius: 4px; min-height: 200px; }
+.rich-content {
+    padding: 20px 24px;
+    background: #fafafa;
+    border-radius: 4px;
+    min-height: 200px;
+    line-height: 1.7;
+    color: #303133;
+    font-size: 14px;
+}
 .rich-content :deep(img) { max-width: 100%; }
 .rich-content :deep(video) { max-width: 100%; }
+
+/* 标题层级 */
+.rich-content :deep(h1) {
+    font-size: 26px;
+    margin: 24px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #409eff;
+    color: #303133;
+}
+.rich-content :deep(h1):first-child { margin-top: 0; }
+.rich-content :deep(h2) {
+    font-size: 20px;
+    margin: 22px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #ebeef5;
+    color: #303133;
+}
+.rich-content :deep(h3) { font-size: 17px; margin: 18px 0 10px; color: #303133; }
+.rich-content :deep(h4) { font-size: 15px; margin: 14px 0 8px; color: #303133; }
+.rich-content :deep(h5),
+.rich-content :deep(h6) { font-size: 14px; margin: 12px 0 6px; color: #606266; }
+
+/* 段落 / 强调 */
+.rich-content :deep(p) { margin: 10px 0; }
+.rich-content :deep(strong) { color: #303133; font-weight: 600; }
+.rich-content :deep(em) { color: #606266; }
+
+/* 列表 */
+.rich-content :deep(ul),
+.rich-content :deep(ol) { padding-left: 28px; margin: 10px 0; }
+.rich-content :deep(li) { margin: 4px 0; }
+.rich-content :deep(ul li)::marker { color: #409eff; }
+.rich-content :deep(ol li)::marker { color: #409eff; font-weight: 600; }
+
+/* 任务列表 */
+.rich-content :deep(ul.task-list),
+.rich-content :deep(ul.contains-task-list) { padding-left: 0; list-style: none; }
+.rich-content :deep(ul.task-list li),
+.rich-content :deep(ul.contains-task-list li) { margin: 4px 0; }
+.rich-content :deep(ul.task-list input[type="checkbox"]),
+.rich-content :deep(ul.contains-task-list input[type="checkbox"]) {
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* 链接 */
+.rich-content :deep(a) { color: #409eff; text-decoration: none; }
+.rich-content :deep(a:hover) { text-decoration: underline; }
+
+/* 引用 */
+.rich-content :deep(blockquote) {
+    border-left: 4px solid #c0c4cc;
+    padding: 6px 14px;
+    color: #606266;
+    background: #f5f7fa;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+}
+.rich-content :deep(blockquote p) { margin: 4px 0; }
+
+/* 行内代码 / 代码块 */
+.rich-content :deep(code) {
+    background: #f5f7fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 13px;
+    color: #e96900;
+    margin: 0 2px;
+}
+.rich-content :deep(pre) {
+    background: #f5f7fa;
+    padding: 14px 16px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 12px 0;
+    border: 1px solid #ebeef5;
+}
+.rich-content :deep(pre code) {
+    background: transparent;
+    padding: 0;
+    color: #303133;
+    margin: 0;
+}
+
+/* 表格（GFM） */
+.rich-content :deep(table) {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 14px 0;
+    font-size: 13px;
+    background: #fff;
+    border: 1px solid #ebeef5;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.rich-content :deep(table th) {
+    background: #f5f7fa;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 14px;
+    border: 1px solid #ebeef5;
+    color: #303133;
+}
+.rich-content :deep(table td) {
+    padding: 10px 14px;
+    border: 1px solid #ebeef5;
+    color: #606266;
+}
+.rich-content :deep(table tr:nth-child(even)) { background: #fafbfc; }
+.rich-content :deep(table tr:hover) { background: #f5f7fa; }
+
+/* 水平线 */
+.rich-content :deep(hr) {
+    border: none;
+    border-top: 1px solid #ebeef5;
+    margin: 20px 0;
+}
+
+/* 图片 */
+.rich-content :deep(img) {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 8px 0;
+    border-radius: 4px;
+}
+
+/* 删除线 */
+.rich-content :deep(del),
+.rich-content :deep(s) {
+    color: #909399;
+    text-decoration: line-through;
+}
+
 .att-card { padding: 8px 12px; }
 .att-row { display: flex; align-items: center; }
 .related-card { cursor: pointer; }

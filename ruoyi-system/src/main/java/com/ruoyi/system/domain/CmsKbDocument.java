@@ -2,6 +2,7 @@ package com.ruoyi.system.domain;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
@@ -61,10 +62,12 @@ public class CmsKbDocument extends BaseEntity {
     private Date deleteTime;
 
     /**
-     * 新版本正文（仅 Service 层使用，不入库 cms_kb_document）
-     * cms_kb_document 不保存富文本，正文存于 cms_kb_document_version
+     * 当前版本正文（非持久化字段，运行时由 Service 层从 cms_kb_document_version 注入）
+     * cms_kb_document 不保存富文本，正文存于 cms_kb_document_version。
+     * 字段在 API 响应中以 "content" 暴露给前端（@JsonProperty 控制 JSON 字段名）。
      */
-    private transient String newContent;
+    @JsonProperty("content")
+    private String newContent;
 
     public Long getId() {
         return id;

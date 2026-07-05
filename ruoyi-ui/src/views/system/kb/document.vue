@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { listDocument, delDocument, publishDocument, offlineDocument } from '@/api/system/kb/document';
+import { listDocument, getDocument, delDocument, publishDocument, offlineDocument } from '@/api/system/kb/document';
 import { listCategory } from '@/api/system/kb/category';
 import DocumentForm from './documentForm.vue';
 import VersionDialog from './version.vue';
@@ -113,7 +113,17 @@ export default {
       this.queryParams = { pageNum: 1, pageSize: 10, categoryId: null, status: null, title: null };
       this.loadList();
     },
-    openForm(docType, doc) {
+    async openForm(docType, doc) {
+      // 编辑模式（doc.id 存在）：先调 getDocument 拉完整 doc（含当前版本正文），
+      // 列表接口 selectList 不返回 content，直接传 row 会导致编辑框空白
+      if (doc && doc.id) {
+        const res = await getDocument(doc.id);
+        if (res && res.data) {
+          this.$refs.formRef.open(docType, res.data);
+          return;
+        }
+      }
+      // 新增模式（docType=1 文件 / docType=2 富文本，无 doc）
       this.$refs.formRef.open(docType, doc);
     },
     openVersion(row) {
